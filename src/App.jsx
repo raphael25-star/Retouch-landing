@@ -108,7 +108,7 @@ function Tools() {
   const tools = [
     { img: IMG.restyle, title: "Restyle IA", desc: "Réinventez le style d'une pièce vide." },
     { img: IMG.eraser, title: "Magic Eraser", desc: "Supprimez n'importe quel objet encombrant." },
-    { img: IMG.removebg, title: "Remove BG", desc: "Détourage net et automatique." },
+    { img: IMG.removebg, title: "Suppression d'arrière-plan", desc: "Détourage net et automatique." },
     { img: IMG.retouch, title: "Retouch Pro", desc: "Retouches beauté et lumière parfaits." },
     { img: IMG.upscale, title: "Upscale 8k", desc: "Agrandissez en Ultra HD sans perte." },
   ];
@@ -311,11 +311,11 @@ function DashboardPage({ user, navigate, onLogout, apiKey, setApiKey }) {
   if (!user) { navigate("login"); return null; }
 
   const tools = [
-    { name: "Remove BG", model: "google/nano-banana-edit", promptTemplate: "Remove the background from this image completely, leaving only the main subject on a transparent/white background.", type: "edit", premium: false },
-    { name: "Magic Eraser", model: "google/nano-banana-edit", promptTemplate: "", type: "edit", premium: false },
-    { name: "Restyle IA", model: "google/nano-banana-edit", promptTemplate: "", type: "edit", premium: false },
-    { name: "Retouch Pro", model: "google/nano-banana-edit", promptTemplate: "", type: "edit", premium: false },
-    { name: "Upscale HD", model: "google/nano-banana-edit", promptTemplate: "Upscale this image to higher resolution with enhanced details, sharpness and clarity.", type: "edit", premium: false },
+    { name: "Suppression d'arrière-plan", model: "google/nano-banana-edit", promptTemplate: "Remove the background from this image completely, leaving only the main subject on a transparent/white background.", type: "edit", premium: false },
+    { name: "Gomme magique", model: "google/nano-banana-edit", promptTemplate: "", type: "edit", premium: false },
+    { name: "Changement de style", model: "google/nano-banana-edit", promptTemplate: "", type: "edit", premium: false },
+    { name: "Retouche Pro", model: "google/nano-banana-edit", promptTemplate: "", type: "edit", premium: false },
+    { name: "Amélioration HD", model: "google/nano-banana-edit", promptTemplate: "Upscale this image to higher resolution with enhanced details, sharpness and clarity.", type: "edit", premium: false },
     { name: "Texte dans image", model: "nano-banana-2", promptTemplate: "", type: "edit", premium: true },
     { name: "Fusion multi-images", model: "nano-banana-2", promptTemplate: "", type: "edit", premium: true },
   ];

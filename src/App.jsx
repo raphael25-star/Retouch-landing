@@ -311,13 +311,13 @@ function DashboardPage({ user, navigate, onLogout, apiKey, setApiKey }) {
   if (!user) { navigate("login"); return null; }
 
   const tools = [
-    { name: "Remove BG", model: "google/nano-banana", promptTemplate: "Remove the background from this image completely, leaving only the main subject on a transparent/white background.", type: "edit", premium: false },
-    { name: "Magic Eraser", model: "google/nano-banana", promptTemplate: "", type: "edit", premium: false },
-    { name: "Restyle IA", model: "google/nano-banana", promptTemplate: "", type: "edit", premium: false },
-    { name: "Retouch Pro", model: "google/nano-banana", promptTemplate: "", type: "edit", premium: false },
-    { name: "Upscale HD", model: "google/nano-banana", promptTemplate: "Upscale this image to higher resolution with enhanced details, sharpness and clarity.", type: "edit", premium: false },
-    { name: "Texte dans image", model: "google/nano-banana-2", promptTemplate: "", type: "edit", premium: true },
-    { name: "Fusion multi-images", model: "google/nano-banana-2", promptTemplate: "", type: "edit", premium: true },
+    { name: "Remove BG", model: "google/nano-banana-edit", promptTemplate: "Remove the background from this image completely, leaving only the main subject on a transparent/white background.", type: "edit", premium: false },
+    { name: "Magic Eraser", model: "google/nano-banana-edit", promptTemplate: "", type: "edit", premium: false },
+    { name: "Restyle IA", model: "google/nano-banana-edit", promptTemplate: "", type: "edit", premium: false },
+    { name: "Retouch Pro", model: "google/nano-banana-edit", promptTemplate: "", type: "edit", premium: false },
+    { name: "Upscale HD", model: "google/nano-banana-edit", promptTemplate: "Upscale this image to higher resolution with enhanced details, sharpness and clarity.", type: "edit", premium: false },
+    { name: "Texte dans image", model: "nano-banana-2", promptTemplate: "", type: "edit", premium: true },
+    { name: "Fusion multi-images", model: "nano-banana-2", promptTemplate: "", type: "edit", premium: true },
   ];
 
   const handleFileUpload = (e) => {

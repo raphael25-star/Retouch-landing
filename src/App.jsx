@@ -106,11 +106,11 @@ function Hero({ navigate }) {
 /* ═══ TOOLS ═══ */
 function Tools() {
   const tools = [
-    { img: IMG.restyle, title: "Restyle IA", desc: "Réinventez le style d'une pièce vide." },
-    { img: IMG.eraser, title: "Magic Eraser", desc: "Supprimez n'importe quel objet encombrant." },
+    { img: IMG.restyle, title: "Changement de style", desc: "Réinventez le style d'une pièce vide." },
+    { img: IMG.eraser, title: "Gomme magique", desc: "Supprimez n'importe quel objet encombrant." },
     { img: IMG.removebg, title: "Suppression d'arrière-plan", desc: "Détourage net et automatique." },
-    { img: IMG.retouch, title: "Retouch Pro", desc: "Retouches beauté et lumière parfaits." },
-    { img: IMG.upscale, title: "Upscale 8k", desc: "Agrandissez en Ultra HD sans perte." },
+    { img: IMG.retouch, title: "Retouche Pro", desc: "Retouches beauté et lumière parfaits." },
+    { img: IMG.upscale, title: "Amélioration HD", desc: "Agrandissez en Ultra HD sans perte." },
   ];
   return (
     <section style={{ padding: "100px clamp(16px,5vw,48px)", maxWidth: 1200, margin: "0 auto" }}>
@@ -335,7 +335,7 @@ function DashboardPage({ user, navigate, onLogout, apiKey, setApiKey }) {
 
   const handleGenerate = async () => {
     if (!apiKey) { setError("Veuillez entrer votre clé API dans les Paramètres."); return; }
-    if (!prompt && activeTool?.name !== "Remove BG" && activeTool?.name !== "Upscale HD") { setError("Veuillez entrer un prompt."); return; }
+    if (!prompt && activeTool?.name !== "Suppression d'arrière-plan" && activeTool?.name !== "Upscale HD") { setError("Veuillez entrer un prompt."); return; }
     if (uploadedImages.length === 0 && activeTool?.type === "edit") { setError("Veuillez uploader au moins une image."); return; }
 
     setLoading(true);

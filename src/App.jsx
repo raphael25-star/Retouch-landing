@@ -316,7 +316,7 @@ function DashboardPage({ user, navigate, onLogout, apiKey, setApiKey }) {
     { name: "Changement de style", model: "google/nano-banana-edit", promptTemplate: "", type: "edit", premium: false },
     { name: "Retouche Pro", model: "google/nano-banana-edit", promptTemplate: "", type: "edit", premium: false },
     { name: "Amélioration HD", model: "google/nano-banana-edit", promptTemplate: "Upscale this image to higher resolution with enhanced details, sharpness and clarity.", type: "edit", premium: false },
-    { name: "Texte dans image", model: "google/nano-banana-edit", promptTemplate: "", type: "edit", premium: true },
+    { name: "Texte dans image", model: "google/nano-banana-edit", promptTemplate: "IMPORTANT : Do NOT change, modify, or regenerate the original ima in any way. Keep every single pixel of the original photo exactly as it is. Your ONLY task is to overlay text on top of the existing image. The text to add is:", type: "edit", premium: true },
     { name: "Fusion multi-images", model: "nano-banana-2", promptTemplate: "", type: "edit", premium: true },
   ];
 

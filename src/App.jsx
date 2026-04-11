@@ -316,7 +316,7 @@ function DashboardPage({ user, navigate, onLogout, apiKey, setApiKey }) {
     { name: "Changement de style", model: "google/nano-banana-edit", promptTemplate: "", type: "edit", premium: false },
     { name: "Retouche Pro", model: "google/nano-banana-edit", promptTemplate: "", type: "edit", premium: false },
     { name: "Amélioration HD", model: "google/nano-banana-edit", promptTemplate: "Upscale this image to higher resolution with enhanced details, sharpness and clarity.", type: "edit", premium: false },
-    { name: "Texte dans image", model: "nano-banana-2", promptTemplate: "", type: "edit", premium: true },
+    { name: "Texte dans image", model: "google/nano-banana-edit", promptTemplate: "", type: "edit", premium: true },
     { name: "Fusion multi-images", model: "nano-banana-2", promptTemplate: "", type: "edit", premium: true },
   ];
 

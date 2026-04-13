@@ -44,14 +44,22 @@ function Img({ src, alt, style, ...rest }) {
 function Navbar({ navigate, user, onLogout }) {
   const [scrolled, setScrolled] = useState(false);
   useEffect(() => { const h = () => setScrolled(window.scrollY > 30); window.addEventListener("scroll", h); return () => window.removeEventListener("scroll", h); }, []);
+  const scrollTo = (id) => { const el = document.getElementById(id); if (el) el.scrollIntoView({ behavior: "smooth", block: "start" }); };
   return (
-    <nav style={{ position: "fixed", top: 0, left: 0, right: 0, zIndex: 1000, padding: "0 clamp(16px, 4vw, 48px)", height: 64, display: "flex", alignItems: "center", justifyContent: "space-between", background: scrolled ? "rgba(255,255,255,0.92)" : "rgba(255,255,255,0.6)", backdropFilter: "blur(20px) saturate(1.3)", borderBottom: scrolled ? "1px solid rgba(0,0,0,0.06)" : "1px solid transparent", transition: "all 0.4s cubic-bezier(.4,0,.2,1)" }}>
-      <div style={{ display: "flex", alignItems: "center", cursor: "pointer" }} onClick={() => navigate("home")}><img src={LOGO_SRC} alt="Retouch" style={{ height: 44, width: "auto", objectFit: "contain" }} /></div>
-      <div style={{ display: "flex", alignItems: "center", gap: 28 }}>
-        <a onClick={() => navigate("pricing")} className="nav-link" style={{ cursor: "pointer" }}>Tarifs</a>
-        {user ? (<><a onClick={() => navigate("dashboard")} className="nav-link" style={{ cursor: "pointer" }}>Dashboard</a><a onClick={onLogout} className="nav-link" style={{ cursor: "pointer" }}>Déconnexion</a></>) : (<><a onClick={() => navigate("login")} className="nav-link" style={{ cursor: "pointer" }}>Login</a><a onClick={() => navigate("signup")} className="nav-cta" style={{ cursor: "pointer" }}>Sign Up</a></>)}
-      </div>
-    </nav>
+    <div style={{ position: "fixed", top: 0, left: 0, right: 0, zIndex: 1000, padding: "10px clamp(12px, 3vw, 32px) 0", background: "linear-gradient(135deg, #8b5cf6 0%, #7c3aed 40%, #ec4899 100%)" }}>
+      <nav style={{ maxWidth: 1300, margin: "0 auto", height: 56, display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 clamp(16px, 3vw, 32px)", background: "#fff", borderRadius: "14px 14px 0 0", boxShadow: scrolled ? "0 4px 20px rgba(0,0,0,0.08)" : "none", transition: "box-shadow 0.3s" }}>
+        <div style={{ display: "flex", alignItems: "center", cursor: "pointer" }} onClick={() => navigate("home")}><img src={LOGO_SRC} alt="Retouch" style={{ height: 44, width: "auto", objectFit: "contain" }} /></div>
+        <div style={{ display: "flex", alignItems: "center", gap: 32 }}>
+          <a onClick={() => scrollTo("section-tools")} className="nav-link" style={{ cursor: "pointer" }}>Fonctionnalités</a>
+          <a onClick={() => scrollTo("section-results")} className="nav-link" style={{ cursor: "pointer" }}>Résultats</a>
+          <a onClick={() => navigate("pricing")} className="nav-link" style={{ cursor: "pointer" }}>Tarifs</a>
+          <a onClick={() => scrollTo("section-faq")} className="nav-link" style={{ cursor: "pointer" }}>FAQ</a>
+        </div>
+        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+          {user ? (<><a onClick={() => navigate("dashboard")} className="nav-link" style={{ cursor: "pointer" }}>Dashboard</a><a onClick={onLogout} className="nav-link" style={{ cursor: "pointer" }}>Déconnexion</a></>) : (<><a onClick={() => navigate("login")} className="nav-link" style={{ cursor: "pointer", fontWeight: 600 }}>Se connecter</a><a onClick={() => navigate("signup")} className="nav-cta" style={{ cursor: "pointer" }}>S'inscrire</a></>)}
+        </div>
+      </nav>
+    </div>
   );
 }
 
@@ -123,7 +131,7 @@ function Tools() {
     { rotate: -3, y: 10, z: 1 },
   ];
   return (
-    <section style={{ padding: "100px clamp(16px,5vw,48px)", maxWidth: 1200, margin: "0 auto" }}>
+    <section id="section-tools" style={{ padding: "100px clamp(16px,5vw,48px)", maxWidth: 1200, margin: "0 auto" }}>
       <div style={{ textAlign: "center", marginBottom: 60 }}>
         <h2 className="section-title">Générez vos images en <span className="grad-text">quelques secondes</span></h2>
         <p className="section-sub">Tout ce dont vous avez besoin pour transformer vos images.</p>
@@ -175,7 +183,7 @@ function Testimonials() {
     { q: "La gomme magique ne laisse aucune trace.", i: "LD", n: "Lucas Dubois", r: "Fondateur Startup" },
   ];
   return (
-    <section style={{ padding: "100px clamp(16px,5vw,48px)", maxWidth: 1200, margin: "0 auto" }}>
+    <section id="section-results" style={{ padding: "100px clamp(16px,5vw,48px)", maxWidth: 1200, margin: "0 auto" }}>
       <div style={{ background: "#faf9ff", borderRadius: 28, padding: "60px clamp(20px,4vw,48px)" }}>
         <h2 className="section-title" style={{ textAlign: "center", marginBottom: 48 }}>Rejoignez nos milliers de créateurs</h2>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 18 }}>
@@ -196,7 +204,7 @@ function FAQ() {
     { q: "Stockez-vous mes photos ?", a: "Non, les médias sont purgés automatiquement pour votre confidentialité." },
   ];
   return (
-    <section style={{ padding: "100px clamp(16px,5vw,48px)", maxWidth: 740, margin: "0 auto" }}>
+    <section id="section-faq" style={{ padding: "100px clamp(16px,5vw,48px)", maxWidth: 740, margin: "0 auto" }}>
       <h2 className="section-title" style={{ textAlign: "center" }}>Questions Fréquentes</h2>
       <p className="section-sub" style={{ textAlign: "center", marginBottom: 48 }}>Tout sur Retouch IA.</p>
       <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>

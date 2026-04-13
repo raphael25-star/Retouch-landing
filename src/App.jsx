@@ -125,7 +125,7 @@ function Tools() {
   return (
     <section style={{ padding: "100px clamp(16px,5vw,48px)", maxWidth: 1200, margin: "0 auto" }}>
       <div style={{ textAlign: "center", marginBottom: 60 }}>
-        <h2 className="section-title">Générez vos images en <span className="grad-text">quelques secondes</span>
+        <h2 className="section-title">Générez vos images en <span className="grad-text">quelques secondes</span></h2>
         <p className="section-sub">Tout ce dont vous avez besoin pour transformer vos images.</p>
       </div>
       <div style={{ display: "flex", justifyContent: "center", alignItems: "center", position: "relative", height: 420, marginBottom: 20 }}>

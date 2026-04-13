@@ -46,8 +46,8 @@ function Navbar({ navigate, user, onLogout }) {
   useEffect(() => { const h = () => setScrolled(window.scrollY > 30); window.addEventListener("scroll", h); return () => window.removeEventListener("scroll", h); }, []);
   const scrollTo = (id) => { const el = document.getElementById(id); if (el) el.scrollIntoView({ behavior: "smooth", block: "start" }); };
   return (
-    <div style={{ position: "fixed", top: 0, left: 0, right: 0, zIndex: 1000, padding: "10px clamp(12px, 3vw, 32px) 0", background: "linear-gradient(135deg, #8b5cf6 0%, #7c3aed 40%, #ec4899 100%)" }}>
-      <nav style={{ maxWidth: 1300, margin: "0 auto", height: 56, display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 clamp(16px, 3vw, 32px)", background: "#fff", borderRadius: "14px 14px 0 0", boxShadow: scrolled ? "0 4px 20px rgba(0,0,0,0.08)" : "none", transition: "box-shadow 0.3s" }}>
+    <div style={{ position: "fixed", top: 0, left: 0, right: 0, zIndex: 1000, padding: "12px clamp(16px, 3vw, 40px)", background: "linear-gradient(180deg, #f3f0ff 0%, #ede9fe 100%)" }}>
+      <nav style={{ maxWidth: 1300, margin: "0 auto", height: 56, display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 clamp(16px, 3vw, 32px)", background: "#fff", borderRadius: 14, boxShadow: "0 2px 16px rgba(139,92,246,0.08), 0 0 0 1px rgba(139,92,246,0.06)", transition: "box-shadow 0.3s" }}>
         <div style={{ display: "flex", alignItems: "center", cursor: "pointer" }} onClick={() => navigate("home")}><img src={LOGO_SRC} alt="Retouch" style={{ height: 44, width: "auto", objectFit: "contain" }} /></div>
         <div style={{ display: "flex", alignItems: "center", gap: 32 }}>
           <a onClick={() => scrollTo("section-tools")} className="nav-link" style={{ cursor: "pointer" }}>Fonctionnalités</a>

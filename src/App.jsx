@@ -11,7 +11,7 @@ const IMG = {
   eraser:      "/tool-eraser.png",
   restyle:     "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&q=80&w=512",
   retouch:     "/tool-retouch.png",
-  upscale:     "/tool-upscale.png",
+  upscale:     "https://images.unsplash.com/photo-1542038784456-1ea8e935640e?auto=format&fit=crop&q=80&w=512",
   textimg:     "/tool-textimg.png",
   fusion:      "/tool-fusion.png",
   interior:    "https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&q=80&w=1024",
@@ -78,11 +78,11 @@ function Hero({ navigate }) {
           </h1>
 
           <p className="anim-3" style={{ fontSize: "clamp(15px, 1.3vw, 18px)", color: "#6b7280", maxWidth: 480, lineHeight: 1.75, margin: "0 0 36px" }}>
-            Ajoutez une image et décrivez ce que vous souhaitez. Retouch génère un rendu prêt à être utilisé.
+            Ajoutez une image et décrivez ce que vous souhaitez. Retouch génère un rendu studio prêt à être utilisé.
           </p>
 
           <div className="anim-4" style={{ display: "flex", gap: 14, marginBottom: 0, flexWrap: "wrap" }}>
-            <button className="btn-primary" onClick={() => navigate("signup")}>Tester gratuitement <Arrow /></button>
+            <button className="btn-primary" onClick={() => navigate("signup")}>Commencer gratuitement <Arrow /></button>
           </div>
         </div>
 
@@ -125,7 +125,7 @@ function Tools() {
   return (
     <section style={{ padding: "100px clamp(16px,5vw,48px)", maxWidth: 1200, margin: "0 auto" }}>
       <div style={{ textAlign: "center", marginBottom: 60 }}>
-        <h2 className="section-title">Générez vos images en <span className="grad-text">quelques secondes</span></h2>
+        <h2 className="section-title">7 outils d'<span className="grad-text">Intelligence Artificielle</span></h2>
         <p className="section-sub">Tout ce dont vous avez besoin pour transformer vos images.</p>
       </div>
       <div style={{ display: "flex", justifyContent: "center", alignItems: "center", position: "relative", height: 420, marginBottom: 20 }}>
@@ -312,8 +312,20 @@ function SignupPage({ navigate, onLogin }) {
 }
 
 /* ═══ PAGE: DASHBOARD ═══ */
+/* ── Dashboard Icons ── */
+const HomeIcon = () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>;
+const HistoryIcon = () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>;
+const SettingsIcon = () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"/></svg>;
+const EraserIcon = () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 20H7L3 16l9-9 8 8-4 4z"/><line x1="6" y1="11" x2="13" y2="4"/></svg>;
+const WandIcon = () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 4V2"/><path d="M15 16v-2"/><path d="M8 9h2"/><path d="M20 9h2"/><path d="M17.8 11.8L19 13"/><path d="M15 9h0"/><path d="M17.8 6.2L19 5"/><path d="m3 21 9-9"/><path d="M12.2 6.2L11 5"/></svg>;
+const LayersIcon = () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>;
+const TypeIcon = () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="4 7 4 4 20 4 20 7"/><line x1="9" y1="20" x2="15" y2="20"/><line x1="12" y1="4" x2="12" y2="20"/></svg>;
+const MergeIcon = () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="18" cy="18" r="3"/><circle cx="6" cy="6" r="3"/><path d="M6 21V9a9 9 0 009 9"/></svg>;
+const ZapIcon = () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>;
+const PaletteIcon = () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="13.5" cy="6.5" r="0.5"/><circle cx="17.5" cy="10.5" r="0.5"/><circle cx="8.5" cy="7.5" r="0.5"/><circle cx="6.5" cy="12" r="0.5"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 011.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"/></svg>;
+
 function DashboardPage({ user, navigate, onLogout, apiKey, setApiKey }) {
-  const [activeTab, setActiveTab] = useState("overview");
+  const [activeSection, setActiveSection] = useState("workspace");
   const [activeTool, setActiveTool] = useState(null);
   const [prompt, setPrompt] = useState("");
   const [uploadedImages, setUploadedImages] = useState([]);
@@ -325,221 +337,257 @@ function DashboardPage({ user, navigate, onLogout, apiKey, setApiKey }) {
   if (!user) { navigate("login"); return null; }
 
   const tools = [
-    { name: "Suppression d'arrière-plan", model: "google/nano-banana-edit", promptTemplate: "Remove the background from this image completely, leaving only the main subject on a transparent/white background.", type: "edit", premium: false },
-    { name: "Gomme magique", model: "google/nano-banana-edit", promptTemplate: "", type: "edit", premium: false },
-    { name: "Changement de style", model: "google/nano-banana-edit", promptTemplate: "", type: "edit", premium: false },
-    { name: "Retouche pro", model: "google/nano-banana-edit", promptTemplate: "", type: "edit", premium: false },
-    { name: "Amélioration HD", model: "google/nano-banana-edit", promptTemplate: "Transform this image into an ultra-detailed 4K photograph. Enhance all details: textures, sharpness, contrast. For portraits, enhance skin details (pores, natural texture, imperfections), hair, and facial structure without artificial smoothing. For landscapes or objects, enhance textures, depth, and clarity. Keep natural lighting, realistic contrast, slight natural grain. The result must look like a real high-resolution photograph, not AI-generated. Keep the exact same subject, pose, expression, and background.", type: "edit", premium: false },
-    { name: "Texte dans image", model: "google/nano-banana-edit", promptTemplate: "", type: "edit", premium: true },
-    { name: "Fusion multi-images", model: "nano-banana-2", promptTemplate: "", type: "edit", premium: true },
+    { name: "Suppression d'arrière-plan", icon: <ImageIcon />, model: "google/nano-banana-edit", promptTemplate: "Remove the background from this image completely, leaving only the main subject on a transparent/white background.", type: "edit", premium: false },
+    { name: "Gomme magique", icon: <EraserIcon />, model: "google/nano-banana-edit", promptTemplate: "", type: "edit", premium: false },
+    { name: "Changement de style", icon: <PaletteIcon />, model: "google/nano-banana-edit", promptTemplate: "", type: "edit", premium: false },
+    { name: "Retouche pro", icon: <WandIcon />, model: "google/nano-banana-edit", promptTemplate: "", type: "edit", premium: false },
+    { name: "Amélioration HD", icon: <ZapIcon />, model: "google/nano-banana-edit", promptTemplate: "Transform this image into an ultra-detailed 4K photograph. Enhance all details: textures, sharpness, contrast. For portraits, enhance skin details (pores, natural texture, imperfections), hair, and facial structure without artificial smoothing. For landscapes or objects, enhance textures, depth, and clarity. Keep natural lighting, realistic contrast, slight natural grain. The result must look like a real high-resolution photograph, not AI-generated. Keep the exact same subject, pose, expression, and background.", type: "edit", premium: false },
+    { name: "Texte dans image", icon: <TypeIcon />, model: "google/nano-banana-edit", promptTemplate: "", type: "edit", premium: true },
+    { name: "Fusion multi-images", icon: <MergeIcon />, model: "nano-banana-2", promptTemplate: "", type: "edit", premium: true },
   ];
 
   const handleFileUpload = (e) => {
     const files = Array.from(e.target.files);
     files.forEach(file => {
       const reader = new FileReader();
-      reader.onload = (ev) => {
-        setUploadedImages(prev => [...prev, { name: file.name, base64: ev.target.result.split(",")[1], preview: ev.target.result }]);
-      };
+      reader.onload = (ev) => { setUploadedImages(prev => [...prev, { name: file.name, base64: ev.target.result.split(",")[1], preview: ev.target.result }]); };
       reader.readAsDataURL(file);
     });
   };
-
   const removeImage = (idx) => setUploadedImages(prev => prev.filter((_, i) => i !== idx));
 
   const handleGenerate = async () => {
-    if (!prompt && activeTool?.name !== "Suppression d'arrière-plan" && activeTool?.name !== "Amélioration HD") { setError("Veuillez entrer un prompt."); return; }
+    if (!prompt && activeTool?.name !== "Suppression d'arrière-plan" && activeTool?.name !== "Amélioration HD") { setError("Veuillez entrer une instruction."); return; }
     if (uploadedImages.length === 0 && activeTool?.type === "edit") { setError("Veuillez uploader au moins une image."); return; }
-
-    setLoading(true);
-    setError("");
-    setResultImage(null);
-
+    setLoading(true); setError(""); setResultImage(null);
     const finalPrompt = activeTool.promptTemplate || prompt;
-    const model = activeTool.model;
-
     try {
       let requestBody;
       if (activeTool.name === "Fusion multi-images" && uploadedImages.length > 1) {
-        requestBody = {
-          model: model,
-          input: {
-            prompt: prompt || "Blend these images into one coherent composition with consistent lighting and perspective.",
-            image_input: uploadedImages.map(img => "data:image/png;base64," + img.base64),
-            output_format: "png",
-            resolution: "1K"
-          }
-        };
+        requestBody = { model: activeTool.model, input: { prompt: prompt || "Blend these images into one coherent composition with consistent lighting and perspective.", image_input: uploadedImages.map(img => "data:image/png;base64," + img.base64), output_format: "png", resolution: "1K" } };
       } else if (uploadedImages.length > 0) {
-        requestBody = {
-          model: model,
-          input: {
-            prompt: (activeTool.name === "Texte dans image" ? "IMPORTANT: Do NOT change, modify, or regenerate the original image in any way. Keep every single pixel of the original photo exactly as it is. Your ONLY task is to overlay text on top of the existing image. The text to add is: " + prompt : finalPrompt + (prompt && activeTool.promptTemplate ? " " + prompt : "")),
-            image_urls: uploadedImages.map(img => "data:image/png;base64," + img.base64),
-            output_format: "png"
-          }
-        };
+        requestBody = { model: activeTool.model, input: { prompt: (activeTool.name === "Texte dans image" ? "IMPORTANT: Do NOT change, modify, or regenerate the original image in any way. Keep every single pixel of the original photo exactly as it is. Your ONLY task is to overlay text on top of the existing image. The text to add is: " + prompt : finalPrompt + (prompt && activeTool.promptTemplate ? " " + prompt : "")), image_urls: uploadedImages.map(img => "data:image/png;base64," + img.base64), output_format: "png" } };
       } else {
-        requestBody = {
-          model: model,
-          input: {
-            prompt: prompt,
-            output_format: "png",
-            image_size: "1:1"
-          }
-        };
+        requestBody = { model: activeTool.model, input: { prompt, output_format: "png", image_size: "1:1" } };
       }
-
-      const API_URL = "https://retouch-backend.vercel.app";
-      const response = await fetch(API_URL + "/api/generate", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(requestBody)
-      });
-
+      const response = await fetch("https://retouch-backend.vercel.app/api/generate", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(requestBody) });
       const data = await response.json();
-
-      if (data.image_url) {
-        setResultImage(data.image_url);
-        setHistory(prev => [{ name: activeTool.name, prompt: prompt.slice(0, 40), date: "À l'instant", url: data.image_url }, ...prev]);
-      } else {
-        throw new Error(data.error || "Erreur lors de la génération.");
-      }
-    } catch (err) {
-      setError(err.message || "Erreur de connexion à l'API.");
-    } finally {
-      setLoading(false);
-    }
+      if (data.image_url) { setResultImage(data.image_url); setHistory(prev => [{ name: activeTool.name, prompt: prompt.slice(0, 40), date: "À l'instant", url: data.image_url }, ...prev]); }
+      else { throw new Error(data.error || "Erreur lors de la génération."); }
+    } catch (err) { setError(err.message || "Erreur de connexion."); }
+    finally { setLoading(false); }
   };
 
-  const closeTool = () => { setActiveTool(null); setPrompt(""); setUploadedImages([]); setResultImage(null); setError(""); };
+  const selectTool = (t) => { setActiveTool(t); setActiveSection("workspace"); setPrompt(""); setUploadedImages([]); setResultImage(null); setError(""); };
+  const maxImages = activeTool?.name === "Fusion multi-images" ? 8 : 1;
 
-  /* ── Tool workspace ── */
-  if (activeTool) {
-    const maxImages = activeTool.name === "Fusion multi-images" ? 8 : 1;
-    return (
-      <section style={{ padding: "80px clamp(16px,5vw,48px) 60px", maxWidth: 900, margin: "0 auto" }}>
-        <button onClick={closeTool} className="back-btn"><ChevLeft /> Retour au dashboard</button>
-        <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 32 }}>
-          <div className="dash-stat-icon"><Sparkle s={20} c="#8b5cf6" /></div>
-          <div>
-            <h2 style={{ fontSize: 24, fontWeight: 800, color: "#1a1a2e", margin: 0 }}>{activeTool.name}</h2>
-            <p style={{ fontSize: 13, color: "#9ca3af", margin: 0 }}>{activeTool.premium ? "Premium" : "Standard"}</p>
-          </div>
+  /* ── Sidebar ── */
+  const sidebarStyle = { width: 260, minHeight: "100vh", background: "#faf9ff", borderRight: "1px solid #ede9fe", padding: "24px 16px", display: "flex", flexDirection: "column", position: "fixed", left: 0, top: 0, zIndex: 100, overflowY: "auto" };
+  const sideItemStyle = (active) => ({ display: "flex", alignItems: "center", gap: 12, padding: "10px 14px", borderRadius: 10, fontSize: 13, fontWeight: active ? 600 : 500, color: active ? "#8b5cf6" : "#6b7280", background: active ? "rgba(139,92,246,0.08)" : "transparent", border: "none", cursor: "pointer", width: "100%", textAlign: "left", fontFamily: "inherit", transition: "all 0.2s", marginBottom: 2 });
+  const sectionLabel = { fontSize: 10, fontWeight: 700, color: "#9ca3af", textTransform: "uppercase", letterSpacing: "0.08em", padding: "16px 14px 6px", margin: 0 };
+
+  return (
+    <div style={{ display: "flex", minHeight: "100vh", background: "#f8f7fc" }}>
+      {/* ── Sidebar ── */}
+      <aside style={sidebarStyle}>
+        <div style={{ padding: "4px 8px 28px", display: "flex", alignItems: "center", gap: 10 }}>
+          <img src={LOGO_SRC} alt="Retouch" style={{ height: 28 }} />
         </div>
+        <p style={sectionLabel}>Navigation</p>
+        <button style={sideItemStyle(activeSection === "workspace" && !activeTool)} onClick={() => { setActiveSection("workspace"); setActiveTool(null); setResultImage(null); }}><HomeIcon /> Workspace</button>
+        <button style={sideItemStyle(activeSection === "history")} onClick={() => { setActiveSection("history"); setActiveTool(null); }}><HistoryIcon /> Historique</button>
+        <button style={sideItemStyle(activeSection === "settings")} onClick={() => { setActiveSection("settings"); setActiveTool(null); }}><SettingsIcon /> Paramètres</button>
 
-        <div style={{ display: "grid", gridTemplateColumns: resultImage ? "1fr 1fr" : "1fr", gap: 24 }}>
-          {/* Input side */}
-          <div>
-            {/* Upload */}
-            <div style={{ marginBottom: 20 }}>
-              <label className="form-label">Image{maxImages > 1 ? "s" : ""} ({uploadedImages.length}/{maxImages})</label>
-              <div className="upload-zone" onClick={() => document.getElementById("file-input").click()}>
-                <input id="file-input" type="file" accept="image/*" multiple={maxImages > 1} onChange={handleFileUpload} style={{ display: "none" }} />
-                <ImageIcon /><span style={{ fontSize: 13, color: "#9ca3af", marginTop: 8 }}>Cliquez ou glissez une image ici</span>
+        <p style={{ ...sectionLabel, marginTop: 8 }}>Outils IA</p>
+        {tools.filter(t => !t.premium).map(t => (
+          <button key={t.name} style={sideItemStyle(activeTool?.name === t.name)} onClick={() => selectTool(t)}>{t.icon} {t.name}</button>
+        ))}
+
+        <p style={{ ...sectionLabel, marginTop: 8 }}>Premium</p>
+        {tools.filter(t => t.premium).map(t => (
+          <button key={t.name} style={sideItemStyle(activeTool?.name === t.name)} onClick={() => selectTool(t)}>
+            {t.icon} {t.name}
+            <span style={{ marginLeft: "auto", fontSize: 9, fontWeight: 700, padding: "2px 8px", borderRadius: 20, background: "linear-gradient(135deg,#8b5cf6,#ec4899)", color: "#fff" }}>PRO</span>
+          </button>
+        ))}
+
+        <div style={{ marginTop: "auto", paddingTop: 20, borderTop: "1px solid #ede9fe" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 14px" }}>
+            <div style={{ width: 32, height: 32, borderRadius: 8, background: "linear-gradient(135deg,#8b5cf6,#ec4899)", display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontSize: 13, fontWeight: 700 }}>{user.username[0]?.toUpperCase()}</div>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <p style={{ fontSize: 13, fontWeight: 600, color: "#1a1a2e", margin: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{user.username}</p>
+              <p style={{ fontSize: 11, color: "#9ca3af", margin: 0 }}>{user.credits} crédits</p>
+            </div>
+          </div>
+          <button style={{ ...sideItemStyle(false), color: "#ef4444", fontSize: 12, marginTop: 4 }} onClick={onLogout}><LogoutIcon /> Déconnexion</button>
+        </div>
+      </aside>
+
+      {/* ── Main Content ── */}
+      <main style={{ marginLeft: 260, flex: 1, minHeight: "100vh" }}>
+        {/* Top bar */}
+        <header style={{ height: 56, padding: "0 32px", display: "flex", alignItems: "center", justifyContent: "space-between", borderBottom: "1px solid #ede9fe", background: "rgba(255,255,255,0.8)", backdropFilter: "blur(12px)", position: "sticky", top: 0, zIndex: 50 }}>
+          <h2 style={{ fontSize: 15, fontWeight: 700, color: "#1a1a2e", margin: 0 }}>{activeTool ? activeTool.name : activeSection === "workspace" ? "Workspace" : activeSection === "history" ? "Historique" : "Paramètres"}</h2>
+          <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 6, padding: "6px 14px", borderRadius: 8, background: "#f3f0ff", border: "1px solid #ede9fe" }}>
+              <CreditIcon /><span style={{ fontSize: 13, fontWeight: 600, color: "#8b5cf6" }}>{user.credits} crédits</span>
+            </div>
+            <span style={{ fontSize: 13, color: "#9ca3af" }}>{user.plan}</span>
+          </div>
+        </header>
+
+        <div style={{ display: "flex", flex: 1 }}>
+          {/* ── Center content ── */}
+          <div style={{ flex: 1, padding: "32px 32px 60px" }}>
+
+            {/* WORKSPACE VIEW */}
+            {activeSection === "workspace" && !activeTool && (
+              <div style={{ maxWidth: 700, margin: "0 auto", textAlign: "center" }}>
+                <h1 style={{ fontSize: 28, fontWeight: 800, color: "#1a1a2e", margin: "0 0 8px" }}>Bienvenue, <span className="grad-text">{user.username}</span></h1>
+                <p style={{ fontSize: 14, color: "#9ca3af", margin: "0 0 40px" }}>Sélectionnez un outil dans le menu pour commencer</p>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))", gap: 14 }}>
+                  {tools.map(t => (
+                    <div key={t.name} onClick={() => selectTool(t)} style={{ padding: "24px 16px", borderRadius: 14, background: "#fff", border: "1px solid #ede9fe", cursor: "pointer", transition: "all 0.25s", textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center", gap: 10 }} onMouseEnter={e => { e.currentTarget.style.borderColor = "#c4b5fd"; e.currentTarget.style.transform = "translateY(-3px)"; e.currentTarget.style.boxShadow = "0 8px 24px rgba(139,92,246,0.1)"; }} onMouseLeave={e => { e.currentTarget.style.borderColor = "#ede9fe"; e.currentTarget.style.transform = "none"; e.currentTarget.style.boxShadow = "none"; }}>
+                      <div style={{ width: 40, height: 40, borderRadius: 10, background: "linear-gradient(135deg,#ede9fe,#fce7f3)", display: "flex", alignItems: "center", justifyContent: "center", color: "#8b5cf6" }}>{t.icon}</div>
+                      <span style={{ fontSize: 12, fontWeight: 600, color: "#1a1a2e" }}>{t.name}</span>
+                      {t.premium && <span style={{ fontSize: 9, fontWeight: 700, padding: "2px 8px", borderRadius: 20, background: "linear-gradient(135deg,#8b5cf6,#ec4899)", color: "#fff" }}>PREMIUM</span>}
+                    </div>
+                  ))}
+                </div>
+                {history.length > 0 && (
+                  <div style={{ marginTop: 40, textAlign: "left" }}>
+                    <h3 style={{ fontSize: 16, fontWeight: 700, color: "#1a1a2e", margin: "0 0 14px" }}>Dernières générations</h3>
+                    <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                      {history.slice(0, 4).map((img, i) => (<div key={i} className="dash-history-row"><div style={{ display: "flex", alignItems: "center", gap: 12 }}><div style={{ width: 36, height: 36, borderRadius: 8, overflow: "hidden" }}><img src={img.url} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} /></div><div><p style={{ fontSize: 13, fontWeight: 600, color: "#1a1a2e", margin: 0 }}>{img.name}</p><p style={{ fontSize: 11, color: "#9ca3af", margin: 0 }}>{img.prompt || "—"}</p></div></div><span style={{ fontSize: 11, color: "#9ca3af" }}>{img.date}</span></div>))}
+                    </div>
+                  </div>
+                )}
               </div>
-              {uploadedImages.length > 0 && (
-                <div style={{ display: "flex", gap: 8, marginTop: 12, flexWrap: "wrap" }}>
-                  {uploadedImages.map((img, i) => (
-                    <div key={i} style={{ position: "relative", width: 72, height: 72, borderRadius: 10, overflow: "hidden", border: "1px solid #e5e7eb" }}>
-                      <img src={img.preview} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-                      <button onClick={() => removeImage(i)} style={{ position: "absolute", top: 2, right: 2, width: 20, height: 20, borderRadius: "50%", background: "rgba(0,0,0,0.6)", color: "#fff", border: "none", fontSize: 11, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>×</button>
+            )}
+
+            {/* TOOL WORKSPACE VIEW */}
+            {activeSection === "workspace" && activeTool && (
+              <div style={{ maxWidth: 800, margin: "0 auto" }}>
+                <div style={{ display: "grid", gridTemplateColumns: resultImage ? "1fr 1fr" : "1fr", gap: 28 }}>
+                  <div>
+                    {/* Upload zone */}
+                    <div style={{ marginBottom: 24 }}>
+                      <label style={{ fontSize: 12, fontWeight: 600, color: "#6b7280", marginBottom: 8, display: "block" }}>Image{maxImages > 1 ? "s" : ""} ({uploadedImages.length}/{maxImages})</label>
+                      <div className="upload-zone" onClick={() => document.getElementById("file-input").click()} style={{ minHeight: 180, borderColor: "#ddd6fe" }}>
+                        <input id="file-input" type="file" accept="image/*" multiple={maxImages > 1} onChange={handleFileUpload} style={{ display: "none" }} />
+                        <ImageIcon />
+                        <span style={{ fontSize: 13, color: "#9ca3af", marginTop: 10 }}>Glissez-déposez une image ici</span>
+                        <span style={{ fontSize: 11, color: "#c4b5fd", marginTop: 4 }}>PNG, JPG, WEBP</span>
+                      </div>
+                      {uploadedImages.length > 0 && (
+                        <div style={{ display: "flex", gap: 8, marginTop: 12, flexWrap: "wrap" }}>
+                          {uploadedImages.map((img, i) => (
+                            <div key={i} style={{ position: "relative", width: 64, height: 64, borderRadius: 10, overflow: "hidden", border: "2px solid #ede9fe" }}>
+                              <img src={img.preview} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                              <button onClick={() => removeImage(i)} style={{ position: "absolute", top: 2, right: 2, width: 18, height: 18, borderRadius: "50%", background: "rgba(0,0,0,0.6)", color: "#fff", border: "none", fontSize: 10, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>×</button>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                    {/* Prompt */}
+                    {!activeTool.promptTemplate && (
+                      <div style={{ marginBottom: 20 }}>
+                        <label style={{ fontSize: 12, fontWeight: 600, color: "#6b7280", marginBottom: 8, display: "block" }}>Instruction</label>
+                        <textarea className="form-input" value={prompt} onChange={e => setPrompt(e.target.value)} placeholder={
+                          activeTool.name === "Gomme magique" ? "Ex: Supprime la personne à droite" :
+                          activeTool.name === "Changement de style" ? "Ex: Style scandinave minimaliste" :
+                          activeTool.name === "Retouche pro" ? "Ex: Améliore la luminosité" :
+                          activeTool.name === "Texte dans image" ? "Ex: Ajoute 'SOLDES -50%' en gros" :
+                          activeTool.name === "Fusion multi-images" ? "Ex: Fusionne en un seul visuel" :
+                          "Décrivez votre modification..."
+                        } rows={3} style={{ resize: "vertical", minHeight: 80, borderColor: "#ddd6fe" }} />
+                      </div>
+                    )}
+                    {error && <p style={{ color: "#ef4444", fontSize: 12, marginBottom: 12, padding: "8px 12px", background: "rgba(239,68,68,0.06)", borderRadius: 8 }}>{error}</p>}
+                    <button className="btn-primary" style={{ width: "100%", justifyContent: "center", padding: "12px 24px", fontSize: 14 }} onClick={handleGenerate} disabled={loading}>
+                      {loading ? <><span className="spinner" /> Génération en cours...</> : <><Sparkle s={14} c="#fff" /> Générer — 10 crédits</>}
+                    </button>
+                  </div>
+                  {/* Result */}
+                  {resultImage && (
+                    <div>
+                      <label style={{ fontSize: 12, fontWeight: 600, color: "#6b7280", marginBottom: 8, display: "block" }}>Résultat</label>
+                      <div style={{ borderRadius: 14, overflow: "hidden", border: "2px solid #ede9fe", background: "#fff" }}>
+                        <img src={resultImage} alt="Résultat" style={{ width: "100%", display: "block" }} />
+                      </div>
+                      <a href={resultImage} download="retouch-result.png" className="btn-secondary" style={{ width: "100%", justifyContent: "center", marginTop: 12, fontSize: 13, textDecoration: "none", padding: "10px 20px" }}>Télécharger l'image</a>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* HISTORY VIEW */}
+            {activeSection === "history" && (
+              <div style={{ maxWidth: 700, margin: "0 auto" }}>
+                <h3 style={{ fontSize: 18, fontWeight: 700, color: "#1a1a2e", margin: "0 0 20px" }}>Historique complet</h3>
+                {history.length === 0 ? <div style={{ textAlign: "center", padding: "60px 20px", color: "#9ca3af" }}><HistoryIcon /><p style={{ marginTop: 12, fontSize: 14 }}>Aucune génération pour le moment</p></div> : (
+                  <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                    {history.map((img, i) => (<div key={i} className="dash-history-row"><div style={{ display: "flex", alignItems: "center", gap: 12 }}><div style={{ width: 40, height: 40, borderRadius: 8, overflow: "hidden" }}><img src={img.url} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} /></div><div><p style={{ fontSize: 13, fontWeight: 600, color: "#1a1a2e", margin: 0 }}>{img.name}</p><p style={{ fontSize: 11, color: "#9ca3af", margin: 0 }}>{img.prompt || "—"}</p></div></div><span style={{ fontSize: 11, color: "#9ca3af" }}>{img.date}</span></div>))}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* SETTINGS VIEW */}
+            {activeSection === "settings" && (
+              <div style={{ maxWidth: 500, margin: "0 auto" }}>
+                <h3 style={{ fontSize: 18, fontWeight: 700, color: "#1a1a2e", margin: "0 0 24px" }}>Paramètres du compte</h3>
+                <div style={{ padding: 28, borderRadius: 16, background: "#fff", border: "1px solid #ede9fe" }}>
+                  <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
+                    <div><label className="form-label">Nom d'utilisateur</label><input className="form-input" defaultValue={user.username} /></div>
+                    <div><label className="form-label">Email</label><input className="form-input" defaultValue="user@retouch.ai" /></div>
+                    <div><label className="form-label">Plan actuel</label><div style={{ display: "flex", alignItems: "center", gap: 12 }}><span style={{ fontSize: 14, fontWeight: 600, color: "#1a1a2e" }}>{user.plan}</span><button className="btn-secondary" style={{ fontSize: 12, padding: "6px 16px" }} onClick={() => navigate("pricing")}>Changer de plan</button></div></div>
+                    <button className="btn-primary" style={{ alignSelf: "flex-start", padding: "10px 24px", fontSize: 13 }}>Sauvegarder</button>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* ── Right Panel ── */}
+          {activeSection === "workspace" && activeTool && (
+            <aside style={{ width: 240, padding: "24px 16px", borderLeft: "1px solid #ede9fe", background: "#faf9ff" }}>
+              <p style={{ fontSize: 11, fontWeight: 700, color: "#9ca3af", textTransform: "uppercase", letterSpacing: "0.08em", margin: "0 0 16px" }}>Outil actif</p>
+              <div style={{ padding: "16px", borderRadius: 12, background: "#fff", border: "1px solid #ede9fe", marginBottom: 20 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
+                  <div style={{ color: "#8b5cf6" }}>{activeTool.icon}</div>
+                  <span style={{ fontSize: 13, fontWeight: 700, color: "#1a1a2e" }}>{activeTool.name}</span>
+                </div>
+                <span style={{ fontSize: 11, padding: "3px 10px", borderRadius: 20, background: activeTool.premium ? "linear-gradient(135deg,#8b5cf6,#ec4899)" : "#ede9fe", color: activeTool.premium ? "#fff" : "#8b5cf6", fontWeight: 600 }}>{activeTool.premium ? "Premium" : "Standard"}</span>
+              </div>
+              <p style={{ fontSize: 11, fontWeight: 700, color: "#9ca3af", textTransform: "uppercase", letterSpacing: "0.08em", margin: "0 0 12px" }}>Conseils</p>
+              <div style={{ fontSize: 12, color: "#6b7280", lineHeight: 1.7, padding: "12px", borderRadius: 10, background: "#fff", border: "1px solid #ede9fe" }}>
+                {activeTool.name === "Suppression d'arrière-plan" && "Uploadez une image avec un sujet bien défini. L'IA isolera automatiquement le sujet principal."}
+                {activeTool.name === "Gomme magique" && "Décrivez précisément l'élément à supprimer. Ex: \"Supprime le poteau à gauche\"."}
+                {activeTool.name === "Changement de style" && "Décrivez le style souhaité. Ex: \"Style scandinave\", \"Ambiance coucher de soleil\"."}
+                {activeTool.name === "Retouche pro" && "Décrivez les retouches souhaitées: luminosité, couleurs, netteté, peau..."}
+                {activeTool.name === "Amélioration HD" && "Aucune instruction nécessaire. L'IA améliore automatiquement la qualité en 4K."}
+                {activeTool.name === "Texte dans image" && "Indiquez le texte, sa position, sa couleur et sa taille. L'image originale sera préservée."}
+                {activeTool.name === "Fusion multi-images" && "Uploadez 2 à 8 images et décrivez comment les combiner en un seul visuel."}
+              </div>
+              {history.length > 0 && (
+                <div style={{ marginTop: 24 }}>
+                  <p style={{ fontSize: 11, fontWeight: 700, color: "#9ca3af", textTransform: "uppercase", letterSpacing: "0.08em", margin: "0 0 12px" }}>Récent</p>
+                  {history.slice(0, 3).map((h, i) => (
+                    <div key={i} style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px", borderRadius: 8, marginBottom: 4 }}>
+                      <div style={{ width: 28, height: 28, borderRadius: 6, overflow: "hidden", flexShrink: 0 }}><img src={h.url} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} /></div>
+                      <span style={{ fontSize: 11, color: "#6b7280", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{h.name}</span>
                     </div>
                   ))}
                 </div>
               )}
-            </div>
-
-            {/* Prompt */}
-            {!activeTool.promptTemplate && (
-              <div style={{ marginBottom: 20 }}>
-                <label className="form-label">Décrivez ce que vous souhaitez</label>
-                <textarea className="form-input" value={prompt} onChange={e => setPrompt(e.target.value)} placeholder={
-                  activeTool.name === "Gomme magique" ? "Ex: Supprime la personne à droite de l'image" :
-                  activeTool.name === "Changement de style" ? "Ex: Transforme cette pièce en style scandinave minimaliste" :
-                  activeTool.name === "Retouche pro" ? "Ex: Améliore la luminosité et lisse la peau" :
-                  activeTool.name === "Texte dans image" ? "Ex: Ajoute le texte 'SOLDES -50%' en gros au centre" :
-                  activeTool.name === "Fusion multi-images" ? "Ex: Fusionne ces images en un seul visuel cohérent" :
-                  "Décrivez votre modification..."
-                } rows={4} style={{ resize: "vertical", minHeight: 100 }} />
-              </div>
-            )}
-
-            {error && <p style={{ color: "#ef4444", fontSize: 13, marginBottom: 16 }}>{error}</p>}
-
-            <button className="btn-primary" style={{ width: "100%", justifyContent: "center" }} onClick={handleGenerate} disabled={loading}>
-              {loading ? (
-                <><span className="spinner" /> Génération en cours...</>
-              ) : (
-                <><Sparkle s={16} c="#fff" /> Générer — 10 crédits</>
-              )}
-            </button>
-          </div>
-
-          {/* Result side */}
-          {resultImage && (
-            <div>
-              <label className="form-label">Résultat</label>
-              <div style={{ borderRadius: 16, overflow: "hidden", border: "1px solid #e5e7eb", background: "#faf9ff" }}>
-                <img src={resultImage} alt="Résultat IA" style={{ width: "100%", display: "block" }} />
-              </div>
-              <a href={resultImage} download="retouch-result.png" className="btn-secondary" style={{ width: "100%", justifyContent: "center", marginTop: 12, fontSize: 13, textDecoration: "none" }}>Télécharger l'image</a>
-            </div>
+            </aside>
           )}
         </div>
-      </section>
-    );
-  }
-
-  /* ── Main dashboard ── */
-  return (
-    <section style={{ padding: "80px clamp(16px,5vw,48px) 60px", maxWidth: 1100, margin: "0 auto" }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 40, flexWrap: "wrap", gap: 16 }}>
-        <div><h1 style={{ fontSize: "clamp(24px,3vw,36px)", fontWeight: 800, color: "#1a1a2e", margin: "0 0 6px" }}>Bonjour, <span className="grad-text">{user.username}</span></h1><p style={{ fontSize: 14, color: "#9ca3af", margin: 0 }}>Bienvenue sur votre espace Retouch IA</p></div>
-        <button className="btn-secondary" style={{ fontSize: 13 }} onClick={onLogout}><LogoutIcon /> Déconnexion</button>
-      </div>
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 18, marginBottom: 40 }}>
-        {[{ icon: <CreditIcon />, val: user.credits, label: "Crédits restants" }, { icon: <ImageIcon />, val: user.images + history.length, label: "Images générées" }, { icon: <UserIcon />, val: user.plan, label: "Plan actuel" }].map((s, i) => (
-          <div key={i} className="dash-stat"><div className="dash-stat-icon">{s.icon}</div><div><p style={{ fontSize: 28, fontWeight: 800, color: "#1a1a2e", margin: 0 }}>{s.val}</p><p style={{ fontSize: 13, color: "#9ca3af", margin: 0 }}>{s.label}</p></div></div>
-        ))}
-      </div>
-      <div className="tab-bar" style={{ marginBottom: 32, display: "inline-flex" }}>
-        {[["overview", "Vue d'ensemble"], ["history", "Historique"], ["settings", "Paramètres"]].map(([k, l]) => (<button key={k} className={activeTab === k ? "tab tab-active" : "tab"} onClick={() => setActiveTab(k)}>{l}</button>))}
-      </div>
-      {activeTab === "overview" && (<div>
-        <h3 style={{ fontSize: 18, fontWeight: 700, color: "#1a1a2e", margin: "0 0 18px" }}>Outils</h3>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 14, marginBottom: 32 }}>
-          {tools.filter(t => !t.premium).map(t => (<div key={t.name} className="dash-tool-card"><Sparkle s={18} c="#8b5cf6" /><span style={{ fontWeight: 600, fontSize: 14, color: "#1a1a2e" }}>{t.name}</span><button className="dash-tool-btn" onClick={() => setActiveTool(t)}>Utiliser</button></div>))}
-        </div>
-        <h3 style={{ fontSize: 18, fontWeight: 700, color: "#1a1a2e", margin: "0 0 18px" }}>Outils Premium</h3>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 14, marginBottom: 40 }}>
-          {tools.filter(t => t.premium).map(t => (<div key={t.name} className="dash-tool-card" style={{ borderColor: "#c4b5fd" }}><Sparkle s={18} c="#ec4899" /><span style={{ fontWeight: 600, fontSize: 14, color: "#1a1a2e" }}>{t.name}</span><span style={{ fontSize: 10, fontWeight: 600, color: "#ec4899", background: "rgba(236,72,153,0.08)", padding: "2px 8px", borderRadius: 10 }}>PREMIUM</span><button className="dash-tool-btn" onClick={() => setActiveTool(t)}>Utiliser</button></div>))}
-        </div>
-        {history.length > 0 && (<>
-          <h3 style={{ fontSize: 18, fontWeight: 700, color: "#1a1a2e", margin: "0 0 18px" }}>Dernières générations</h3>
-          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-            {history.slice(0, 5).map((img, i) => (<div key={i} className="dash-history-row"><div style={{ display: "flex", alignItems: "center", gap: 12 }}><div style={{ width: 36, height: 36, borderRadius: 8, overflow: "hidden" }}><img src={img.url} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} /></div><div><p style={{ fontSize: 14, fontWeight: 600, color: "#1a1a2e", margin: 0 }}>{img.name}</p><p style={{ fontSize: 12, color: "#9ca3af", margin: 0 }}>{img.prompt || "—"}</p></div></div><span style={{ fontSize: 12, color: "#9ca3af" }}>{img.date}</span></div>))}
-          </div>
-        </>)}
-      </div>)}
-      {activeTab === "history" && (<div>
-        <h3 style={{ fontSize: 18, fontWeight: 700, color: "#1a1a2e", margin: "0 0 18px" }}>Historique complet</h3>
-        {history.length === 0 ? <p style={{ color: "#9ca3af", fontSize: 14 }}>Aucune génération pour le moment.</p> : (
-          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-            {history.map((img, i) => (<div key={i} className="dash-history-row"><div style={{ display: "flex", alignItems: "center", gap: 12 }}><div style={{ width: 36, height: 36, borderRadius: 8, overflow: "hidden" }}><img src={img.url} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} /></div><div><p style={{ fontSize: 14, fontWeight: 600, color: "#1a1a2e", margin: 0 }}>{img.name}</p><p style={{ fontSize: 12, color: "#9ca3af", margin: 0 }}>{img.prompt || "—"}</p></div></div><span style={{ fontSize: 12, color: "#9ca3af" }}>{img.date}</span></div>))}
-          </div>
-        )}
-      </div>)}
-      {activeTab === "settings" && (<div style={{ maxWidth: 500 }}>
-        <h3 style={{ fontSize: 18, fontWeight: 700, color: "#1a1a2e", margin: "0 0 24px" }}>Paramètres du compte</h3>
-        <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-          <div><label className="form-label">Nom d'utilisateur</label><input className="form-input" defaultValue={user.username} /></div>
-          <div><label className="form-label">Email</label><input className="form-input" defaultValue="user@retouch.ai" /></div>
-          <div><label className="form-label">Plan actuel</label><div style={{ display: "flex", alignItems: "center", gap: 12 }}><span style={{ fontSize: 15, fontWeight: 600, color: "#1a1a2e" }}>{user.plan}</span><button className="btn-secondary" style={{ fontSize: 12, padding: "6px 16px" }} onClick={() => navigate("pricing")}>Changer</button></div></div>
-          <button className="btn-primary" style={{ marginTop: 8, alignSelf: "flex-start" }}>Sauvegarder</button>
-        </div>
-      </div>)}
-    </section>
+      </main>
+    </div>
   );
 }
 

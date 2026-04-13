@@ -11,7 +11,7 @@ const IMG = {
   eraser:      "/tool-eraser.png",
   restyle:     "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&q=80&w=512",
   retouch:     "/tool-retouch.png",
-  upscale:     "https://images.unsplash.com/photo-1542038784456-1ea8e935640e?auto=format&fit=crop&q=80&w=512",
+  upscale:     "tool-upscale.png",
   textimg:     "/tool-textimg.png",
   fusion:      "/tool-fusion.png",
   interior:    "https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&q=80&w=1024",

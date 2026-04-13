@@ -86,7 +86,7 @@ function Hero({ navigate }) {
           </h1>
 
           <p className="anim-3" style={{ fontSize: "clamp(15px, 1.3vw, 18px)", color: "#6b7280", maxWidth: 480, lineHeight: 1.75, margin: "0 0 36px" }}>
-            Ajoutez une image et décrivez ce que vous souhaitez. Retouch génère un rendu professionnel prêt à être utilisé.
+            Ajoutez une image et décrivez ce que vous souhaitez. Retouch génère votre visuel prêt à être utilisé.
           </p>
 
           <div className="anim-4" style={{ display: "flex", gap: 14, marginBottom: 0, flexWrap: "wrap" }}>

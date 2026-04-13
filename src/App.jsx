@@ -105,19 +105,49 @@ function Hero({ navigate }) {
 /* ═══ TOOLS ═══ */
 function Tools() {
   const tools = [
-    { img: IMG.removebg, title: "Suppression d'arrière-plan", desc: "Détourage net et automatique en un clic.", tag: "Standard" },
-    { img: IMG.eraser, title: "Gomme magique", desc: "Supprimez n'importe quel objet indésirable.", tag: "Standard" },
-    { img: IMG.restyle, title: "Changement de style", desc: "Réinventez l'ambiance d'une pièce ou d'une photo.", tag: "Standard" },
-    { img: IMG.retouch, title: "Retouche pro", desc: "Retouches beauté, lumière et couleurs professionnelles.", tag: "Standard" },
-    { img: IMG.upscale, title: "Amélioration HD", desc: "Restaurez et améliorez vos photos en qualité 4K.", tag: "Standard" },
-    { img: IMG.textimg, title: "Texte dans image", desc: "Ajoutez du texte directement sur vos visuels.", tag: "Premium" },
-    { img: IMG.fusion, title: "Fusion multi-images", desc: "Combinez jusqu'à 8 images en un seul visuel cohérent.", tag: "Premium" },
+    { img: IMG.removebg, title: "Suppression d'arrière-plan", tag: "Standard" },
+    { img: IMG.eraser, title: "Gomme magique", tag: "Standard" },
+    { img: IMG.restyle, title: "Changement de style", tag: "Standard" },
+    { img: IMG.retouch, title: "Retouche pro", tag: "Standard" },
+    { img: IMG.upscale, title: "Amélioration HD", tag: "Standard" },
+    { img: IMG.textimg, title: "Texte dans image", tag: "Premium" },
+    { img: IMG.fusion, title: "Fusion multi-images", tag: "Premium" },
+  ];
+  const offsets = [
+    { rotate: -4, y: 20, z: 1 },
+    { rotate: -2, y: 0, z: 2 },
+    { rotate: 1, y: -10, z: 3 },
+    { rotate: 3, y: 5, z: 4 },
+    { rotate: -1, y: -5, z: 3 },
+    { rotate: 2, y: 15, z: 2 },
+    { rotate: -3, y: 10, z: 1 },
   ];
   return (
     <section style={{ padding: "100px clamp(16px,5vw,48px)", maxWidth: 1200, margin: "0 auto" }}>
-      <div style={{ textAlign: "center", marginBottom: 60 }}><h2 className="section-title">7 outils d'<span className="grad-text">Intelligence Artificielle</span></h2><p className="section-sub">Tout ce dont vous avez besoin pour transformer vos images.</p></div>
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: 20 }}>
-        {tools.map((t, i) => (<div key={i} className="tool-card" style={{ position: "relative" }}><div style={{ position: "relative", overflow: "hidden" }}><Img src={t.img} alt={t.title} style={{ width: "100%", aspectRatio: "4/3", objectFit: "cover", display: "block", transition: "transform 0.5s" }} /><div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, transparent 40%, rgba(255,255,255,0.95) 100%)" }} /><span style={{ position: "absolute", top: 12, right: 12, fontSize: 10, fontWeight: 700, padding: "4px 12px", borderRadius: 20, background: t.tag === "Premium" ? "linear-gradient(135deg, #8b5cf6, #ec4899)" : "rgba(139,92,246,0.1)", color: t.tag === "Premium" ? "#fff" : "#8b5cf6" }}>{t.tag}</span></div><div style={{ padding: "18px 18px 22px" }}><h3 style={{ fontSize: 16, fontWeight: 700, color: "#1a1a2e", margin: "0 0 8px" }}>{t.title}</h3><p style={{ fontSize: 13, color: "#6b7280", lineHeight: 1.65, margin: 0 }}>{t.desc}</p></div></div>))}
+      <div style={{ textAlign: "center", marginBottom: 60 }}>
+        <h2 className="section-title">7 outils d'<span className="grad-text">Intelligence Artificielle</span></h2>
+        <p className="section-sub">Tout ce dont vous avez besoin pour transformer vos images.</p>
+      </div>
+      <div style={{ display: "flex", justifyContent: "center", alignItems: "center", position: "relative", height: 420, marginBottom: 20 }}>
+        {tools.map((t, i) => {
+          const o = offsets[i];
+          const leftPct = 6 + i * 13;
+          return (
+            <div key={i} style={{ position: "absolute", left: `${leftPct}%`, top: "50%", transform: `translateY(calc(-50% + ${o.y}px)) rotate(${o.rotate}deg)`, zIndex: o.z, transition: "transform 0.4s, box-shadow 0.4s", cursor: "pointer", width: "clamp(140px, 18vw, 200px)" }}
+              onMouseEnter={e => { e.currentTarget.style.transform = `translateY(calc(-50% + ${o.y - 20}px)) rotate(0deg) scale(1.08)`; e.currentTarget.style.zIndex = 10; e.currentTarget.style.boxShadow = "0 20px 60px rgba(139,92,246,0.25)"; }}
+              onMouseLeave={e => { e.currentTarget.style.transform = `translateY(calc(-50% + ${o.y}px)) rotate(${o.rotate}deg) scale(1)`; e.currentTarget.style.zIndex = o.z; e.currentTarget.style.boxShadow = "0 8px 30px rgba(0,0,0,0.12)"; }}
+            >
+              <div style={{ borderRadius: 18, overflow: "hidden", boxShadow: "0 8px 30px rgba(0,0,0,0.12)", border: t.tag === "Premium" ? "2px solid #8b5cf6" : "2px solid rgba(255,255,255,0.8)", background: "#fff" }}>
+                <div style={{ position: "relative" }}>
+                  <Img src={t.img} alt={t.title} style={{ width: "100%", aspectRatio: "3/4", objectFit: "cover", display: "block" }} />
+                  <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, transparent 50%, rgba(0,0,0,0.7) 100%)" }} />
+                  {t.tag === "Premium" && <span style={{ position: "absolute", top: 10, right: 10, fontSize: 9, fontWeight: 700, padding: "3px 10px", borderRadius: 20, background: "linear-gradient(135deg, #8b5cf6, #ec4899)", color: "#fff", letterSpacing: 0.5 }}>PREMIUM</span>}
+                  <span style={{ position: "absolute", bottom: 12, left: 0, right: 0, textAlign: "center", fontSize: "clamp(11px, 1.2vw, 14px)", fontWeight: 700, color: "#fff", textShadow: "0 1px 8px rgba(0,0,0,0.5)", padding: "0 8px" }}>{t.title}</span>
+                </div>
+              </div>
+            </div>
+          );
+        })}
       </div>
     </section>
   );

@@ -78,11 +78,11 @@ function Hero({ navigate }) {
           </h1>
 
           <p className="anim-3" style={{ fontSize: "clamp(15px, 1.3vw, 18px)", color: "#6b7280", maxWidth: 480, lineHeight: 1.75, margin: "0 0 36px" }}>
-            Ajoutez une image et décrivez ce que vous souhaitez. Retouch génère un rendu studio prêt à être utilisé.
+            Ajoutez une image et décrivez ce que vous souhaitez. Retouch génère un rendu professionnel prêt à être utilisé.
           </p>
 
           <div className="anim-4" style={{ display: "flex", gap: 14, marginBottom: 0, flexWrap: "wrap" }}>
-            <button className="btn-primary" onClick={() => navigate("signup")}>Commencer gratuitement <Arrow /></button>
+            <button className="btn-primary" onClick={() => navigate("signup")}>Tester gratuitement <Arrow /></button>
           </div>
         </div>
 
@@ -125,7 +125,7 @@ function Tools() {
   return (
     <section style={{ padding: "100px clamp(16px,5vw,48px)", maxWidth: 1200, margin: "0 auto" }}>
       <div style={{ textAlign: "center", marginBottom: 60 }}>
-        <h2 className="section-title">7 outils d'<span className="grad-text">Intelligence Artificielle</span></h2>
+        <h2 className="section-title">Générez vos images en <span className="grad-text">quelques secondes</span></h2>
         <p className="section-sub">Tout ce dont vous avez besoin pour transformer vos images.</p>
       </div>
       <div style={{ display: "flex", justifyContent: "center", alignItems: "center", position: "relative", height: 420, marginBottom: 20 }}>
@@ -516,7 +516,7 @@ function DashboardPage({ user, navigate, onLogout, apiKey, setApiKey }) {
                       <div style={{ borderRadius: 14, overflow: "hidden", border: "2px solid #ede9fe", background: "#fff" }}>
                         <img src={resultImage} alt="Résultat" style={{ width: "100%", display: "block" }} />
                       </div>
-                      <a href={resultImage} download="retouch-result.png" className="btn-secondary" style={{ width: "100%", justifyContent: "center", marginTop: 12, fontSize: 13, textDecoration: "none", padding: "10px 20px" }}>Télécharger l'image</a>
+                      <button className="btn-secondary" style={{ width: "100%", justifyContent: "center", marginTop: 12, fontSize: 13, padding: "10px 20px" }} onClick={async () => { try { const r = await fetch(resultImage); const b = await r.blob(); const u = URL.createObjectURL(b); const a = document.createElement("a"); a.href = u; a.download = "retouch-result.png"; document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(u); } catch(e) { window.open(resultImage, "_blank"); } }}>Télécharger l'image</button>
                     </div>
                   )}
                 </div>

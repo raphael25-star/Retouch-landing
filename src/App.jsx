@@ -250,7 +250,7 @@ function PricingPage({ navigate }) {
           <div style={{ display: "flex", alignItems: "baseline", gap: 4, marginBottom: 6 }}><span style={{ fontSize: 42, fontWeight: 800, color: "#1a1a2e" }}>{proPrice}€</span><span style={{ fontSize: 14, color: "#9ca3af" }}>/ mois</span></div>
           <p style={{ fontSize: 13, color: "#8b5cf6", fontWeight: 500, margin: "0 0 24px" }}>500 crédits / mois</p>
           <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 28 }}>{allFeatures.map(f => (<div key={f.label} style={{ display: "flex", alignItems: "center", gap: 10, fontSize: 14, color: f.pro ? "#374151" : "#d1d5db" }}>{f.pro ? <CheckIcon /> : <CrossIcon />} {f.label}</div>))}</div>
-          <button className="btn-primary" style={{ width: "100%", justifyContent: "center" }} onClick={() => navigate("signup")}>S'abonner</button>
+          <button className="btn-primary" style={{ width: "100%", justifyContent: "center" }} onClick={async () => { const { data: { session } } = await supabase.auth.getSession(); if (!session) { navigate("signup"); return; } const priceId = annual ? "price_1TM84RDWe9VwpShTxY0YoPNZ" : "price_1TM83vDWe9VwpShT4qPHLsR8"; const res = await fetch("https://retouch-backend.vercel.app/api/checkout", { method: "POST", headers: { "Content-Type": "application/json", "Authorization": "Bearer " + session.access_token }, body: JSON.stringify({ priceId }) }); const data = await res.json(); if (data.url) window.location.href = data.url; }}>S'abonner</button>
         </div>
         <div className="pricing-card">
           <h3 style={{ fontSize: 24, fontWeight: 700, color: "#1a1a2e", margin: "0 0 6px" }}>Premium</h3>
@@ -258,7 +258,7 @@ function PricingPage({ navigate }) {
           <div style={{ display: "flex", alignItems: "baseline", gap: 4, marginBottom: 6 }}><span style={{ fontSize: 42, fontWeight: 800, color: "#1a1a2e" }}>{premPrice}€</span><span style={{ fontSize: 14, color: "#9ca3af" }}>/ mois</span></div>
           <p style={{ fontSize: 13, color: "#8b5cf6", fontWeight: 500, margin: "0 0 24px" }}>Crédits Illimités</p>
           <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 28 }}>{allFeatures.map(f => (<div key={f.label} style={{ display: "flex", alignItems: "center", gap: 10, fontSize: 14, color: "#374151" }}><CheckIcon /> {f.label}</div>))}</div>
-          <button className="btn-primary" style={{ width: "100%", justifyContent: "center" }} onClick={() => navigate("signup")}>S'abonner</button>
+          <button className="btn-primary" style={{ width: "100%", justifyContent: "center" }} onClick={async () => { const { data: { session } } = await supabase.auth.getSession(); if (!session) { navigate("signup"); return; } const priceId = annual ? "price_1TM84RDWe9VwpShTxY0YoPNZ" : "price_1TM83vDWe9VwpShT4qPHLsR8"; const res = await fetch("https://retouch-backend.vercel.app/api/checkout", { method: "POST", headers: { "Content-Type": "application/json", "Authorization": "Bearer " + session.access_token }, body: JSON.stringify({ priceId }) }); const data = await res.json(); if (data.url) window.location.href = data.url; }}>S'abonner</button>
         </div>
       </div>
       <Footer />

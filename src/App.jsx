@@ -375,6 +375,7 @@ function DashboardPage({ user, navigate, onLogout, refreshUser }) {
       <aside style={{ width: 260, minHeight: "100vh", background: "#faf9ff", borderRight: "1px solid #ede9fe", padding: "24px 16px", display: "flex", flexDirection: "column", position: "fixed", left: 0, top: 0, zIndex: 100, overflowY: "auto" }}>
         <div style={{ padding: "4px 8px 28px", display: "flex", alignItems: "center" }}><img src={LOGO_SRC} alt="Retouch" style={{ height: 40 }} /></div>
         <p style={sectionLabel}>Navigation</p>
+        <button style={sideItemStyle(false)} onClick={() => navigate("home")}><ChevLeft /> Accueil</button>
         <button style={sideItemStyle(activeSection === "workspace" && !activeTool)} onClick={() => { setActiveSection("workspace"); setActiveTool(null); setResultImage(null); }}><HomeIcon /> Workspace</button>
         <button style={sideItemStyle(activeSection === "history")} onClick={() => { setActiveSection("history"); setActiveTool(null); }}><GridIcon /> Bibliothèque</button>
         <button style={sideItemStyle(activeSection === "settings")} onClick={() => { setActiveSection("settings"); setActiveTool(null); }}><SettingsIcon /> Paramètres</button>

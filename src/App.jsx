@@ -692,10 +692,14 @@ export default function App() {
   nav img{height:30px!important}
   .btn-primary{padding:12px 20px;font-size:13px}
   .btn-secondary{padding:10px 18px;font-size:13px}
-  #section-tools{padding:40px 16px!important}
-  #section-tools > div:last-child{height:auto!important;display:grid!important;grid-template-columns:repeat(3,1fr)!important;gap:8px!important;position:static!important;padding:0!important}
-  #section-tools > div:last-child > div{position:static!important;transform:none!important;width:100%!important;left:auto!important;top:auto!important}
+  #section-tools{padding:30px 16px 20px!important}
+  #section-tools > div:first-child{margin-bottom:24px!important}
+  #section-tools > div:last-child{height:280px!important;display:flex!important;justify-content:center!important;align-items:center!important;position:relative!important;overflow:visible!important}
+  #section-tools > div:last-child > div{width:100px!important;position:absolute!important}
+  #section-results{padding:30px 16px!important}
+  #section-faq{padding:30px 16px!important}
   section{padding-left:16px!important;padding-right:16px!important}
+  .mq-fade{width:60px}
 }
 @media(max-width:768px){
   nav{height:48px!important;padding:0 12px!important;gap:8px!important}

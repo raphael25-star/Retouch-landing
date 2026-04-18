@@ -673,7 +673,7 @@ export default function App() {
         .upload-zone{border:2px dashed #e5e7eb;border-radius:14px;padding:32px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;transition:border-color .3s,background .3s;background:#fafafa}.upload-zone:hover{border-color:#c4b5fd;background:#faf9ff}
         .spinner{display:inline-block;width:16px;height:16px;border:2px solid rgba(255,255,255,0.3);border-top-color:#fff;border-radius:50%;animation:spin .6s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}
         textarea.form-input{font-family:inherit;line-height:1.6}
-       @media(max-width:768px){
+     @media(max-width:768px){
   .hero-split{flex-direction:column;text-align:center}
   .hero-left{align-items:center;display:flex;flex-direction:column}
   .hero-right{width:100%}
@@ -686,15 +686,15 @@ export default function App() {
   .pricing-card-recommended{transform:none!important}
   .auth-card{padding:28px 20px}
   .faq-btn{font-size:13px;padding:16px 18px}
+  .nav-links-desktop{display:none!important}
+  .hamburger-btn{display:flex!important;align-items:center!important}
   nav{height:48px!important;padding:0 12px!important}
-  nav > div:nth-child(2){display:none!important}
-  nav > div:nth-child(3) .nav-link{font-size:11px!important}
   nav img{height:30px!important}
-  .nav-cta{padding:5px 12px!important;font-size:11px!important}
   .btn-primary{padding:12px 20px;font-size:13px}
   .btn-secondary{padding:10px 18px;font-size:13px}
-  #section-tools > div:last-child{display:none!important}
-  #section-tools{padding:60px 16px!important}
+  #section-tools{padding:40px 16px!important}
+  #section-tools > div:last-child{height:auto!important;display:grid!important;grid-template-columns:repeat(3,1fr)!important;gap:8px!important;position:static!important;padding:0!important}
+  #section-tools > div:last-child > div{position:static!important;transform:none!important;width:100%!important;left:auto!important;top:auto!important}
   section{padding-left:16px!important;padding-right:16px!important}
 }
 @media(max-width:768px){

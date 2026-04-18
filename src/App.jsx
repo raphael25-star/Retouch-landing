@@ -705,7 +705,7 @@ export default function App() {
         .upload-zone{border:2px dashed #e5e7eb;border-radius:14px;padding:32px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;transition:border-color .3s,background .3s;background:#fafafa}.upload-zone:hover{border-color:#c4b5fd;background:#faf9ff}
         .spinner{display:inline-block;width:16px;height:16px;border:2px solid rgba(255,255,255,0.3);border-top-color:#fff;border-radius:50%;animation:spin .6s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}
         textarea.form-input{font-family:inherit;line-height:1.6}
-     @media(max-width:768px){
+    @media(max-width:768px){
   .hero-split{flex-direction:column;text-align:center}
   .hero-left{align-items:center;display:flex;flex-direction:column}
   .hero-right{width:100%}
@@ -724,16 +724,14 @@ export default function App() {
   nav img{height:30px!important}
   .btn-primary{padding:12px 20px;font-size:13px}
   .btn-secondary{padding:10px 18px;font-size:13px}
-  #section-tools{padding:30px 16px 20px!important}
-  #section-tools > div:first-child{margin-bottom:24px!important}
-  #section-tools > div:last-child{height:280px!important;display:flex!important;justify-content:center!important;align-items:center!important;position:relative!important;overflow:visible!important}
-  #section-tools > div:last-child > div{width:100px!important;position:absolute!important}
+  #section-tools{padding:30px 16px!important}
   #section-results{padding:30px 16px!important}
   #section-faq{padding:30px 16px!important}
   section{padding-left:16px!important;padding-right:16px!important}
   .mq-fade{width:60px}
   .tools-desktop{display:none!important}
   .tools-mobile{display:block!important}
+}
 }
 @media(max-width:768px){
   nav{height:48px!important;padding:0 12px!important;gap:8px!important}

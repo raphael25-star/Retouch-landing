@@ -123,10 +123,16 @@ function Tools() {
     { img: IMG.fusion, title: "Fusion multi-images", tag: "Premium" },
   ];
   const offsets = [{rotate:-4,y:20,z:1},{rotate:-2,y:0,z:2},{rotate:1,y:-10,z:3},{rotate:3,y:5,z:4},{rotate:-1,y:-5,z:3},{rotate:2,y:15,z:2},{rotate:-3,y:10,z:1}];
+  const row1 = tools.slice(0, 3);
+  const row2 = tools.slice(3);
+  const offRow1 = [{rotate:-6,x:-30,z:1},{rotate:0,x:0,z:3},{rotate:6,x:30,z:1}];
+  const offRow2 = [{rotate:-8,x:-40,z:1},{rotate:-2,x:-12,z:2},{rotate:3,x:14,z:3},{rotate:8,x:40,z:1}];
+
   return (
     <section id="section-tools" style={{ padding: "100px clamp(16px,5vw,48px)", maxWidth: 1200, margin: "0 auto" }}>
       <div style={{ textAlign: "center", marginBottom: 60 }}><h2 className="section-title">Générez vos images en <span className="grad-text">quelques secondes</span></h2><p className="section-sub">Tout ce dont vous avez besoin pour transformer vos images.</p></div>
-      <div style={{ display: "flex", justifyContent: "center", alignItems: "center", position: "relative", height: 420, marginBottom: 20 }}>
+      {/* Desktop: cartes empilées horizontalement */}
+      <div className="tools-desktop" style={{ display: "flex", justifyContent: "center", alignItems: "center", position: "relative", height: 420, marginBottom: 20 }}>
         {tools.map((t, i) => { const o = offsets[i]; return (
           <div key={i} style={{ position: "absolute", left: `${6+i*13}%`, top: "50%", transform: `translateY(calc(-50% + ${o.y}px)) rotate(${o.rotate}deg)`, zIndex: o.z, transition: "transform 0.4s, box-shadow 0.4s", cursor: "pointer", width: "clamp(140px, 18vw, 200px)" }}
             onMouseEnter={e => { e.currentTarget.style.transform = `translateY(calc(-50% + ${o.y-20}px)) rotate(0deg) scale(1.08)`; e.currentTarget.style.zIndex = 10; }}
@@ -139,6 +145,32 @@ function Tools() {
             </div>
           </div>
         ); })}
+      </div>
+      {/* Mobile: 2 rangées empilées */}
+      <div className="tools-mobile" style={{ display: "none" }}>
+        <div style={{ position: "relative", height: 200, display: "flex", justifyContent: "center", alignItems: "center", marginBottom: 16 }}>
+          {row1.map((t, i) => { const o = offRow1[i]; return (
+            <div key={i} style={{ position: "absolute", transform: `translateX(${o.x}px) rotate(${o.rotate}deg)`, zIndex: o.z, width: 120 }}>
+              <div style={{ borderRadius: 14, overflow: "hidden", boxShadow: "0 6px 20px rgba(0,0,0,0.15)", border: "2px solid rgba(255,255,255,0.8)", background: "#fff" }}>
+                <div style={{ position: "relative" }}><Img src={t.img} alt={t.title} style={{ width: "100%", aspectRatio: "3/4", objectFit: "cover", display: "block" }} /><div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, transparent 50%, rgba(0,0,0,0.7) 100%)" }} />
+                  <span style={{ position: "absolute", bottom: 8, left: 0, right: 0, textAlign: "center", fontSize: 10, fontWeight: 700, color: "#fff", textShadow: "0 1px 6px rgba(0,0,0,0.5)", padding: "0 4px" }}>{t.title}</span>
+                </div>
+              </div>
+            </div>
+          ); })}
+        </div>
+        <div style={{ position: "relative", height: 200, display: "flex", justifyContent: "center", alignItems: "center" }}>
+          {row2.map((t, i) => { const o = offRow2[i]; return (
+            <div key={i} style={{ position: "absolute", transform: `translateX(${o.x}px) rotate(${o.rotate}deg)`, zIndex: o.z, width: 110 }}>
+              <div style={{ borderRadius: 14, overflow: "hidden", boxShadow: "0 6px 20px rgba(0,0,0,0.15)", border: t.tag === "Premium" ? "2px solid #8b5cf6" : "2px solid rgba(255,255,255,0.8)", background: "#fff" }}>
+                <div style={{ position: "relative" }}><Img src={t.img} alt={t.title} style={{ width: "100%", aspectRatio: "3/4", objectFit: "cover", display: "block" }} /><div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, transparent 50%, rgba(0,0,0,0.7) 100%)" }} />
+                  {t.tag === "Premium" && <span style={{ position: "absolute", top: 6, right: 6, fontSize: 8, fontWeight: 700, padding: "2px 6px", borderRadius: 12, background: "linear-gradient(135deg, #8b5cf6, #ec4899)", color: "#fff" }}>PREMIUM</span>}
+                  <span style={{ position: "absolute", bottom: 8, left: 0, right: 0, textAlign: "center", fontSize: 9, fontWeight: 700, color: "#fff", textShadow: "0 1px 6px rgba(0,0,0,0.5)", padding: "0 4px" }}>{t.title}</span>
+                </div>
+              </div>
+            </div>
+          ); })}
+        </div>
       </div>
     </section>
   );
@@ -700,6 +732,8 @@ export default function App() {
   #section-faq{padding:30px 16px!important}
   section{padding-left:16px!important;padding-right:16px!important}
   .mq-fade{width:60px}
+  .tools-desktop{display:none!important}
+  .tools-mobile{display:block!important}
 }
 @media(max-width:768px){
   nav{height:48px!important;padding:0 12px!important;gap:8px!important}

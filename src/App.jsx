@@ -658,7 +658,29 @@ export default function App() {
         .upload-zone{border:2px dashed #e5e7eb;border-radius:14px;padding:32px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;transition:border-color .3s,background .3s;background:#fafafa}.upload-zone:hover{border-color:#c4b5fd;background:#faf9ff}
         .spinner{display:inline-block;width:16px;height:16px;border:2px solid rgba(255,255,255,0.3);border-top-color:#fff;border-radius:50%;animation:spin .6s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}
         textarea.form-input{font-family:inherit;line-height:1.6}
-        @media(max-width:768px){.hero-split{flex-direction:column;text-align:center}.hero-left{align-items:center;display:flex;flex-direction:column}.hero-right{width:100%}}
+        @media(max-width:768px){
+  .hero-split{flex-direction:column;text-align:center}
+  .hero-left{align-items:center;display:flex;flex-direction:column}
+  .hero-right{width:100%}
+  .hero-img-box{max-width:100%}
+  .section-title{font-size:24px!important}
+  .section-sub{font-size:13px!important}
+  .mq-item{width:130px;height:130px}
+  .testi-card{padding:20px}
+  .pricing-card{padding:24px 20px}
+  .pricing-card-recommended{transform:none}
+  .pricing-card-recommended:hover{transform:none}
+  .auth-card{padding:28px 20px}
+  .faq-btn{font-size:13px;padding:16px 18px}
+}
+@media(max-width:768px){
+  nav{height:48px!important;padding:0 12px!important;gap:8px!important}
+  nav a{font-size:12px!important}
+  nav img{height:32px!important}
+  .nav-cta{padding:6px 14px!important;font-size:12px!important}
+  .btn-primary{padding:12px 20px;font-size:13px}
+  .btn-secondary{padding:10px 18px;font-size:13px}
+}
       `}</style>
       {!isDashboard && <Navbar navigate={navigate} user={user} onLogout={handleLogout} />}
       {page === "home" && <HomePage navigate={navigate} />}

@@ -147,29 +147,29 @@ function Tools() {
         ); })}
       </div>
       {/* Mobile: 2 rangées empilées */}
-      <div className="tools-mobile" style={{ display: "none" }}>
-        <div style={{ position: "relative", height: 220, display: "flex", justifyContent: "center", alignItems: "center", marginBottom: 24 }}>
-          {row1.map((t, i) => { const o = offRow1[i]; return (
-            <div key={i} onClick={e => { const cards = e.currentTarget.parentElement.children; for (let c of cards) c.style.zIndex = 1; e.currentTarget.style.zIndex = 10; e.currentTarget.style.transform = `translateX(${o.x}px) rotate(0deg) scale(1.1)`; setTimeout(() => { e.currentTarget.style.transform = `translateX(${o.x}px) rotate(${o.rotate}deg) scale(1)`; e.currentTarget.style.zIndex = o.z; }, 2000); }} style={{ position: "absolute", transform: `translateX(${o.x * 1.4}px) rotate(${o.rotate}deg)`, zIndex: o.z, width: 130, transition: "transform 0.4s, z-index 0.1s", cursor: "pointer" }}>
-              <div style={{ borderRadius: 14, overflow: "hidden", boxShadow: "0 6px 24px rgba(0,0,0,0.15)", border: "2px solid rgba(255,255,255,0.8)", background: "#fff" }}>
-                <div style={{ position: "relative" }}><Img src={t.img} alt={t.title} style={{ width: "100%", aspectRatio: "3/4", objectFit: "cover", display: "block" }} /><div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, transparent 40%, rgba(0,0,0,0.7) 100%)" }} />
-                  <span style={{ position: "absolute", bottom: 10, left: 0, right: 0, textAlign: "center", fontSize: 11, fontWeight: 700, color: "#fff", textShadow: "0 1px 6px rgba(0,0,0,0.5)", padding: "0 6px" }}>{t.title}</span>
-                </div>
+      <div className="tools-mobile" style={{ display: "none", padding: "0 8px" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 10, marginBottom: 10 }}>
+          {tools.slice(0, 3).map((t, i) => (
+            <div key={i} style={{ borderRadius: 14, overflow: "hidden", boxShadow: "0 4px 16px rgba(0,0,0,0.1)", border: "2px solid rgba(255,255,255,0.8)", background: "#fff" }}>
+              <div style={{ position: "relative" }}>
+                <Img src={t.img} alt={t.title} style={{ width: "100%", aspectRatio: "3/4", objectFit: "cover", display: "block" }} />
+                <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, transparent 40%, rgba(0,0,0,0.7) 100%)" }} />
+                <span style={{ position: "absolute", bottom: 8, left: 0, right: 0, textAlign: "center", fontSize: 10, fontWeight: 700, color: "#fff", textShadow: "0 1px 6px rgba(0,0,0,0.5)", padding: "0 4px" }}>{t.title}</span>
               </div>
             </div>
-          ); })}
+          ))}
         </div>
-        <div style={{ position: "relative", height: 220, display: "flex", justifyContent: "center", alignItems: "center" }}>
-          {row2.map((t, i) => { const o = offRow2[i]; return (
-            <div key={i} onClick={e => { const cards = e.currentTarget.parentElement.children; for (let c of cards) c.style.zIndex = 1; e.currentTarget.style.zIndex = 10; e.currentTarget.style.transform = `translateX(${o.x}px) rotate(0deg) scale(1.1)`; setTimeout(() => { e.currentTarget.style.transform = `translateX(${o.x}px) rotate(${o.rotate}deg) scale(1)`; e.currentTarget.style.zIndex = o.z; }, 2000); }} style={{ position: "absolute", transform: `translateX(${o.x * 1.3}px) rotate(${o.rotate}deg)`, zIndex: o.z, width: 120, transition: "transform 0.4s, z-index 0.1s", cursor: "pointer" }}>
-              <div style={{ borderRadius: 14, overflow: "hidden", boxShadow: "0 6px 24px rgba(0,0,0,0.15)", border: t.tag === "Premium" ? "2px solid #8b5cf6" : "2px solid rgba(255,255,255,0.8)", background: "#fff" }}>
-                <div style={{ position: "relative" }}><Img src={t.img} alt={t.title} style={{ width: "100%", aspectRatio: "3/4", objectFit: "cover", display: "block" }} /><div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, transparent 40%, rgba(0,0,0,0.7) 100%)" }} />
-                  {t.tag === "Premium" && <span style={{ position: "absolute", top: 6, right: 6, fontSize: 8, fontWeight: 700, padding: "2px 7px", borderRadius: 12, background: "linear-gradient(135deg, #8b5cf6, #ec4899)", color: "#fff" }}>PREMIUM</span>}
-                  <span style={{ position: "absolute", bottom: 10, left: 0, right: 0, textAlign: "center", fontSize: 10, fontWeight: 700, color: "#fff", textShadow: "0 1px 6px rgba(0,0,0,0.5)", padding: "0 4px" }}>{t.title}</span>
-                </div>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 10 }}>
+          {tools.slice(3).map((t, i) => (
+            <div key={i} style={{ borderRadius: 14, overflow: "hidden", boxShadow: "0 4px 16px rgba(0,0,0,0.1)", border: t.tag === "Premium" ? "2px solid #8b5cf6" : "2px solid rgba(255,255,255,0.8)", background: "#fff" }}>
+              <div style={{ position: "relative" }}>
+                <Img src={t.img} alt={t.title} style={{ width: "100%", aspectRatio: "3/4", objectFit: "cover", display: "block" }} />
+                <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, transparent 40%, rgba(0,0,0,0.7) 100%)" }} />
+                {t.tag === "Premium" && <span style={{ position: "absolute", top: 4, right: 4, fontSize: 7, fontWeight: 700, padding: "2px 5px", borderRadius: 10, background: "linear-gradient(135deg, #8b5cf6, #ec4899)", color: "#fff" }}>PREMIUM</span>}
+                <span style={{ position: "absolute", bottom: 8, left: 0, right: 0, textAlign: "center", fontSize: 9, fontWeight: 700, color: "#fff", textShadow: "0 1px 6px rgba(0,0,0,0.5)", padding: "0 2px" }}>{t.title}</span>
               </div>
             </div>
-          ); })}
+          ))}
         </div>
       </div>
     </section>

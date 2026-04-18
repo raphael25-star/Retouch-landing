@@ -49,24 +49,39 @@ function Img({ src, alt, style, ...rest }) {
 
 /* ═══ NAVBAR (only for non-dashboard pages) ═══ */
 function Navbar({ navigate, user, onLogout }) {
+  const [menuOpen, setMenuOpen] = useState(false);
   return (
     <div style={{ position: "fixed", top: 0, left: 0, right: 0, zIndex: 1000, padding: "12px clamp(16px, 3vw, 40px)", background: "transparent" }}>
       <nav style={{ maxWidth: 1300, margin: "0 auto", height: 56, display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 clamp(16px, 3vw, 32px)", background: "#fff", borderRadius: 14, boxShadow: "0 2px 16px rgba(139,92,246,0.08), 0 0 0 1px rgba(139,92,246,0.06)" }}>
         <div style={{ display: "flex", alignItems: "center", cursor: "pointer" }} onClick={() => navigate("home")}><img src={LOGO_SRC} alt="Retouch" style={{ height: 44, width: "auto", objectFit: "contain" }} /></div>
-        <div style={{ display: "flex", alignItems: "center", gap: 32 }}>
+        <div className="nav-links-desktop" style={{ display: "flex", alignItems: "center", gap: 32 }}>
           <a onClick={() => { const el = document.getElementById("section-tools"); if (el) el.scrollIntoView({ behavior: "smooth" }); }} className="nav-link" style={{ cursor: "pointer" }}>Fonctionnalités</a>
           <a onClick={() => { const el = document.getElementById("section-results"); if (el) el.scrollIntoView({ behavior: "smooth" }); }} className="nav-link" style={{ cursor: "pointer" }}>Résultats</a>
           <a onClick={() => navigate("pricing")} className="nav-link" style={{ cursor: "pointer" }}>Tarifs</a>
           <a onClick={() => { const el = document.getElementById("section-faq"); if (el) el.scrollIntoView({ behavior: "smooth" }); }} className="nav-link" style={{ cursor: "pointer" }}>FAQ</a>
         </div>
-        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+        <div className="nav-links-desktop" style={{ display: "flex", alignItems: "center", gap: 12 }}>
           {user ? (<><a onClick={() => navigate("dashboard")} className="nav-link" style={{ cursor: "pointer" }}>Dashboard</a><a onClick={onLogout} className="nav-link" style={{ cursor: "pointer" }}>Déconnexion</a></>) : (<><a onClick={() => navigate("login")} className="nav-link" style={{ cursor: "pointer", fontWeight: 600 }}>Se connecter</a><a onClick={() => navigate("signup")} className="nav-cta" style={{ cursor: "pointer" }}>S'inscrire</a></>)}
         </div>
+        <button className="hamburger-btn" onClick={() => setMenuOpen(!menuOpen)} style={{ display: "none", background: "none", border: "none", cursor: "pointer", padding: 8 }}>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#1a1a2e" strokeWidth="2" strokeLinecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
       </nav>
+      {menuOpen && (
+        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.4)", zIndex: 9998 }} onClick={() => setMenuOpen(false)}>
+          <div style={{ position: "absolute", top: 80, right: 16, background: "#fff", borderRadius: 16, padding: "16px 0", minWidth: 220, boxShadow: "0 12px 40px rgba(0,0,0,0.15)" }} onClick={e => e.stopPropagation()}>
+            <a onClick={() => { setMenuOpen(false); const el = document.getElementById("section-tools"); if (el) el.scrollIntoView({ behavior: "smooth" }); }} style={{ display: "block", padding: "12px 24px", fontSize: 14, fontWeight: 500, color: "#374151", cursor: "pointer", textDecoration: "none" }}>Fonctionnalités</a>
+            <a onClick={() => { setMenuOpen(false); const el = document.getElementById("section-results"); if (el) el.scrollIntoView({ behavior: "smooth" }); }} style={{ display: "block", padding: "12px 24px", fontSize: 14, fontWeight: 500, color: "#374151", cursor: "pointer", textDecoration: "none" }}>Résultats</a>
+            <a onClick={() => { setMenuOpen(false); navigate("pricing"); }} style={{ display: "block", padding: "12px 24px", fontSize: 14, fontWeight: 500, color: "#374151", cursor: "pointer", textDecoration: "none" }}>Tarifs</a>
+            <a onClick={() => { setMenuOpen(false); const el = document.getElementById("section-faq"); if (el) el.scrollIntoView({ behavior: "smooth" }); }} style={{ display: "block", padding: "12px 24px", fontSize: 14, fontWeight: 500, color: "#374151", cursor: "pointer", textDecoration: "none" }}>FAQ</a>
+            <div style={{ height: 1, background: "#e5e7eb", margin: "8px 0" }} />
+            {user ? (<><a onClick={() => { setMenuOpen(false); navigate("dashboard"); }} style={{ display: "block", padding: "12px 24px", fontSize: 14, fontWeight: 600, color: "#8b5cf6", cursor: "pointer", textDecoration: "none" }}>Dashboard</a><a onClick={() => { setMenuOpen(false); onLogout(); }} style={{ display: "block", padding: "12px 24px", fontSize: 14, fontWeight: 500, color: "#ef4444", cursor: "pointer", textDecoration: "none" }}>Déconnexion</a></>) : (<><a onClick={() => { setMenuOpen(false); navigate("login"); }} style={{ display: "block", padding: "12px 24px", fontSize: 14, fontWeight: 600, color: "#374151", cursor: "pointer", textDecoration: "none" }}>Se connecter</a><a onClick={() => { setMenuOpen(false); navigate("signup"); }} style={{ display: "block", padding: "12px 24px", fontSize: 14, fontWeight: 600, color: "#8b5cf6", cursor: "pointer", textDecoration: "none" }}>S'inscrire gratuitement</a></>)}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
-
 /* ═══ HERO ═══ */
 function Hero({ navigate }) {
   return (

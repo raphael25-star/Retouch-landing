@@ -419,14 +419,16 @@ function DashboardPage({ user, navigate, onLogout, refreshUser }) {
   return (
     <div style={{ display: "flex", minHeight: "100vh", background: "#f8f7fc" }}>
       {/* ── SIDEBAR ── */}
-      <aside style={{ width: 260, minHeight: "100vh", background: "#faf9ff", borderRight: "1px solid #ede9fe", padding: "24px 16px", display: "flex", flexDirection: "column", position: "fixed", left: 0, top: 0, zIndex: 100, overflowY: "auto" }}>
+      <aside className="dash-sidebar" style={{ width: 260, minHeight: "100vh", background: "#faf9ff", borderRight: "1px solid #ede9fe", padding: "24px 16px", display: "flex", flexDirection: "column", position: "fixed", left: 0, top: 0, zIndex: 100, overflowY: "auto" }}>
         <div style={{ padding: "4px 8px 28px", display: "flex", alignItems: "center" }}><img src={LOGO_SRC} alt="Retouch" style={{ height: 40 }} /></div>
         <p style={sectionLabel}>Navigation</p>
-        <button style={sideItemStyle(false)} onClick={() => navigate("home")}><ChevLeft /> Accueil</button>
-        <button style={sideItemStyle(activeSection === "workspace" && !activeTool)} onClick={() => { setActiveSection("workspace"); setActiveTool(null); setResultImage(null); }}><HomeIcon /> Workspace</button>
-        <button style={sideItemStyle(activeSection === "history")} onClick={() => { setActiveSection("history"); setActiveTool(null); }}><GridIcon /> Bibliothèque</button>
-        <button style={sideItemStyle(activeSection === "settings")} onClick={() => { setActiveSection("settings"); setActiveTool(null); }}><SettingsIcon /> Paramètres</button>
-
+        <div className="dash-nav-items">
+          <button style={sideItemStyle(false)} onClick={() => navigate("home")}><ChevLeft /> <span>Accueil</span></button>
+          <button style={sideItemStyle(activeSection === "workspace" && !activeTool)} onClick={() => { setActiveSection("workspace"); setActiveTool(null); setResultImage(null); }}><HomeIcon /> <span>Workspace</span></button>
+          <button style={sideItemStyle(activeSection === "history")} onClick={() => { setActiveSection("history"); setActiveTool(null); }}><GridIcon /> <span>Bibliothèque</span></button>
+          <button style={sideItemStyle(activeSection === "settings")} onClick={() => { setActiveSection("settings"); setActiveTool(null); }}><SettingsIcon /> <span>Paramètres</span></button>
+        </div>
+        <div className="dash-tool-items">
         <p style={{ ...sectionLabel, marginTop: 8 }}>Outils IA</p>
         {tools.filter(t => !t.premium).map(t => (
           <button key={t.name} style={sideItemStyle(activeTool?.name === t.name)} onClick={() => selectTool(t)}>{t.icon} {t.name}</button>
@@ -440,6 +442,7 @@ function DashboardPage({ user, navigate, onLogout, refreshUser }) {
             {isPremiumUser && <span style={{ marginLeft: "auto", fontSize: 9, fontWeight: 700, padding: "2px 8px", borderRadius: 20, background: "linear-gradient(135deg,#8b5cf6,#ec4899)", color: "#fff" }}>PREMIUM</span>}
           </button>
         ))}
+         </div>
 
         <div style={{ marginTop: "auto", paddingTop: 20, borderTop: "1px solid #ede9fe" }}>
           <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 14px" }}>
@@ -454,7 +457,7 @@ function DashboardPage({ user, navigate, onLogout, refreshUser }) {
       </aside>
 
       {/* ── MAIN ── */}
-      <main style={{ marginLeft: 260, flex: 1, minHeight: "100vh" }}>
+      <main className="dash-main" style={{ marginLeft: 260, flex: 1, minHeight: "100vh" }}>
         <header style={{ height: 56, padding: "0 32px", display: "flex", alignItems: "center", justifyContent: "space-between", borderBottom: "1px solid #ede9fe", background: "rgba(255,255,255,0.8)", backdropFilter: "blur(12px)", position: "sticky", top: 0, zIndex: 50 }}>
           <h2 style={{ fontSize: 15, fontWeight: 700, color: "#1a1a2e", margin: 0 }}>{activeTool ? activeTool.name : activeSection === "workspace" ? "Workspace" : activeSection === "history" ? "Bibliothèque" : "Paramètres"}</h2>
           <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
@@ -465,7 +468,7 @@ function DashboardPage({ user, navigate, onLogout, refreshUser }) {
           </div>
         </header>
 
-        <div style={{ padding: "32px 32px 60px" }}>
+        <div className="content-area" style={{ padding: "32px 32px 60px" }}>
           {/* ── WORKSPACE HOME ── */}
           {activeSection === "workspace" && !activeTool && (
             <div style={{ maxWidth: 800, margin: "0 auto" }}>
@@ -740,6 +743,17 @@ export default function App() {
   .nav-cta{padding:6px 14px!important;font-size:12px!important}
   .btn-primary{padding:12px 20px;font-size:13px}
   .btn-secondary{padding:10px 18px;font-size:13px}
+  .dash-sidebar{position:fixed!important;top:auto!important;bottom:0!important;left:0!important;right:0!important;width:100%!important;min-height:auto!important;height:60px!important;flex-direction:row!important;padding:0 8px!important;border-right:none!important;border-top:1px solid #ede9fe!important;z-index:200!important;overflow:hidden!important}
+  .dash-sidebar > div:first-child{display:none!important}
+  .dash-sidebar > p{display:none!important}
+  .dash-sidebar > div:last-child{display:none!important}
+  .dash-sidebar .dash-nav-items{display:flex!important;flex-direction:row!important;justify-content:space-around!important;align-items:center!important;width:100%!important;height:100%!important;gap:0!important}
+  .dash-sidebar .dash-nav-items button{padding:6px 0!important;font-size:10px!important;flex-direction:column!important;gap:2px!important;display:flex!important;align-items:center!important;justify-content:center!important}
+  .dash-sidebar .dash-nav-items button svg{width:20px;height:20px}
+  .dash-sidebar .dash-tool-items{display:none!important}
+  .dash-main{margin-left:0!important;padding-bottom:70px!important}
+  .dash-main header{padding:0 16px!important}
+  .dash-main .content-area{padding:16px 16px 80px!important}
 }
       `}</style>
       {!isDashboard && <Navbar navigate={navigate} user={user} onLogout={handleLogout} />}

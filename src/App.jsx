@@ -597,7 +597,7 @@ function DashboardPage({ user, navigate, onLogout, refreshUser }) {
                   <button className="btn-primary" style={{ width: "100%", justifyContent: "center", padding: "12px 24px", fontSize: 14 }} onClick={handleGenerate} disabled={loading}>
                       {loading ? <><span className="spinner" /> Génération en cours...</> : <><Sparkle s={14} c="#fff" /> Générer — {CREDITS_PER_IMAGE} crédits</>}
                     </button>
-                    <button className="btn-secondary" style={{ width: "100%", justifyContent: "center", marginTop: 10, padding: "10px 20px", fontSize: 13 }} onClick={() => { setActiveTool(null); setUploadedImages([]); setPrompt(""); setResultImage(null); setError(""); }}>
+                    <button className="btn-secondary" style={{ width: "100%", justifyContent: "center", marginTop: 10, padding: "10px 20px", fontSize: 13 }} onClick={() => { setActiveTool(null); setUploadedImages([]); setPrompt(""); setResultImage(null); setError(""); setShowToolPicker(true); }}>
                       Changer d'outil
                     </button>
                 </div>

@@ -271,6 +271,19 @@ function PricingPage({ navigate }) {
           <button className="btn-primary" style={{ width: "100%", justifyContent: "center" }} onClick={async () => { const { data: { session } } = await supabase.auth.getSession(); if (!session) { navigate("signup"); return; } const priceId = annual ? "price_1TM85KDWe9VwpShTGj4Q4J09" : "price_1TM84kDWe9VwpShTKzxJaaxX"; const res = await fetch("https://retouch-backend.vercel.app/api/checkout", { method: "POST", headers: { "Content-Type": "application/json", "Authorization": "Bearer " + session.access_token }, body: JSON.stringify({ priceId }) }); const data = await res.json(); if (data.url) window.location.href = data.url; }}>S'abonner</button>
         </div>
       </div>
+      <h2 style={{ fontSize: "clamp(22px,3vw,32px)", fontWeight: 800, color: "#1a1a2e", textAlign: "center", margin: "0 0 10px" }}>Packs de crédits ponctuels</h2>
+      <p style={{ textAlign: "center", color: "#6b7280", fontSize: 14, margin: "0 0 40px" }}>Vos crédits ne périment jamais.</p>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 18, marginBottom: 60 }}>
+        {[{ name: "Pack Basique", credits: 200, price: "10€" }, { name: "Pack Avancé", credits: 1000, price: "40€", badge: "Le plus courant" }, { name: "Pack Studio", credits: 5000, price: "150€" }].map((p, i) => (
+          <div key={i} style={{ padding: 24, borderRadius: 16, background: "#fff", border: "1px solid #e5e7eb", textAlign: "center" }}>
+            {p.badge && <span style={{ fontSize: 11, fontWeight: 600, color: "#8b5cf6", background: "rgba(139,92,246,0.08)", padding: "3px 10px", borderRadius: 20, marginBottom: 10, display: "inline-block" }}>{p.badge}</span>}
+            <h4 style={{ fontSize: 16, fontWeight: 700, color: "#1a1a2e", margin: "0 0 6px" }}>{p.name}</h4>
+            <p style={{ fontSize: 13, color: "#6b7280", margin: "0 0 12px" }}>{p.credits} crédits</p>
+            <p style={{ fontSize: 28, fontWeight: 800, color: "#1a1a2e", margin: "0 0 16px" }}>{p.price}</p>
+            <button className="btn-secondary" style={{ width: "100%", justifyContent: "center", fontSize: 13 }}>Acheter</button>
+          </div>
+        ))}
+      </div>
       <Footer />
     </section>
   );
@@ -582,8 +595,11 @@ function DashboardPage({ user, navigate, onLogout, refreshUser }) {
                   )}
                   {error && <p style={{ color: "#ef4444", fontSize: 12, marginBottom: 12, padding: "8px 12px", background: "rgba(239,68,68,0.06)", borderRadius: 8 }}>{error}</p>}
                   <button className="btn-primary" style={{ width: "100%", justifyContent: "center", padding: "12px 24px", fontSize: 14 }} onClick={handleGenerate} disabled={loading}>
-                    {loading ? <><span className="spinner" /> Génération en cours...</> : <><Sparkle s={14} c="#fff" /> Générer — {CREDITS_PER_IMAGE} crédits</>}
-                  </button>
+                      {loading ? <><span className="spinner" /> Génération en cours...</> : <><Sparkle s={14} c="#fff" /> Générer — {CREDITS_PER_IMAGE} crédits</>}
+                    </button>
+                    <button className="btn-secondary" style={{ width: "100%", justifyContent: "center", marginTop: 10, padding: "10px 20px", fontSize: 13 }} onClick={() => { setActiveTool(null); setUploadedImages([]); setPrompt(""); setResultImage(null); setError(""); }}>
+                      Changer d'outil
+                    </button>
                 </div>
                 {resultImage && (
                   <div>

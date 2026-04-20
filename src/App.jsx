@@ -734,26 +734,14 @@ export default function App() {
   .mq-fade{width:60px}
   .tools-desktop{display:none!important}
   .tools-mobile{display:block!important}
-}
-}
-@media(max-width:768px){
-  nav{height:48px!important;padding:0 12px!important;gap:8px!important}
-  nav a{font-size:12px!important}
-  nav img{height:32px!important}
-  .nav-cta{padding:6px 14px!important;font-size:12px!important}
-  .btn-primary{padding:12px 20px;font-size:13px}
-  .btn-secondary{padding:10px 18px;font-size:13px}
-  .dash-sidebar{position:fixed!important;top:auto!important;bottom:0!important;left:0!important;right:0!important;width:100%!important;min-height:auto!important;height:60px!important;flex-direction:row!important;padding:0 8px!important;border-right:none!important;border-top:1px solid #ede9fe!important;z-index:200!important;overflow:hidden!important}
-  .dash-sidebar > div:first-child{display:none!important}
-  .dash-sidebar > p{display:none!important}
-  .dash-sidebar > div:last-child{display:none!important}
-  .dash-sidebar .dash-nav-items{display:flex!important;flex-direction:row!important;justify-content:space-around!important;align-items:center!important;width:100%!important;height:100%!important;gap:0!important}
-  .dash-sidebar .dash-nav-items button{padding:6px 0!important;font-size:10px!important;flex-direction:column!important;gap:2px!important;display:flex!important;align-items:center!important;justify-content:center!important}
-  .dash-sidebar .dash-nav-items button svg{width:20px;height:20px}
-  .dash-sidebar .dash-tool-items{display:none!important}
-  .dash-main{margin-left:0!important;padding-bottom:70px!important}
-  .dash-main header{padding:0 16px!important}
-  .dash-main .content-area{padding:16px 16px 80px!important}
+  aside.dash-sidebar{position:fixed!important;top:auto!important;bottom:0!important;left:0!important;right:0!important;width:100vw!important;min-height:auto!important;height:56px!important;flex-direction:row!important;padding:4px 0!important;border-right:none!important;border-top:1px solid #ede9fe!important;z-index:200!important;overflow:hidden!important;background:#fff!important}
+  aside.dash-sidebar > *{display:none!important}
+  aside.dash-sidebar .dash-nav-items{display:flex!important;flex-direction:row!important;justify-content:space-around!important;align-items:center!important;width:100%!important;height:100%!important}
+  aside.dash-sidebar .dash-nav-items button{padding:4px 0!important;font-size:9px!important;flex-direction:column!important;gap:2px!important;display:flex!important;align-items:center!important;justify-content:center!important;background:none!important}
+  aside.dash-sidebar .dash-nav-items button span{font-size:9px!important}
+  main.dash-main{margin-left:0!important;padding-bottom:70px!important}
+  main.dash-main .content-area{padding:16px 16px 80px!important}
+  main.dash-main header{padding:0 16px!important}
 }
       `}</style>
       {!isDashboard && <Navbar navigate={navigate} user={user} onLogout={handleLogout} />}

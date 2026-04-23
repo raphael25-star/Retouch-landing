@@ -378,7 +378,7 @@ function DashboardPage({ user, navigate, onLogout, refreshUser }) {
     { name: "Gomme magique", icon: <EraserIcon />, model: "google/nano-banana-edit", promptTemplate: "", type: "edit", premium: false },
     { name: "Changement de style", icon: <PaletteIcon />, model: "google/nano-banana-edit", promptTemplate: "", type: "edit", premium: false },
     { name: "Retouche pro", icon: <WandIcon />, model: "google/nano-banana-edit", promptTemplate: "", type: "edit", premium: false },
-    { name: "Amélioration HD", icon: <ZapIcon />, model: "google/nano-banana-edit", promptTemplate: "UPSCALE this image to ultra high resolution 4K quality. Maximize sharpness, clarity and detail on every pixel. Apply strong unsharp mask and enhance micro-details: skin pores, hair strands, fabric threads, surface textures, edges. Increase contrast slightly for depth. Remove any blur, noise or compression artifacts. Output must be crisp, razor-sharp, photorealistic 4K quality. Do NOT change the subject, composition, colors, lighting, pose or background in any way. Only enhance resolution and sharpness.", type: "edit", premium: false },
+    { name: "Amélioration HD", icon: <ZapIcon />, model: "google/nano-banana-edit", promptTemplate: "Upscale this image to 4K resolution. Sharpen all details, remove blur and noise. Enhance textures and clarity. Keep the exact same subject, pose, colors and background unchanged.", type: "edit", premium: false },
     { name: "Texte dans image", icon: <TypeIcon />, model: "google/nano-banana-edit", promptTemplate: "", type: "edit", premium: true },
     { name: "Fusion multi-images", icon: <MergeIcon />, model: "nano-banana-2", promptTemplate: "", type: "edit", premium: true },
   ];

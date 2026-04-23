@@ -378,7 +378,7 @@ function DashboardPage({ user, navigate, onLogout, refreshUser }) {
     { name: "Gomme magique", icon: <EraserIcon />, model: "google/nano-banana-edit", promptTemplate: "", type: "edit", premium: false },
     { name: "Changement de style", icon: <PaletteIcon />, model: "google/nano-banana-edit", promptTemplate: "", type: "edit", premium: false },
     { name: "Retouche pro", icon: <WandIcon />, model: "google/nano-banana-edit", promptTemplate: "", type: "edit", premium: false },
-{ name: "Amélioration HD", icon: <ZapIcon />, model: "google/nano-banana-edit", promptTemplate: "Enhance this photo to look like a professional high-resolution photograph. Add realistic details: skin pores, hair strands, fabric texture. Keep natural lighting, no smoothing. Same subject, same pose, same background.", type: "edit", premium: false },
+{ name: "Amélioration HD", icon: <ZapIcon />, model: "google/nano-banana-edit", promptTemplate: "Recreate this exact photo as a professional DSLR photograph with sharp focus, detailed textures, and high resolution quality.", type: "edit", premium: false },
     { name: "Texte dans image", icon: <TypeIcon />, model: "google/nano-banana-edit", promptTemplate: "", type: "edit", premium: true },
     { name: "Fusion multi-images", icon: <MergeIcon />, model: "nano-banana-2", promptTemplate: "", type: "edit", premium: true },
   ];

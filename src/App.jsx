@@ -404,7 +404,8 @@ function DashboardPage({ user, navigate, onLogout, refreshUser }) {
       if (activeTool.name === "Fusion multi-images" && uploadedImages.length > 1) {
         requestBody = { model: activeTool.model, input: { prompt: prompt || "Blend these images into one coherent composition.", image_input: uploadedImages.map(img => "data:image/png;base64," + img.base64), output_format: "png", resolution: "1K" } };
       } else if (uploadedImages.length > 0) {
-        requestBody = { model: activeTool.model, input: { prompt: (activeTool.name === "Texte dans image" ? "IMPORTANT: Do NOT change the original image. Only overlay text: " + prompt : finalPrompt + (prompt && activeTool.promptTemplate ? " " + prompt : "")), image_urls: uploadedImages.map(img => "data:image/png;base64," + img.base64), output_format: "png" } };
+        const res = activeTool.name === "Amélioration HD" ? "4K" : "1K";
+        requestBody = { model: activeTool.model, input: { prompt: (activeTool.name === "Texte dans image" ? "IMPORTANT: Do NOT change the original image. Only overlay text: " + prompt : finalPrompt + (prompt && activeTool.promptTemplate ? " " + prompt : "")), image_urls: uploadedImages.map(img => "data:image/png;base64," + img.base64) , output_format : "png", resolution: res } };
       } else {
         requestBody = { model: activeTool.model, input: { prompt, output_format: "png", image_size: "1:1" } };
       }

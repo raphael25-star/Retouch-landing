@@ -666,17 +666,6 @@ function DashboardPage({ user, navigate, onLogout, refreshUser }) {
               <div className="tool-layout" style={{ display: "grid", gridTemplateColumns: resultImage ? "1fr 1fr" : "1fr", gap: 28 }}>
                 {/* COLONNE GAUCHE : FORM */}
                 <div>
-                  {/* Cover du template */}
-                  <div style={{ borderRadius: 16, overflow: "hidden", marginBottom: 24, border: "1px solid #ede9fe", background: "#fff", position: "relative" }}>
-                    <div style={{ position: "relative", aspectRatio: "16/9" }}>
-                      <Img src={activeTool.cover} alt={activeTool.name} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
-                      <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, transparent 50%, rgba(0,0,0,0.7) 100%)", pointerEvents: "none" }} />
-                      <div style={{ position: "absolute", bottom: 12, left: 14, right: 14 }}>
-                        <p style={{ fontSize: 11, color: "rgba(255,255,255,0.85)", margin: 0, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em", textShadow: "0 1px 4px rgba(0,0,0,0.4)" }}>Exemple de rendu</p>
-                      </div>
-                    </div>
-                  </div>
-
                   {/* Upload zone */}
                   <div style={{ marginBottom: 20 }}>
                     <label style={{ fontSize: 12, fontWeight: 600, color: "#374151", marginBottom: 8, display: "block" }}>

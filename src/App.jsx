@@ -301,7 +301,7 @@ function LoginPage({ navigate, onLogin, user }) {
     if (user) navigate("dashboard");
   }, [user, navigate]);
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (isRetry = false) => {
     if (!email.trim() || !password) { setError("Veuillez remplir tous les champs."); return; }
     setLoading(true); setError("");
 
@@ -311,8 +311,21 @@ function LoginPage({ navigate, onLogin, user }) {
       new Promise((_, reject) => setTimeout(() => reject(new Error(errMsg)), ms))
     ]);
 
+    // Helper pour clear uniquement les clés Supabase
+    const clearSupabaseCache = () => {
+      try {
+        const keysToRemove = [];
+        for (let i = 0; i < localStorage.length; i++) {
+          const k = localStorage.key(i);
+          if (k && (k.startsWith("sb-") || k.includes("supabase"))) keysToRemove.push(k);
+        }
+        keysToRemove.forEach(k => localStorage.removeItem(k));
+        sessionStorage.clear();
+      } catch (e) { console.warn("[Retouch] Erreur clear cache:", e); }
+    };
+
     try {
-      console.log("[Retouch] Login - Étape 1 : nettoyage session existante");
+      console.log("[Retouch] Login - Étape 1 : nettoyage session existante" + (isRetry ? " (retry)" : ""));
       // Étape 1 : sign out silencieux pour nettoyer toute session zombie qui pourrait interférer
       try {
         await withTimeout(supabase.auth.signOut(), 3000, "Timeout signOut");
@@ -325,7 +338,7 @@ function LoginPage({ navigate, onLogin, user }) {
       const { data, error: authError } = await withTimeout(
         supabase.auth.signInWithPassword({ email: email.trim(), password }),
         8000,
-        "Le serveur d'authentification est trop lent. Réessayez."
+        "TIMEOUT_LOGIN"
       );
       if (authError) throw authError;
       if (!data?.user) throw new Error("Aucun utilisateur retourné.");
@@ -335,7 +348,7 @@ function LoginPage({ navigate, onLogin, user }) {
       const { data: profile, error: profileError } = await withTimeout(
         supabase.from("profiles").select("*").eq("id", data.user.id).single(),
         5000,
-        "Le chargement du profil est trop lent. Réessayez."
+        "TIMEOUT_PROFILE"
       );
       if (profileError) throw profileError;
       if (!profile) throw new Error("Profil introuvable.");
@@ -346,13 +359,28 @@ function LoginPage({ navigate, onLogin, user }) {
     } catch (err) {
       console.error("[Retouch] Erreur login:", err);
       const msg = err.message || "Erreur inconnue.";
+
+      // Si c'est un timeout ET qu'on n'a pas encore retry → on clear le cache et on retry automatiquement
+      if ((msg === "TIMEOUT_LOGIN" || msg === "TIMEOUT_PROFILE") && !isRetry) {
+        console.warn("[Retouch] Timeout détecté, nettoyage automatique du cache et nouvelle tentative...");
+        clearSupabaseCache();
+        // On laisse 200ms pour que le cache soit bien nettoyé avant de retry
+        setTimeout(() => handleSubmit(true), 200);
+        return; // Ne pas afficher d'erreur, ne pas setLoading(false), le retry s'en charge
+      }
+
+      // Sinon, on affiche l'erreur
       setError(
         msg === "Invalid login credentials" ? "Email ou mot de passe incorrect." :
-        msg.includes("trop lent") ? msg + " Si le problème persiste, videz le cache de votre navigateur." :
+        msg === "TIMEOUT_LOGIN" ? "Le serveur d'authentification est trop lent. Veuillez réessayer dans quelques instants." :
+        msg === "TIMEOUT_PROFILE" ? "Le chargement du profil est trop lent. Veuillez réessayer." :
         msg
       );
     } finally {
-      setLoading(false);
+      // Ne pas setLoading(false) si on est en train de retry
+      if (!error || error.includes("trop lent") || error === "" || isRetry) {
+        setLoading(false);
+      }
     }
   };
 
@@ -1082,13 +1110,64 @@ export default function App() {
   const [sessionChecked, setSessionChecked] = useState(false); // true une fois que Supabase a répondu (succès ou échec)
   const navigate = (p) => { setPage(p); window.scrollTo(0, 0); };
   const handleLogin = (profile) => setUser(profile);
-  const handleLogout = async () => { await supabase.auth.signOut(); setUser(null); navigate("home"); };
+  const handleLogout = async () => {
+    try { await supabase.auth.signOut(); } catch (e) { console.warn("[Retouch] Erreur signOut:", e); }
+    // On clear aussi tout pour partir propre
+    try { localStorage.clear(); sessionStorage.clear(); } catch (e) {}
+    setUser(null);
+    navigate("home");
+  };
 
   useEffect(() => {
     let cancelled = false;
     let safetyTimer;
 
+    // Helper pour wrapper avec timeout
+    const withTimeout = (promise, ms) => Promise.race([
+      promise,
+      new Promise((_, reject) => setTimeout(() => reject(new Error("TIMEOUT")), ms))
+    ]);
+
+    // Auto-reset si cache Supabase corrompu :
+    // Si getSession() met plus de 3 secondes au premier chargement, on considère que le cache est corrompu.
+    // On le nettoie et on reload (avec un flag pour ne le faire qu'une seule fois et éviter une boucle).
+    const tryAutoResetIfCorrupted = async () => {
+      const ALREADY_RESET_FLAG = "retouch_auto_reset_done";
+      if (sessionStorage.getItem(ALREADY_RESET_FLAG)) {
+        // On a déjà tenté un auto-reset dans cette session, on ne réessaie pas
+        return false;
+      }
+      try {
+        await withTimeout(supabase.auth.getSession(), 3000);
+        return false; // Pas besoin de reset, getSession a répondu vite
+      } catch (err) {
+        if (err.message === "TIMEOUT") {
+          console.warn("[Retouch] Cache Supabase suspect (getSession trop lent), nettoyage automatique...");
+          try {
+            sessionStorage.setItem(ALREADY_RESET_FLAG, "1");
+            // Clear uniquement les clés Supabase pour ne pas tout casser
+            const keysToRemove = [];
+            for (let i = 0; i < localStorage.length; i++) {
+              const k = localStorage.key(i);
+              if (k && (k.startsWith("sb-") || k.includes("supabase"))) keysToRemove.push(k);
+            }
+            keysToRemove.forEach(k => localStorage.removeItem(k));
+            // Reload pour repartir propre
+            window.location.reload();
+            return true;
+          } catch (e) {
+            console.warn("[Retouch] Erreur lors du nettoyage:", e);
+          }
+        }
+        return false;
+      }
+    };
+
     const checkSession = async () => {
+      // Étape 0 : tentative d'auto-reset si cache corrompu
+      const isResetting = await tryAutoResetIfCorrupted();
+      if (isResetting || cancelled) return;
+
       try {
         const { data: { session }, error: sessionError } = await supabase.auth.getSession();
         if (cancelled) return;
@@ -1096,7 +1175,14 @@ export default function App() {
         // Si erreur de session (JWT expiré, corrompu, etc.) → on nettoie le cache silencieusement
         if (sessionError) {
           console.warn("[Retouch] Session corrompue détectée, nettoyage du cache...", sessionError);
-          try { localStorage.clear(); sessionStorage.clear(); } catch (e) {}
+          try {
+            const keysToRemove = [];
+            for (let i = 0; i < localStorage.length; i++) {
+              const k = localStorage.key(i);
+              if (k && (k.startsWith("sb-") || k.includes("supabase"))) keysToRemove.push(k);
+            }
+            keysToRemove.forEach(k => localStorage.removeItem(k));
+          } catch (e) {}
           setSessionChecked(true);
           return;
         }

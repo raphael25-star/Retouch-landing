@@ -359,6 +359,8 @@ function DashboardPage({ user, navigate, onLogout, refreshUser }) {
   const [error, setError] = useState("");
   const [history, setHistory] = useState([]);
   const [activeCategory, setActiveCategory] = useState("all");
+  const [resolution, setResolution] = useState("2K");
+  const [ratio, setRatio] = useState("1:1");
 
   if (!user) { navigate("login"); return null; }
 
@@ -433,15 +435,18 @@ function DashboardPage({ user, navigate, onLogout, refreshUser }) {
     if (!user.unlimited && user.credits < CREDITS_PER_IMAGE) { setError("Crédits insuffisants. Veuillez recharger votre compte."); return; }
     setLoading(true); setError(""); setResultImage(null);
     const finalPrompt = activeTool.promptTemplate || prompt;
+    // Inclusion du ratio dans le prompt (le backend Kie.ai ne le prend pas en paramètre direct, donc on le glisse dans le prompt)
+    const ratioHint = ratio !== "1:1" ? ` Output aspect ratio: ${ratio}.` : "";
     try {
       let requestBody;
       if (activeTool.name === "Fusion multi-images" && uploadedImages.length > 1) {
-        requestBody = { model: activeTool.model, input: { prompt: prompt || "Blend these images into one coherent composition.", image_input: uploadedImages.map(img => "data:image/png;base64," + img.base64), output_format: "png", resolution: "1K" } };
+        requestBody = { model: activeTool.model, input: { prompt: (prompt || "Blend these images into one coherent composition.") + ratioHint, image_input: uploadedImages.map(img => "data:image/png;base64," + img.base64), output_format: "png", resolution } };
       } else if (uploadedImages.length > 0) {
-        const res = activeTool.name === "Amélioration HD" ? "4K" : "1K";
-        requestBody = { model: activeTool.model, input: { prompt: (activeTool.name === "Texte dans image" ? "IMPORTANT: Do NOT change the original image. Only overlay text: " + prompt : finalPrompt + (prompt && activeTool.promptTemplate ? " " + prompt : "")), image_urls: uploadedImages.map(img => "data:image/png;base64," + img.base64) , output_format : "png", resolution: res } };
+        const res = activeTool.name === "Amélioration HD" ? "4K" : resolution;
+        const promptWithRatio = (activeTool.name === "Texte dans image" ? "IMPORTANT: Do NOT change the original image. Only overlay text: " + prompt : finalPrompt + (prompt && activeTool.promptTemplate ? " " + prompt : "")) + ratioHint;
+        requestBody = { model: activeTool.model, input: { prompt: promptWithRatio, image_urls: uploadedImages.map(img => "data:image/png;base64," + img.base64), output_format: "png", resolution: res } };
       } else {
-        requestBody = { model: activeTool.model, input: { prompt, output_format: "png", image_size: "1:1" } };
+        requestBody = { model: activeTool.model, input: { prompt: prompt + ratioHint, output_format: "png", image_size: ratio } };
       }
       const { data: { session } } = await supabase.auth.getSession();
       if (activeTool.name === "Amélioration HD") {
@@ -463,7 +468,14 @@ function DashboardPage({ user, navigate, onLogout, refreshUser }) {
 
   const selectTool = (t) => {
     if (t.premium && !isPremiumUser) { return; }
-    setActiveTool(t); setActiveSection("workspace"); setPrompt(""); setUploadedImages([]); setResultImage(null); setError("");
+    setActiveTool(t);
+    setActiveSection("workspace");
+    setPrompt("");
+    setUploadedImages([]);
+    setResultImage(null);
+    setError("");
+    setResolution(t.name === "Amélioration HD" ? "4K" : "2K");
+    setRatio("1:1");
   };
 
   const maxImages = activeTool?.name === "Fusion multi-images" ? 8 : 1;
@@ -477,7 +489,6 @@ function DashboardPage({ user, navigate, onLogout, refreshUser }) {
         <div style={{ padding: "4px 8px 28px", display: "flex", alignItems: "center", cursor: "pointer" }} onClick={() => { setActiveSection("workspace"); setActiveTool(null); setResultImage(null); }}><img src={LOGO_SRC} alt="Retouch" style={{ height: 40 }} /></div>
         <p style={sectionLabel}>Navigation</p>
         <div className="dash-nav-items">
-          <button style={sideItemStyle(false)} onClick={() => navigate("home")}><ChevLeft /> <span>Accueil</span></button>
           <button style={sideItemStyle(activeSection === "workspace" && !activeTool)} onClick={() => { setActiveSection("workspace"); setActiveTool(null); setResultImage(null); }}><HomeIcon /> <span>Workspace</span></button>
           <button style={sideItemStyle(activeSection === "history")} onClick={() => { setActiveSection("history"); setActiveTool(null); }}><GridIcon /> <span>Bibliothèque</span></button>
           <button style={sideItemStyle(activeSection === "settings")} onClick={() => { setActiveSection("settings"); setActiveTool(null); }}><SettingsIcon /> <span>Paramètres</span></button>
@@ -637,29 +648,89 @@ function DashboardPage({ user, navigate, onLogout, refreshUser }) {
 
           {/* ── TOOL WORKSPACE ── */}
           {activeSection === "workspace" && activeTool && (
-            <div style={{ maxWidth: 800, margin: "0 auto" }}>
-              <div style={{ display: "grid", gridTemplateColumns: resultImage ? "1fr 1fr" : "1fr", gap: 28 }}>
+            <div style={{ maxWidth: 900, margin: "0 auto" }}>
+              {/* Header avec flèche retour et nom du template */}
+              <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 20 }}>
+                <button onClick={() => { setActiveTool(null); setUploadedImages([]); setPrompt(""); setResultImage(null); setError(""); }}
+                  style={{ width: 40, height: 40, borderRadius: 12, border: "1px solid #ede9fe", background: "#fff", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: "#6b7280", flexShrink: 0, transition: "all 0.2s" }}
+                  onMouseEnter={e => { e.currentTarget.style.background = "#f3f0ff"; e.currentTarget.style.color = "#8b5cf6"; }}
+                  onMouseLeave={e => { e.currentTarget.style.background = "#fff"; e.currentTarget.style.color = "#6b7280"; }}>
+                  <ChevLeft />
+                </button>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <h1 style={{ fontSize: 20, fontWeight: 800, color: "#1a1a2e", margin: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{activeTool.name}</h1>
+                  <p style={{ fontSize: 12, color: "#9ca3af", margin: "2px 0 0", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{activeTool.subtitle}</p>
+                </div>
+              </div>
+
+              <div className="tool-layout" style={{ display: "grid", gridTemplateColumns: resultImage ? "1fr 1fr" : "1fr", gap: 28 }}>
+                {/* COLONNE GAUCHE : FORM */}
                 <div>
-                  <div style={{ marginBottom: 24 }}>
-                    <label style={{ fontSize: 12, fontWeight: 600, color: "#6b7280", marginBottom: 8, display: "block" }}>Image{maxImages > 1 ? "s" : ""} ({uploadedImages.length}/{maxImages})</label>
-                    <div className="upload-zone" onClick={() => document.getElementById("file-input").click()} style={{ minHeight: 180, borderColor: "#ddd6fe" }}>
-                      <input id="file-input" type="file" accept="image/*" multiple={maxImages > 1} onChange={handleFileUpload} style={{ display: "none" }} />
-                      <ImageIcon /><span style={{ fontSize: 13, color: "#9ca3af", marginTop: 10 }}>Glissez-déposez une image ici</span><span style={{ fontSize: 11, color: "#c4b5fd", marginTop: 4 }}>PNG, JPG, WEBP</span>
+                  {/* Cover du template */}
+                  <div style={{ borderRadius: 16, overflow: "hidden", marginBottom: 24, border: "1px solid #ede9fe", background: "#fff", position: "relative" }}>
+                    <div style={{ position: "relative", aspectRatio: "16/9" }}>
+                      <Img src={activeTool.cover} alt={activeTool.name} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+                      <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, transparent 50%, rgba(0,0,0,0.7) 100%)", pointerEvents: "none" }} />
+                      <div style={{ position: "absolute", bottom: 12, left: 14, right: 14 }}>
+                        <p style={{ fontSize: 11, color: "rgba(255,255,255,0.85)", margin: 0, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em", textShadow: "0 1px 4px rgba(0,0,0,0.4)" }}>Exemple de rendu</p>
+                      </div>
                     </div>
-                    {uploadedImages.length > 0 && (
-                      <div style={{ display: "flex", gap: 8, marginTop: 12, flexWrap: "wrap" }}>
+                  </div>
+
+                  {/* Upload zone */}
+                  <div style={{ marginBottom: 20 }}>
+                    <label style={{ fontSize: 12, fontWeight: 600, color: "#374151", marginBottom: 8, display: "block" }}>
+                      Votre image{maxImages > 1 ? "s" : ""} <span style={{ color: "#9ca3af", fontWeight: 500 }}>({uploadedImages.length}/{maxImages})</span>
+                    </label>
+                    {uploadedImages.length === 0 ? (
+                      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+                        {/* Bouton "Choisir une photo" */}
+                        <button onClick={() => document.getElementById("file-input-gallery").click()}
+                          style={{ padding: "20px 12px", borderRadius: 14, border: "2px dashed #ddd6fe", background: "#faf9ff", cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 6, transition: "all 0.2s", fontFamily: "inherit", minHeight: 120 }}
+                          onMouseEnter={e => { e.currentTarget.style.borderColor = "#8b5cf6"; e.currentTarget.style.background = "#f3f0ff"; }}
+                          onMouseLeave={e => { e.currentTarget.style.borderColor = "#ddd6fe"; e.currentTarget.style.background = "#faf9ff"; }}>
+                          <input id="file-input-gallery" type="file" accept="image/*" multiple={maxImages > 1} onChange={handleFileUpload} style={{ display: "none" }} />
+                          <div style={{ width: 36, height: 36, borderRadius: 10, background: "linear-gradient(135deg,#ede9fe,#fce7f3)", display: "flex", alignItems: "center", justifyContent: "center", color: "#8b5cf6" }}><ImageIcon /></div>
+                          <span style={{ fontSize: 13, fontWeight: 600, color: "#1a1a2e" }}>Galerie</span>
+                          <span style={{ fontSize: 10, color: "#9ca3af" }}>PNG, JPG, WEBP</span>
+                        </button>
+                        {/* Bouton "Prendre en photo" (caméra direct sur mobile) */}
+                        <button onClick={() => document.getElementById("file-input-camera").click()}
+                          style={{ padding: "20px 12px", borderRadius: 14, border: "2px dashed #ddd6fe", background: "#faf9ff", cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 6, transition: "all 0.2s", fontFamily: "inherit", minHeight: 120 }}
+                          onMouseEnter={e => { e.currentTarget.style.borderColor = "#8b5cf6"; e.currentTarget.style.background = "#f3f0ff"; }}
+                          onMouseLeave={e => { e.currentTarget.style.borderColor = "#ddd6fe"; e.currentTarget.style.background = "#faf9ff"; }}>
+                          <input id="file-input-camera" type="file" accept="image/*" capture="environment" onChange={handleFileUpload} style={{ display: "none" }} />
+                          <div style={{ width: 36, height: 36, borderRadius: 10, background: "linear-gradient(135deg,#ede9fe,#fce7f3)", display: "flex", alignItems: "center", justifyContent: "center", color: "#8b5cf6" }}>
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
+                          </div>
+                          <span style={{ fontSize: 13, fontWeight: 600, color: "#1a1a2e" }}>Caméra</span>
+                          <span style={{ fontSize: 10, color: "#9ca3af" }}>Prendre en photo</span>
+                        </button>
+                      </div>
+                    ) : (
+                      <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
                         {uploadedImages.map((img, i) => (
-                          <div key={i} style={{ position: "relative", width: 64, height: 64, borderRadius: 10, overflow: "hidden", border: "2px solid #ede9fe" }}>
+                          <div key={i} style={{ position: "relative", width: 88, height: 88, borderRadius: 12, overflow: "hidden", border: "2px solid #ede9fe", background: "#fff" }}>
                             <img src={img.preview} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-                            <button onClick={() => removeImage(i)} style={{ position: "absolute", top: 2, right: 2, width: 18, height: 18, borderRadius: "50%", background: "rgba(0,0,0,0.6)", color: "#fff", border: "none", fontSize: 10, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>×</button>
+                            <button onClick={() => removeImage(i)}
+                              style={{ position: "absolute", top: 4, right: 4, width: 22, height: 22, borderRadius: "50%", background: "rgba(0,0,0,0.7)", color: "#fff", border: "none", fontSize: 13, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", lineHeight: 1 }}>×</button>
                           </div>
                         ))}
+                        {uploadedImages.length < maxImages && (
+                          <button onClick={() => document.getElementById("file-input-add").click()}
+                            style={{ width: 88, height: 88, borderRadius: 12, border: "2px dashed #ddd6fe", background: "#faf9ff", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", color: "#8b5cf6", fontSize: 24, fontFamily: "inherit" }}>
+                            <input id="file-input-add" type="file" accept="image/*" multiple onChange={handleFileUpload} style={{ display: "none" }} />
+                            +
+                          </button>
+                        )}
                       </div>
                     )}
                   </div>
-                  {!activeTool.promptTemplate && (
+
+                  {/* Prompt */}
+                  {!activeTool.promptTemplate ? (
                     <div style={{ marginBottom: 20 }}>
-                      <label style={{ fontSize: 12, fontWeight: 600, color: "#6b7280", marginBottom: 8, display: "block" }}>Instruction</label>
+                      <label style={{ fontSize: 12, fontWeight: 600, color: "#374151", marginBottom: 8, display: "block" }}>Instruction</label>
                       <textarea className="form-input" value={prompt} onChange={e => setPrompt(e.target.value)} placeholder={
                         activeTool.name === "Gomme magique" ? "Ex: Supprime la personne à droite" :
                         activeTool.name === "Changement de style" ? "Ex: Style scandinave minimaliste" :
@@ -668,20 +739,71 @@ function DashboardPage({ user, navigate, onLogout, refreshUser }) {
                         activeTool.name === "Fusion multi-images" ? "Ex: Fusionne en un seul visuel" : "Décrivez votre modification..."
                       } rows={3} style={{ resize: "vertical", minHeight: 80, borderColor: "#ddd6fe" }} />
                     </div>
+                  ) : (
+                    <div style={{ marginBottom: 20, padding: "12px 16px", borderRadius: 12, background: "#f3f0ff", border: "1px solid #ede9fe", display: "flex", alignItems: "center", gap: 10 }}>
+                      <Sparkle s={16} c="#8b5cf6" />
+                      <p style={{ fontSize: 12, color: "#6b46c1", margin: 0, lineHeight: 1.4 }}>Cet outil applique automatiquement un traitement optimisé. Aucune instruction requise.</p>
+                    </div>
                   )}
-                  {error && <p style={{ color: "#ef4444", fontSize: 12, marginBottom: 12, padding: "8px 12px", background: "rgba(239,68,68,0.06)", borderRadius: 8 }}>{error}</p>}
-                  <button className="btn-primary" style={{ width: "100%", justifyContent: "center", padding: "12px 24px", fontSize: 14 }} onClick={handleGenerate} disabled={loading}>
-                      {loading ? <><span className="spinner" /> Génération en cours...</> : <><Sparkle s={14} c="#fff" /> Générer — {CREDITS_PER_IMAGE} crédits</>}
-                    </button>
-                    <button className="btn-secondary" style={{ width: "100%", justifyContent: "center", marginTop: 10, padding: "10px 20px", fontSize: 13 }} onClick={() => { setActiveTool(null); setUploadedImages([]); setPrompt(""); setResultImage(null); setError(""); }}>
-                      ← Retour aux outils
-                    </button>
+
+                  {/* Sélecteur résolution */}
+                  {activeTool.name !== "Amélioration HD" && (
+                    <div style={{ marginBottom: 18 }}>
+                      <label style={{ fontSize: 12, fontWeight: 600, color: "#374151", marginBottom: 8, display: "block" }}>Résolution</label>
+                      <div style={{ display: "flex", gap: 6 }}>
+                        {["1K", "2K", "4K"].map(r => (
+                          <button key={r} onClick={() => setResolution(r)}
+                            style={{
+                              flex: 1, padding: "10px 12px", borderRadius: 10, fontSize: 13, fontWeight: 600,
+                              background: resolution === r ? "linear-gradient(135deg,#8b5cf6,#ec4899)" : "#fff",
+                              color: resolution === r ? "#fff" : "#6b7280",
+                              border: resolution === r ? "1px solid transparent" : "1px solid #ede9fe",
+                              cursor: "pointer", fontFamily: "inherit", transition: "all 0.2s",
+                              boxShadow: resolution === r ? "0 2px 10px rgba(139,92,246,0.25)" : "none"
+                            }}>
+                            {r}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Sélecteur ratio */}
+                  <div style={{ marginBottom: 24 }}>
+                    <label style={{ fontSize: 12, fontWeight: 600, color: "#374151", marginBottom: 8, display: "block" }}>Format</label>
+                    <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+                      {["1:1", "9:16", "16:9", "4:5", "3:4"].map(r => (
+                        <button key={r} onClick={() => setRatio(r)}
+                          style={{
+                            flex: "1 1 0", minWidth: 56, padding: "8px 10px", borderRadius: 10, fontSize: 12, fontWeight: 600,
+                            background: ratio === r ? "linear-gradient(135deg,#8b5cf6,#ec4899)" : "#fff",
+                            color: ratio === r ? "#fff" : "#6b7280",
+                            border: ratio === r ? "1px solid transparent" : "1px solid #ede9fe",
+                            cursor: "pointer", fontFamily: "inherit", transition: "all 0.2s",
+                            boxShadow: ratio === r ? "0 2px 10px rgba(139,92,246,0.25)" : "none"
+                          }}>
+                          {r}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {error && <p style={{ color: "#ef4444", fontSize: 12, marginBottom: 12, padding: "10px 14px", background: "rgba(239,68,68,0.06)", borderRadius: 10, border: "1px solid rgba(239,68,68,0.15)" }}>{error}</p>}
+
+                  {/* Bouton Générer */}
+                  <button className="btn-primary tool-generate-btn" style={{ width: "100%", justifyContent: "center", padding: "14px 24px", fontSize: 15 }} onClick={handleGenerate} disabled={loading}>
+                    {loading ? <><span className="spinner" /> Génération en cours...</> : <><Sparkle s={16} c="#fff" /> Générer — {CREDITS_PER_IMAGE} crédits</>}
+                  </button>
                 </div>
+
+                {/* COLONNE DROITE : RESULT */}
                 {resultImage && (
                   <div>
-                    <label style={{ fontSize: 12, fontWeight: 600, color: "#6b7280", marginBottom: 8, display: "block" }}>Résultat</label>
-                    <div style={{ borderRadius: 14, overflow: "hidden", border: "2px solid #ede9fe", background: "#fff", cursor: "pointer" }} onClick={() => { const overlay = document.createElement("div"); overlay.style.cssText = "position:fixed;inset:0;background:rgba(0,0,0,0.9);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px;"; const closeBtn = document.createElement("button"); closeBtn.innerHTML = "✕"; closeBtn.style.cssText = "position:absolute;top:20px;right:20px;background:rgba(255,255,255,0.2);border:none;color:#fff;font-size:24px;width:44px;height:44px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;"; closeBtn.onclick = () => document.body.removeChild(overlay); overlay.appendChild(closeBtn); const img = document.createElement("img"); img.src = resultImage; img.style.cssText = "max-width:95%;max-height:85vh;border-radius:12px;object-fit:contain;"; overlay.appendChild(img); overlay.onclick = (e) => { if (e.target === overlay) document.body.removeChild(overlay); }; document.body.appendChild(overlay); }}><img src={resultImage} alt="Résultat" style={{ width: "100%", display: "block" }} /></div>
-                    <button className="btn-secondary" style={{ width: "100%", justifyContent: "center", marginTop: 12, fontSize: 13, padding: "10px 20px" }} onClick={async () => { try { const r = await fetch("https://retouch-backend.vercel.app/api/download?url=" + encodeURIComponent(resultImage)); const b = await r.blob(); const u = window.URL.createObjectURL(b); const a = document.createElement("a"); a.style.display = "none"; a.href = u; a.download = "retouch-result.png"; document.body.appendChild(a); a.click(); window.URL.revokeObjectURL(u); document.body.removeChild(a); } catch(e) { window.open(resultImage); } }}>Télécharger l'image</button> 
+                    <label style={{ fontSize: 12, fontWeight: 600, color: "#374151", marginBottom: 8, display: "block" }}>Résultat</label>
+                    <div style={{ borderRadius: 14, overflow: "hidden", border: "2px solid #ede9fe", background: "#fff", cursor: "pointer" }} onClick={() => { const overlay = document.createElement("div"); overlay.style.cssText = "position:fixed;inset:0;background:rgba(0,0,0,0.9);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px;"; const closeBtn = document.createElement("button"); closeBtn.innerHTML = "✕"; closeBtn.style.cssText = "position:absolute;top:20px;right:20px;background:rgba(255,255,255,0.2);border:none;color:#fff;font-size:24px;width:44px;height:44px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;"; closeBtn.onclick = () => document.body.removeChild(overlay); overlay.appendChild(closeBtn); const img = document.createElement("img"); img.src = resultImage; img.style.cssText = "max-width:95%;max-height:85vh;border-radius:12px;object-fit:contain;"; overlay.appendChild(img); overlay.onclick = (e) => { if (e.target === overlay) document.body.removeChild(overlay); }; document.body.appendChild(overlay); }}>
+                      <img src={resultImage} alt="Résultat" style={{ width: "100%", display: "block" }} />
+                    </div>
+                    <button className="btn-secondary" style={{ width: "100%", justifyContent: "center", marginTop: 12, fontSize: 13, padding: "10px 20px" }} onClick={async () => { try { const r = await fetch("https://retouch-backend.vercel.app/api/download?url=" + encodeURIComponent(resultImage)); const b = await r.blob(); const u = window.URL.createObjectURL(b); const a = document.createElement("a"); a.style.display = "none"; a.href = u; a.download = "retouch-result.png"; document.body.appendChild(a); a.click(); window.URL.revokeObjectURL(u); document.body.removeChild(a); } catch(e) { window.open(resultImage); } }}>Télécharger l'image</button>
                     <p style={{ textAlign: "center", fontSize: 11, color: "#9ca3af", marginTop: 6 }}>Astuce : appuyez longuement sur l'image pour l'enregistrer dans vos photos</p>
                   </div>
                 )}
@@ -746,7 +868,12 @@ export default function App() {
       const { data: { session } } = await supabase.auth.getSession();
       if (session?.user) {
         const { data: profile } = await supabase.from("profiles").select("*").eq("id", session.user.id).single();
-        if (profile) setUser(profile);
+        if (profile) {
+          setUser(profile);
+          // Auto-redirect : si user connecté est sur home, on l'envoie sur le dashboard
+          // (sauf s'il est déjà sur pricing/login/signup, auquel cas on respecte sa navigation)
+          setPage(currentPage => currentPage === "home" ? "dashboard" : currentPage);
+        }
       }
       setLoading(false);
     };
@@ -840,6 +967,7 @@ export default function App() {
   .dash-mobile-logo{display:flex!important}
   .dash-welcome{font-size:20px!important}
   .dash-templates-grid{grid-template-columns:repeat(2,1fr)!important;gap:12px!important}
+  .tool-layout{grid-template-columns:1fr!important}
 }
       `}</style>
       {!isDashboard && <Navbar navigate={navigate} user={user} onLogout={handleLogout} />}

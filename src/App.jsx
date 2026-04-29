@@ -40,6 +40,7 @@ const PaletteIcon = () => <svg width="18" height="18" viewBox="0 0 24 24" fill="
 const UploadIcon = () => <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>;
 const LockIcon = () => <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>;
 const GridIcon = () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>;
+const FlameIcon = () => <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2c0 0-5 6-5 11a5 5 0 0010 0c0-3-2-5-2-7 0 0-3 2-3-4z"/></svg>;
 
 function Img({ src, alt, style, ...rest }) {
   const [err, setErr] = useState(false);
@@ -357,7 +358,7 @@ function DashboardPage({ user, navigate, onLogout, refreshUser }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [history, setHistory] = useState([]);
-  const [showToolPicker, setShowToolPicker] = useState(false);
+  const [activeCategory, setActiveCategory] = useState("all");
 
   if (!user) { navigate("login"); return null; }
 
@@ -374,13 +375,29 @@ function DashboardPage({ user, navigate, onLogout, refreshUser }) {
   }, [user.id]);
 
   const tools = [
-    { name: "Suppression d'arrière-plan", icon: <ImageIcon />, model: "google/nano-banana-edit", promptTemplate: "Remove the background from this image completely, leaving only the main subject on a transparent/white background.", type: "edit", premium: false },
-    { name: "Gomme magique", icon: <EraserIcon />, model: "google/nano-banana-edit", promptTemplate: "", type: "edit", premium: false },
-    { name: "Changement de style", icon: <PaletteIcon />, model: "google/nano-banana-edit", promptTemplate: "", type: "edit", premium: false },
-    { name: "Retouche pro", icon: <WandIcon />, model: "google/nano-banana-edit", promptTemplate: "", type: "edit", premium: false },
-{ name: "Amélioration HD", icon: <ZapIcon />, model: "nano-banana-2", promptTemplate: "Keep this exact same image unchanged. Only increase the resolution, sharpness and detail quality to 4K. Do not modify anything.", type: "edit", premium: false },    { name: "Texte dans image", icon: <TypeIcon />, model: "google/nano-banana-edit", promptTemplate: "", type: "edit", premium: true },
-    { name: "Fusion multi-images", icon: <MergeIcon />, model: "nano-banana-2", promptTemplate: "", type: "edit", premium: true },
+    { name: "Suppression d'arrière-plan", subtitle: "Détourage parfait en 1 clic", icon: <ImageIcon />, cover: IMG.removebg, model: "google/nano-banana-edit", promptTemplate: "Remove the background from this image completely, leaving only the main subject on a transparent/white background.", type: "edit", premium: false, trending: false, category: "background" },
+    { name: "Gomme magique", subtitle: "Supprimez n'importe quel objet", icon: <EraserIcon />, cover: IMG.eraser, model: "google/nano-banana-edit", promptTemplate: "", type: "edit", premium: false, trending: true, category: "edit" },
+    { name: "Changement de style", subtitle: "Transformez votre déco en 1 clic", icon: <PaletteIcon />, cover: IMG.restyle, model: "google/nano-banana-edit", promptTemplate: "", type: "edit", premium: false, trending: false, category: "style" },
+    { name: "Retouche pro", subtitle: "Ajoutez ou retirez des éléments", icon: <WandIcon />, cover: IMG.retouch, model: "google/nano-banana-edit", promptTemplate: "", type: "edit", premium: false, trending: false, category: "edit" },
+    { name: "Amélioration HD", subtitle: "Ultra haute définition 4K", icon: <ZapIcon />, cover: IMG.upscale, model: "nano-banana-2", promptTemplate: "Keep this exact same image unchanged. Only increase the resolution, sharpness and detail quality to 4K. Do not modify anything.", type: "edit", premium: false, trending: true, category: "quality" },
+    { name: "Texte dans image", subtitle: "Ajoutez du texte stylisé", icon: <TypeIcon />, cover: IMG.textimg, model: "google/nano-banana-edit", promptTemplate: "", type: "edit", premium: true, trending: false, category: "text" },
+    { name: "Fusion multi-images", subtitle: "Combinez jusqu'à 8 images", icon: <MergeIcon />, cover: IMG.fusion, model: "nano-banana-2", promptTemplate: "", type: "edit", premium: true, trending: false, category: "fusion" },
   ];
+
+  const categories = [
+    { key: "all", label: "Tous" },
+    { key: "trending", label: "Tendances" },
+    { key: "standard", label: "Standard" },
+    { key: "premium", label: "Premium" },
+  ];
+
+  const filteredTools = tools.filter(t => {
+    if (activeCategory === "all") return true;
+    if (activeCategory === "trending") return t.trending;
+    if (activeCategory === "standard") return !t.premium;
+    if (activeCategory === "premium") return t.premium;
+    return true;
+  });
 
   const handleFileUpload = (e) => {
     const files = Array.from(e.target.files);
@@ -446,7 +463,7 @@ function DashboardPage({ user, navigate, onLogout, refreshUser }) {
 
   const selectTool = (t) => {
     if (t.premium && !isPremiumUser) { return; }
-    setActiveTool(t); setActiveSection("workspace"); setPrompt(""); setUploadedImages([]); setResultImage(null); setError(""); setShowToolPicker(false);
+    setActiveTool(t); setActiveSection("workspace"); setPrompt(""); setUploadedImages([]); setResultImage(null); setError("");
   };
 
   const maxImages = activeTool?.name === "Fusion multi-images" ? 8 : 1;
@@ -457,7 +474,7 @@ function DashboardPage({ user, navigate, onLogout, refreshUser }) {
     <div style={{ display: "flex", minHeight: "100vh", background: "#f8f7fc" }}>
       {/* ── SIDEBAR ── */}
       <aside className="dash-sidebar" style={{ width: 260, minHeight: "100vh", background: "#faf9ff", borderRight: "1px solid #ede9fe", padding: "24px 16px", display: "flex", flexDirection: "column", position: "fixed", left: 0, top: 0, zIndex: 100, overflowY: "auto" }}>
-        <div style={{ padding: "4px 8px 28px", display: "flex", alignItems: "center" }}><img src={LOGO_SRC} alt="Retouch" style={{ height: 40 }} /></div>
+        <div style={{ padding: "4px 8px 28px", display: "flex", alignItems: "center", cursor: "pointer" }} onClick={() => { setActiveSection("workspace"); setActiveTool(null); setResultImage(null); }}><img src={LOGO_SRC} alt="Retouch" style={{ height: 40 }} /></div>
         <p style={sectionLabel}>Navigation</p>
         <div className="dash-nav-items">
           <button style={sideItemStyle(false)} onClick={() => navigate("home")}><ChevLeft /> <span>Accueil</span></button>
@@ -465,21 +482,6 @@ function DashboardPage({ user, navigate, onLogout, refreshUser }) {
           <button style={sideItemStyle(activeSection === "history")} onClick={() => { setActiveSection("history"); setActiveTool(null); }}><GridIcon /> <span>Bibliothèque</span></button>
           <button style={sideItemStyle(activeSection === "settings")} onClick={() => { setActiveSection("settings"); setActiveTool(null); }}><SettingsIcon /> <span>Paramètres</span></button>
         </div>
-        <div className="dash-tool-items">
-        <p style={{ ...sectionLabel, marginTop: 8 }}>Outils IA</p>
-        {tools.filter(t => !t.premium).map(t => (
-          <button key={t.name} style={sideItemStyle(activeTool?.name === t.name)} onClick={() => selectTool(t)}>{t.icon} {t.name}</button>
-        ))}
-
-        <p style={{ ...sectionLabel, marginTop: 8 }}>Premium</p>
-        {tools.filter(t => t.premium).map(t => (
-          <button key={t.name} style={{ ...sideItemStyle(activeTool?.name === t.name), opacity: isPremiumUser ? 1 : 0.5, cursor: isPremiumUser ? "pointer" : "not-allowed" }} onClick={() => selectTool(t)}>
-            {t.icon} {t.name}
-            {!isPremiumUser && <span style={{ marginLeft: "auto" }}><LockIcon /></span>}
-            {isPremiumUser && <span style={{ marginLeft: "auto", fontSize: 9, fontWeight: 700, padding: "2px 8px", borderRadius: 20, background: "linear-gradient(135deg,#8b5cf6,#ec4899)", color: "#fff" }}>PREMIUM</span>}
-          </button>
-        ))}
-         </div>
 
         <div style={{ marginTop: "auto", paddingTop: 20, borderTop: "1px solid #ede9fe" }}>
           <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 14px" }}>
@@ -506,55 +508,105 @@ function DashboardPage({ user, navigate, onLogout, refreshUser }) {
         </header>
 
         <div className="content-area" style={{ padding: "32px 32px 60px" }}>
-          {/* ── WORKSPACE HOME ── */}
+          {/* ── WORKSPACE HOME (templates style OMG) ── */}
           {activeSection === "workspace" && !activeTool && (
-            <div style={{ maxWidth: 800, margin: "0 auto" }}>
-              <h1 style={{ fontSize: 26, fontWeight: 800, color: "#1a1a2e", margin: "0 0 6px" }}>Bienvenue, <span className="grad-text">{user.username}</span></h1>
-              <p style={{ fontSize: 14, color: "#9ca3af", margin: "0 0 32px" }}>Commencez par importer une image pour la modifier</p>
+            <div style={{ maxWidth: 1100, margin: "0 auto" }}>
+              {/* Logo mobile centré (desktop a déjà le logo dans la sidebar) */}
+              <div className="dash-mobile-logo" style={{ display: "none", justifyContent: "center", padding: "8px 0 20px" }}>
+                <img src={LOGO_SRC} alt="Retouch" style={{ height: 36 }} />
+              </div>
+
+              {/* Header de bienvenue */}
+              <div style={{ marginBottom: 24 }}>
+                <h1 className="dash-welcome" style={{ fontSize: 26, fontWeight: 800, color: "#1a1a2e", margin: "0 0 6px" }}>Bienvenue, <span className="grad-text">{user.username}</span></h1>
+                <p style={{ fontSize: 14, color: "#9ca3af", margin: 0 }}>Choisissez un outil pour commencer</p>
+              </div>
 
               {/* Credits bar */}
               {!user.unlimited && (
-                <div style={{ padding: "20px 24px", borderRadius: 16, background: "#fff", border: "1px solid #ede9fe", marginBottom: 28 }}>
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
-                    <span style={{ fontSize: 13, fontWeight: 600, color: "#1a1a2e" }}>Crédits utilisés</span>
-                    <span style={{ fontSize: 13, fontWeight: 700, color: "#8b5cf6" }}>{creditsUsed} / {maxCredits}</span>
+                <div style={{ padding: "16px 20px", borderRadius: 14, background: "#fff", border: "1px solid #ede9fe", marginBottom: 24 }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+                    <span style={{ fontSize: 13, fontWeight: 600, color: "#1a1a2e" }}>Crédits restants</span>
+                    <span style={{ fontSize: 13, fontWeight: 700, color: "#8b5cf6" }}>{user.credits} / {maxCredits}</span>
                   </div>
-                  <div style={{ height: 8, borderRadius: 4, background: "#ede9fe", overflow: "hidden" }}>
-                    <div style={{ height: "100%", borderRadius: 4, background: "linear-gradient(90deg,#8b5cf6,#ec4899)", width: `${typeof maxCredits === "number" ? (creditsUsed / maxCredits) * 100 : 0}%`, transition: "width 0.5s" }} />
+                  <div style={{ height: 6, borderRadius: 3, background: "#ede9fe", overflow: "hidden" }}>
+                    <div style={{ height: "100%", borderRadius: 3, background: "linear-gradient(90deg,#8b5cf6,#ec4899)", width: `${typeof maxCredits === "number" ? (user.credits / maxCredits) * 100 : 100}%`, transition: "width 0.5s" }} />
                   </div>
                 </div>
               )}
 
-              {/* CTA Upload */}
-              <div onClick={() => setShowToolPicker(true)} style={{ padding: "48px 32px", borderRadius: 20, border: "2px dashed #c4b5fd", background: "linear-gradient(135deg, #faf9ff, #f3f0ff)", cursor: "pointer", textAlign: "center", transition: "all 0.3s", marginBottom: 36 }}
-                onMouseEnter={e => { e.currentTarget.style.borderColor = "#8b5cf6"; e.currentTarget.style.background = "#f3f0ff"; }}
-                onMouseLeave={e => { e.currentTarget.style.borderColor = "#c4b5fd"; e.currentTarget.style.background = "linear-gradient(135deg, #faf9ff, #f3f0ff)"; }}>
-                <div style={{ width: 56, height: 56, borderRadius: 16, background: "linear-gradient(135deg,#8b5cf6,#ec4899)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 16px", color: "#fff" }}><UploadIcon /></div>
-                <p style={{ fontSize: 16, fontWeight: 700, color: "#1a1a2e", margin: "0 0 6px" }}>Importer une image</p>
-                <p style={{ fontSize: 13, color: "#9ca3af", margin: 0 }}>Choisissez un outil pour commencer à éditer</p>
+              {/* Onglets de catégories */}
+              <div className="dash-categories" style={{ display: "flex", gap: 8, marginBottom: 24, overflowX: "auto", paddingBottom: 4, WebkitOverflowScrolling: "touch", scrollbarWidth: "none" }}>
+                {categories.map(cat => (
+                  <button key={cat.key} onClick={() => setActiveCategory(cat.key)}
+                    style={{
+                      flexShrink: 0,
+                      padding: "8px 18px",
+                      borderRadius: 10,
+                      fontSize: 13,
+                      fontWeight: 600,
+                      background: activeCategory === cat.key ? "linear-gradient(135deg,#8b5cf6,#ec4899)" : "#fff",
+                      color: activeCategory === cat.key ? "#fff" : "#6b7280",
+                      border: activeCategory === cat.key ? "1px solid transparent" : "1px solid #ede9fe",
+                      cursor: "pointer",
+                      fontFamily: "inherit",
+                      transition: "all 0.2s",
+                      boxShadow: activeCategory === cat.key ? "0 4px 14px rgba(139,92,246,0.25)" : "none"
+                    }}>
+                    {cat.label}
+                  </button>
+                ))}
               </div>
 
-              {/* Tool picker modal */}
-              {showToolPicker && (
-                <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", zIndex: 9999, display: "flex", alignItems: "center", justifyContent: "center", padding: 20 }} onClick={() => setShowToolPicker(false)}>
-                  <div style={{ background: "#fff", borderRadius: 24, padding: "32px", maxWidth: 520, width: "100%", maxHeight: "80vh", overflow: "auto" }} onClick={e => e.stopPropagation()}>
-                    <h3 style={{ fontSize: 20, fontWeight: 800, color: "#1a1a2e", margin: "0 0 6px" }}>Que souhaitez-vous faire ?</h3>
-                    <p style={{ fontSize: 13, color: "#9ca3af", margin: "0 0 24px" }}>Sélectionnez un outil pour commencer</p>
-                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
-                      {tools.map(t => {
-                        const locked = t.premium && !isPremiumUser;
-                        return (
-                          <div key={t.name} onClick={() => !locked && selectTool(t)} style={{ padding: "20px 16px", borderRadius: 14, background: locked ? "#f9fafb" : "#fff", border: "1px solid #ede9fe", cursor: locked ? "not-allowed" : "pointer", opacity: locked ? 0.5 : 1, transition: "all 0.2s", display: "flex", flexDirection: "column", alignItems: "center", gap: 8, textAlign: "center" }}
-                            onMouseEnter={e => { if (!locked) { e.currentTarget.style.borderColor = "#c4b5fd"; e.currentTarget.style.transform = "translateY(-2px)"; } }}
-                            onMouseLeave={e => { e.currentTarget.style.borderColor = "#ede9fe"; e.currentTarget.style.transform = "none"; }}>
-                            <div style={{ width: 36, height: 36, borderRadius: 10, background: "linear-gradient(135deg,#ede9fe,#fce7f3)", display: "flex", alignItems: "center", justifyContent: "center", color: "#8b5cf6" }}>{t.icon}</div>
-                            <span style={{ fontSize: 12, fontWeight: 600, color: "#1a1a2e" }}>{t.name}</span>
-                            {t.premium && <span style={{ fontSize: 9, fontWeight: 700, padding: "2px 8px", borderRadius: 20, background: locked ? "#e5e7eb" : "linear-gradient(135deg,#8b5cf6,#ec4899)", color: locked ? "#9ca3af" : "#fff" }}>{locked ? "PREMIUM requis" : "PREMIUM"}</span>}
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
+              {/* Grille de templates */}
+              {filteredTools.length === 0 ? (
+                <div style={{ textAlign: "center", padding: "60px 20px", color: "#9ca3af", fontSize: 14 }}>Aucun outil dans cette catégorie</div>
+              ) : (
+                <div className="dash-templates-grid" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))", gap: 16, marginBottom: 40 }}>
+                  {filteredTools.map(t => {
+                    const locked = t.premium && !isPremiumUser;
+                    return (
+                      <div key={t.name} onClick={() => !locked && selectTool(t)}
+                        className="template-card"
+                        style={{
+                          position: "relative",
+                          borderRadius: 18,
+                          overflow: "hidden",
+                          background: "#fff",
+                          border: "1px solid #ede9fe",
+                          cursor: locked ? "not-allowed" : "pointer",
+                          transition: "all 0.25s",
+                          aspectRatio: "3/4"
+                        }}>
+                        <Img src={t.cover} alt={t.name} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block", filter: locked ? "grayscale(0.5) brightness(0.85)" : "none" }} />
+
+                        {/* Gradient overlay */}
+                        <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, transparent 40%, rgba(0,0,0,0.85) 100%)", pointerEvents: "none" }} />
+
+                        {/* Badge top */}
+                        <div style={{ position: "absolute", top: 10, left: 10, display: "flex", gap: 6, flexWrap: "wrap" }}>
+                          {t.trending && (
+                            <span style={{ display: "inline-flex", alignItems: "center", gap: 4, fontSize: 10, fontWeight: 700, padding: "4px 10px", borderRadius: 20, background: "linear-gradient(135deg,#f97316,#ef4444)", color: "#fff", boxShadow: "0 2px 8px rgba(239,68,68,0.3)" }}>
+                              <FlameIcon /> TENDANCE
+                            </span>
+                          )}
+                        </div>
+                        <div style={{ position: "absolute", top: 10, right: 10 }}>
+                          {t.premium && (
+                            <span style={{ fontSize: 10, fontWeight: 700, padding: "4px 10px", borderRadius: 20, background: locked ? "rgba(255,255,255,0.95)" : "linear-gradient(135deg,#8b5cf6,#ec4899)", color: locked ? "#8b5cf6" : "#fff", boxShadow: "0 2px 8px rgba(139,92,246,0.25)", display: "inline-flex", alignItems: "center", gap: 4 }}>
+                              {locked && <LockIcon />} PREMIUM
+                            </span>
+                          )}
+                        </div>
+
+                        {/* Texte en bas */}
+                        <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, padding: "16px 14px" }}>
+                          <h3 style={{ fontSize: 15, fontWeight: 700, color: "#fff", margin: "0 0 3px", textShadow: "0 1px 6px rgba(0,0,0,0.4)" }}>{t.name}</h3>
+                          <p style={{ fontSize: 11, color: "rgba(255,255,255,0.85)", margin: 0, textShadow: "0 1px 4px rgba(0,0,0,0.4)" }}>{t.subtitle}</p>
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
               )}
 
@@ -562,7 +614,7 @@ function DashboardPage({ user, navigate, onLogout, refreshUser }) {
               {history.length > 0 && (
                 <div>
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
-                    <h3 style={{ fontSize: 16, fontWeight: 700, color: "#1a1a2e", margin: 0 }}>Bibliothèque</h3>
+                    <h3 style={{ fontSize: 16, fontWeight: 700, color: "#1a1a2e", margin: 0 }}>Vos dernières créations</h3>
                     <button onClick={() => { setActiveSection("history"); setActiveTool(null); }} style={{ background: "none", border: "none", color: "#8b5cf6", fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>Voir tout</button>
                   </div>
                   <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(140px, 1fr))", gap: 12 }}>
@@ -621,8 +673,8 @@ function DashboardPage({ user, navigate, onLogout, refreshUser }) {
                   <button className="btn-primary" style={{ width: "100%", justifyContent: "center", padding: "12px 24px", fontSize: 14 }} onClick={handleGenerate} disabled={loading}>
                       {loading ? <><span className="spinner" /> Génération en cours...</> : <><Sparkle s={14} c="#fff" /> Générer — {CREDITS_PER_IMAGE} crédits</>}
                     </button>
-                    <button className="btn-secondary" style={{ width: "100%", justifyContent: "center", marginTop: 10, padding: "10px 20px", fontSize: 13 }} onClick={() => { setActiveTool(null); setUploadedImages([]); setPrompt(""); setResultImage(null); setError(""); setShowToolPicker(true); }}>
-                      Changer d'outil
+                    <button className="btn-secondary" style={{ width: "100%", justifyContent: "center", marginTop: 10, padding: "10px 20px", fontSize: 13 }} onClick={() => { setActiveTool(null); setUploadedImages([]); setPrompt(""); setResultImage(null); setError(""); }}>
+                      ← Retour aux outils
                     </button>
                 </div>
                 {resultImage && (
@@ -749,6 +801,8 @@ export default function App() {
         .upload-zone{border:2px dashed #e5e7eb;border-radius:14px;padding:32px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;transition:border-color .3s,background .3s;background:#fafafa}.upload-zone:hover{border-color:#c4b5fd;background:#faf9ff}
         .spinner{display:inline-block;width:16px;height:16px;border:2px solid rgba(255,255,255,0.3);border-top-color:#fff;border-radius:50%;animation:spin .6s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}
         textarea.form-input{font-family:inherit;line-height:1.6}
+        .template-card:hover{transform:translateY(-4px);box-shadow:0 14px 32px rgba(139,92,246,0.18);border-color:#c4b5fd}
+        .dash-categories::-webkit-scrollbar{display:none}
     @media(max-width:768px){
   .hero-split{flex-direction:column;text-align:center}
   .hero-left{align-items:center;display:flex;flex-direction:column}
@@ -783,6 +837,9 @@ export default function App() {
   main.dash-main{margin-left:0!important;padding-bottom:70px!important}
   main.dash-main .content-area{padding:16px 16px 80px!important}
   main.dash-main header{padding:0 16px!important}
+  .dash-mobile-logo{display:flex!important}
+  .dash-welcome{font-size:20px!important}
+  .dash-templates-grid{grid-template-columns:repeat(2,1fr)!important;gap:12px!important}
 }
       `}</style>
       {!isDashboard && <Navbar navigate={navigate} user={user} onLogout={handleLogout} />}

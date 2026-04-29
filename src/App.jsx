@@ -351,7 +351,7 @@ function SignupPage({ navigate, onLogin }) {
 /* ═══ DASHBOARD ═══ */
 const CREDITS_PER_IMAGE = 10;
 
-function DashboardPage({ user, navigate, onLogout, refreshUser }) {
+function DashboardPage({ user, navigate, onLogout, refreshUser, sessionChecked }) {
   const [activeSection, setActiveSection] = useState("workspace");
   const [activeTool, setActiveTool] = useState(null);
   const [prompt, setPrompt] = useState("");
@@ -364,6 +364,11 @@ function DashboardPage({ user, navigate, onLogout, refreshUser }) {
   const [resolution, setResolution] = useState("2K");
   const [ratio, setRatio] = useState("1:1");
 
+  // Si la vérification de session est en cours, on affiche un mini-spinner sans bloquer
+  if (!sessionChecked) {
+    return <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "#f8f7fc" }}><span className="spinner" style={{ width: 24, height: 24, border: "3px solid #ede9fe", borderTopColor: "#8b5cf6" }} /></div>;
+  }
+  // Une fois la session vérifiée, si pas d'user → on redirige vers login
   if (!user) { navigate("login"); return null; }
 
   const isPremiumUser = user.plan === "Premium" || user.unlimited;
@@ -984,35 +989,25 @@ function DashboardPage({ user, navigate, onLogout, refreshUser }) {
 export default function App() {
   const [page, setPage] = useState("home");
   const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [loadingSlow, setLoadingSlow] = useState(false); // true si chargement > 5s
+  const [sessionChecked, setSessionChecked] = useState(false); // true une fois que Supabase a répondu (succès ou échec)
   const navigate = (p) => { setPage(p); window.scrollTo(0, 0); };
   const handleLogin = (profile) => setUser(profile);
   const handleLogout = async () => { await supabase.auth.signOut(); setUser(null); navigate("home"); };
 
-  // Reset complet du cache (pour le bouton de secours en cas de blocage)
-  const resetAppState = () => {
-    try {
-      localStorage.clear();
-      sessionStorage.clear();
-    } catch (e) { /* on ignore les erreurs (mode privé, etc.) */ }
-    window.location.reload();
-  };
-
   useEffect(() => {
     let cancelled = false;
-    let slowTimer; let hardTimer;
+    let safetyTimer;
 
     const checkSession = async () => {
       try {
         const { data: { session }, error: sessionError } = await supabase.auth.getSession();
         if (cancelled) return;
 
-        // Si erreur de session (JWT expiré, corrompu, etc.) → on nettoie le cache et on relance
+        // Si erreur de session (JWT expiré, corrompu, etc.) → on nettoie le cache silencieusement
         if (sessionError) {
           console.warn("[Retouch] Session corrompue détectée, nettoyage du cache...", sessionError);
           try { localStorage.clear(); sessionStorage.clear(); } catch (e) {}
-          setLoading(false);
+          setSessionChecked(true);
           return;
         }
 
@@ -1027,24 +1022,21 @@ export default function App() {
             setPage(currentPage => currentPage === "home" ? "dashboard" : currentPage);
           }
         }
-        setLoading(false);
+        setSessionChecked(true);
       } catch (err) {
-        console.error("[Retouch] Erreur critique au chargement:", err);
+        console.error("[Retouch] Erreur critique session:", err);
         if (cancelled) return;
-        // En cas d'erreur critique, on libère l'écran de chargement pour ne pas bloquer l'user
-        setLoading(false);
+        setSessionChecked(true);
       }
     };
 
-    // Timer 1 : après 5 secondes, on affiche le bouton de secours
-    slowTimer = setTimeout(() => { if (!cancelled) setLoadingSlow(true); }, 5000);
-    // Timer 2 : après 10 secondes, on force la sortie du loading même si Supabase n'a pas répondu
-    hardTimer = setTimeout(() => {
-      if (!cancelled) {
-        console.warn("[Retouch] Timeout du chargement de session — fallback");
-        setLoading(false);
+    // Timer de sécurité : si Supabase ne répond pas en 6 secondes, on considère qu'il n'y a pas de session
+    safetyTimer = setTimeout(() => {
+      if (!cancelled && !sessionChecked) {
+        console.warn("[Retouch] Timeout session — on continue sans");
+        setSessionChecked(true);
       }
-    }, 10000);
+    }, 6000);
 
     checkSession();
 
@@ -1060,10 +1052,10 @@ export default function App() {
 
     return () => {
       cancelled = true;
-      clearTimeout(slowTimer);
-      clearTimeout(hardTimer);
+      clearTimeout(safetyTimer);
       subscription.unsubscribe();
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const refreshUser = async () => {
@@ -1071,22 +1063,6 @@ export default function App() {
     const { data: profile } = await supabase.from("profiles").select("*").eq("id", user.id).single();
     if (profile) setUser(profile);
   };
-
-  if (loading) return (
-    <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", fontFamily: "'Inter', sans-serif", padding: 24, gap: 24, background: "linear-gradient(180deg, #faf9ff 0%, #ffffff 100%)" }}>
-      <span className="spinner" style={{ width: 28, height: 28, border: "3px solid #ede9fe", borderTopColor: "#8b5cf6" }} />
-      {loadingSlow && (
-        <div style={{ textAlign: "center", maxWidth: 360 }}>
-          <p style={{ fontSize: 14, color: "#6b7280", margin: "0 0 16px", lineHeight: 1.5 }}>Le chargement prend plus de temps que prévu...</p>
-          <button onClick={resetAppState}
-            style={{ padding: "10px 22px", borderRadius: 10, fontSize: 13, fontWeight: 600, background: "linear-gradient(135deg,#8b5cf6,#ec4899)", color: "#fff", border: "none", cursor: "pointer", fontFamily: "inherit", boxShadow: "0 4px 14px rgba(139,92,246,0.3)" }}>
-            Recharger l'application
-          </button>
-          <p style={{ fontSize: 11, color: "#9ca3af", margin: "12px 0 0" }}>Cela effacera vos données locales et rechargera la page.</p>
-        </div>
-      )}
-    </div>
-  );
 
   const isDashboard = page === "dashboard";
 
@@ -1180,7 +1156,7 @@ export default function App() {
       {page === "pricing" && <PricingPage navigate={navigate} />}
       {page === "login" && <LoginPage navigate={navigate} onLogin={handleLogin} />}
       {page === "signup" && <SignupPage navigate={navigate} onLogin={handleLogin} />}
-      {page === "dashboard" && <DashboardPage user={user} navigate={navigate} onLogout={handleLogout} refreshUser={refreshUser} />}
+      {page === "dashboard" && <DashboardPage user={user} navigate={navigate} onLogout={handleLogout} refreshUser={refreshUser} sessionChecked={sessionChecked} />}
     </div>
   );
 }

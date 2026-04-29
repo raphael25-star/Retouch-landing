@@ -96,7 +96,7 @@ function Hero({ navigate }) {
           <div className="anim-1" style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "6px 18px", borderRadius: 100, background: "rgba(139,92,246,0.08)", border: "1px solid rgba(139,92,246,0.15)", marginBottom: 32, color: "#8b5cf6" }}>
             <Sparkle s={14} c="#8b5cf6" /><span style={{ fontSize: 13, fontWeight: 600 }}>#1 OUTIL IA</span>
           </div>
-          <h1 className="anim-2" style={{ fontSize: "clamp(36px, 5vw, 64px)", fontWeight: 800, lineHeight: 1.08, color: "#1a1a2e", margin: "0 0 28px", letterSpacing: "-0.035em" }}>Transformez vos photos en visuel <span className="grad-text">professionnel,</span> automatiquement.</h1>
+          <h1 className="anim-2" style={{ fontSize: "clamp(36px, 5vw, 64px)", fontWeight: 800, lineHeight: 1.08, color: "#1a1a2e", margin: "0 0 28px", letterSpacing: "-0.035em" }}>Utilisez l'IA pour <span className="grad-text">générer vos idées.</span></h1>
           <p className="anim-3" style={{ fontSize: "clamp(15px, 1.3vw, 18px)", color: "#6b7280", maxWidth: 480, lineHeight: 1.75, margin: "0 0 36px" }}>Ajoutez une image et décrivez ce que vous souhaitez. Retouch génère votre visuel prêt à être utilisé.</p>
           <div className="anim-4" style={{ display: "flex", gap: 14, flexWrap: "wrap" }}><button className="btn-primary" onClick={() => navigate("signup")}>Tester gratuitement <Arrow /></button></div>
         </div>
@@ -753,7 +753,7 @@ function DashboardPage({ user, navigate, onLogout, refreshUser, sessionChecked }
               {/* Header de bienvenue */}
               <div style={{ marginBottom: 24 }}>
                 <h1 className="dash-welcome" style={{ fontSize: 26, fontWeight: 800, color: "#1a1a2e", margin: "0 0 6px" }}>Bienvenue, <span className="grad-text">{user.username}</span></h1>
-                <p style={{ fontSize: 14, color: "#9ca3af", margin: 0 }}>Choisissez un outil pour commencer</p>
+                <p style={{ fontSize: 14, color: "#9ca3af", margin: 0 }}>Choisissez la génération d'aujourd'hui</p>
               </div>
 
               {/* Credits bar */}

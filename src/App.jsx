@@ -985,33 +985,85 @@ export default function App() {
   const [page, setPage] = useState("home");
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [loadingSlow, setLoadingSlow] = useState(false); // true si chargement > 5s
   const navigate = (p) => { setPage(p); window.scrollTo(0, 0); };
   const handleLogin = (profile) => setUser(profile);
   const handleLogout = async () => { await supabase.auth.signOut(); setUser(null); navigate("home"); };
 
+  // Reset complet du cache (pour le bouton de secours en cas de blocage)
+  const resetAppState = () => {
+    try {
+      localStorage.clear();
+      sessionStorage.clear();
+    } catch (e) { /* on ignore les erreurs (mode privé, etc.) */ }
+    window.location.reload();
+  };
+
   useEffect(() => {
+    let cancelled = false;
+    let slowTimer; let hardTimer;
+
     const checkSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session?.user) {
-        const { data: profile } = await supabase.from("profiles").select("*").eq("id", session.user.id).single();
-        if (profile) {
-          setUser(profile);
-          // Auto-redirect : si user connecté est sur home, on l'envoie sur le dashboard
-          // (sauf s'il est déjà sur pricing/login/signup, auquel cas on respecte sa navigation)
-          setPage(currentPage => currentPage === "home" ? "dashboard" : currentPage);
+      try {
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+        if (cancelled) return;
+
+        // Si erreur de session (JWT expiré, corrompu, etc.) → on nettoie le cache et on relance
+        if (sessionError) {
+          console.warn("[Retouch] Session corrompue détectée, nettoyage du cache...", sessionError);
+          try { localStorage.clear(); sessionStorage.clear(); } catch (e) {}
+          setLoading(false);
+          return;
         }
+
+        if (session?.user) {
+          const { data: profile, error: profileError } = await supabase.from("profiles").select("*").eq("id", session.user.id).single();
+          if (cancelled) return;
+          if (profileError) {
+            console.warn("[Retouch] Erreur récupération profil:", profileError);
+          } else if (profile) {
+            setUser(profile);
+            // Auto-redirect : si user connecté est sur home, on l'envoie sur le dashboard
+            setPage(currentPage => currentPage === "home" ? "dashboard" : currentPage);
+          }
+        }
+        setLoading(false);
+      } catch (err) {
+        console.error("[Retouch] Erreur critique au chargement:", err);
+        if (cancelled) return;
+        // En cas d'erreur critique, on libère l'écran de chargement pour ne pas bloquer l'user
+        setLoading(false);
       }
-      setLoading(false);
     };
+
+    // Timer 1 : après 5 secondes, on affiche le bouton de secours
+    slowTimer = setTimeout(() => { if (!cancelled) setLoadingSlow(true); }, 5000);
+    // Timer 2 : après 10 secondes, on force la sortie du loading même si Supabase n'a pas répondu
+    hardTimer = setTimeout(() => {
+      if (!cancelled) {
+        console.warn("[Retouch] Timeout du chargement de session — fallback");
+        setLoading(false);
+      }
+    }, 10000);
+
     checkSession();
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (event === "SIGNED_OUT") { setUser(null); }
       if (event === "SIGNED_IN" && session?.user) {
-        const { data: profile } = await supabase.from("profiles").select("*").eq("id", session.user.id).single();
-        if (profile) setUser(profile);
+        try {
+          const { data: profile } = await supabase.from("profiles").select("*").eq("id", session.user.id).single();
+          if (profile) setUser(profile);
+        } catch (e) { console.warn("[Retouch] Erreur sur SIGNED_IN:", e); }
       }
     });
-    return () => subscription.unsubscribe();
+
+    return () => {
+      cancelled = true;
+      clearTimeout(slowTimer);
+      clearTimeout(hardTimer);
+      subscription.unsubscribe();
+    };
   }, []);
 
   const refreshUser = async () => {
@@ -1020,7 +1072,21 @@ export default function App() {
     if (profile) setUser(profile);
   };
 
-  if (loading) return <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "'Inter', sans-serif" }}><span className="spinner" style={{ width: 24, height: 24, border: "3px solid #ede9fe", borderTopColor: "#8b5cf6" }} /></div>;
+  if (loading) return (
+    <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", fontFamily: "'Inter', sans-serif", padding: 24, gap: 24, background: "linear-gradient(180deg, #faf9ff 0%, #ffffff 100%)" }}>
+      <span className="spinner" style={{ width: 28, height: 28, border: "3px solid #ede9fe", borderTopColor: "#8b5cf6" }} />
+      {loadingSlow && (
+        <div style={{ textAlign: "center", maxWidth: 360 }}>
+          <p style={{ fontSize: 14, color: "#6b7280", margin: "0 0 16px", lineHeight: 1.5 }}>Le chargement prend plus de temps que prévu...</p>
+          <button onClick={resetAppState}
+            style={{ padding: "10px 22px", borderRadius: 10, fontSize: 13, fontWeight: 600, background: "linear-gradient(135deg,#8b5cf6,#ec4899)", color: "#fff", border: "none", cursor: "pointer", fontFamily: "inherit", boxShadow: "0 4px 14px rgba(139,92,246,0.3)" }}>
+            Recharger l'application
+          </button>
+          <p style={{ fontSize: 11, color: "#9ca3af", margin: "12px 0 0" }}>Cela effacera vos données locales et rechargera la page.</p>
+        </div>
+      )}
+    </div>
+  );
 
   const isDashboard = page === "dashboard";
 

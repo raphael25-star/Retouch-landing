@@ -293,16 +293,69 @@ function PricingPage({ navigate }) {
 }
 
 /* ═══ LOGIN ═══ */
-function LoginPage({ navigate, onLogin }) {
+function LoginPage({ navigate, onLogin, user }) {
   const [email, setEmail] = useState(""); const [password, setPassword] = useState(""); const [error, setError] = useState(""); const [loading, setLoading] = useState(false);
+
+  // Si l'user est déjà connecté quand il arrive ici, on le redirige direct vers le dashboard
+  useEffect(() => {
+    if (user) navigate("dashboard");
+  }, [user, navigate]);
+
   const handleSubmit = async () => {
     if (!email.trim() || !password) { setError("Veuillez remplir tous les champs."); return; }
     setLoading(true); setError("");
-    try { const { data, error: authError } = await supabase.auth.signInWithPassword({ email: email.trim(), password }); if (authError) throw authError;
-      const { data: profile } = await supabase.from("profiles").select("*").eq("id", data.user.id).single();
-      if (profile) { onLogin(profile); navigate("dashboard"); } else { setError("Profil introuvable."); }
-    } catch (err) { setError(err.message === "Invalid login credentials" ? "Email ou mot de passe incorrect." : err.message); } finally { setLoading(false); }
+
+    // Helper pour wrapper les promesses avec un timeout (évite les "Connexion..." infinis)
+    const withTimeout = (promise, ms, errMsg) => Promise.race([
+      promise,
+      new Promise((_, reject) => setTimeout(() => reject(new Error(errMsg)), ms))
+    ]);
+
+    try {
+      console.log("[Retouch] Login - Étape 1 : nettoyage session existante");
+      // Étape 1 : sign out silencieux pour nettoyer toute session zombie qui pourrait interférer
+      try {
+        await withTimeout(supabase.auth.signOut(), 3000, "Timeout signOut");
+      } catch (e) {
+        console.warn("[Retouch] SignOut préalable a échoué (pas grave):", e.message);
+      }
+
+      console.log("[Retouch] Login - Étape 2 : signInWithPassword");
+      // Étape 2 : login avec timeout de 8s
+      const { data, error: authError } = await withTimeout(
+        supabase.auth.signInWithPassword({ email: email.trim(), password }),
+        8000,
+        "Le serveur d'authentification est trop lent. Réessayez."
+      );
+      if (authError) throw authError;
+      if (!data?.user) throw new Error("Aucun utilisateur retourné.");
+
+      console.log("[Retouch] Login - Étape 3 : récupération profil");
+      // Étape 3 : récupération du profil avec timeout de 5s
+      const { data: profile, error: profileError } = await withTimeout(
+        supabase.from("profiles").select("*").eq("id", data.user.id).single(),
+        5000,
+        "Le chargement du profil est trop lent. Réessayez."
+      );
+      if (profileError) throw profileError;
+      if (!profile) throw new Error("Profil introuvable.");
+
+      console.log("[Retouch] Login réussi, redirection dashboard");
+      onLogin(profile);
+      navigate("dashboard");
+    } catch (err) {
+      console.error("[Retouch] Erreur login:", err);
+      const msg = err.message || "Erreur inconnue.";
+      setError(
+        msg === "Invalid login credentials" ? "Email ou mot de passe incorrect." :
+        msg.includes("trop lent") ? msg + " Si le problème persiste, videz le cache de votre navigateur." :
+        msg
+      );
+    } finally {
+      setLoading(false);
+    }
   };
+
   return (
     <section style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", padding: "120px 24px 60px" }}>
       <div className="auth-card">
@@ -320,16 +373,53 @@ function LoginPage({ navigate, onLogin }) {
 }
 
 /* ═══ SIGNUP ═══ */
-function SignupPage({ navigate, onLogin }) {
+function SignupPage({ navigate, onLogin, user }) {
   const [username, setUsername] = useState(""); const [email, setEmail] = useState(""); const [password, setPassword] = useState(""); const [error, setError] = useState(""); const [loading, setLoading] = useState(false);
+
+  // Si déjà connecté, redirect vers dashboard
+  useEffect(() => {
+    if (user) navigate("dashboard");
+  }, [user, navigate]);
+
   const handleSubmit = async () => {
     if (!username.trim() || !email.trim() || !password) { setError("Veuillez remplir tous les champs."); return; }
     if (password.length < 6) { setError("Le mot de passe doit contenir au moins 6 caractères."); return; }
     setLoading(true); setError("");
-    try { const { data, error: authError } = await supabase.auth.signUp({ email: email.trim(), password, options: { data: { username: username.trim() } } }); if (authError) throw authError;
-      if (data.user) { await supabase.from("profiles").insert({ id: data.user.id, username: username.trim(), email: email.trim(), credits: 30, plan: "Gratuit", images_generated: 0 });
-        onLogin({ id: data.user.id, username: username.trim(), email: email.trim(), credits: 30, plan: "Gratuit", images_generated: 0 }); navigate("dashboard"); }
-    } catch (err) { setError(err.message === "User already registered" ? "Un compte existe déjà avec cet email." : err.message); } finally { setLoading(false); }
+
+    const withTimeout = (promise, ms, errMsg) => Promise.race([
+      promise,
+      new Promise((_, reject) => setTimeout(() => reject(new Error(errMsg)), ms))
+    ]);
+
+    try {
+      console.log("[Retouch] Signup - Étape 1 : nettoyage session existante");
+      try { await withTimeout(supabase.auth.signOut(), 3000, "Timeout signOut"); } catch (e) { console.warn("[Retouch] SignOut préalable a échoué:", e.message); }
+
+      console.log("[Retouch] Signup - Étape 2 : signUp");
+      const { data, error: authError } = await withTimeout(
+        supabase.auth.signUp({ email: email.trim(), password, options: { data: { username: username.trim() } } }),
+        8000,
+        "Le serveur d'authentification est trop lent. Réessayez."
+      );
+      if (authError) throw authError;
+
+      if (data.user) {
+        console.log("[Retouch] Signup - Étape 3 : insert profil");
+        await supabase.from("profiles").insert({ id: data.user.id, username: username.trim(), email: email.trim(), credits: 30, plan: "Gratuit", images_generated: 0 });
+        onLogin({ id: data.user.id, username: username.trim(), email: email.trim(), credits: 30, plan: "Gratuit", images_generated: 0 });
+        navigate("dashboard");
+      }
+    } catch (err) {
+      console.error("[Retouch] Erreur signup:", err);
+      const msg = err.message || "Erreur inconnue.";
+      setError(
+        msg === "User already registered" ? "Un compte existe déjà avec cet email." :
+        msg.includes("trop lent") ? msg + " Si le problème persiste, videz le cache de votre navigateur." :
+        msg
+      );
+    } finally {
+      setLoading(false);
+    }
   };
   return (
     <section style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", padding: "120px 24px 60px" }}>
@@ -1154,8 +1244,8 @@ export default function App() {
       {!isDashboard && <Navbar navigate={navigate} user={user} onLogout={handleLogout} />}
       {page === "home" && <HomePage navigate={navigate} />}
       {page === "pricing" && <PricingPage navigate={navigate} />}
-      {page === "login" && <LoginPage navigate={navigate} onLogin={handleLogin} />}
-      {page === "signup" && <SignupPage navigate={navigate} onLogin={handleLogin} />}
+      {page === "login" && <LoginPage navigate={navigate} onLogin={handleLogin} user={user} />}
+      {page === "signup" && <SignupPage navigate={navigate} onLogin={handleLogin} user={user} />}
       {page === "dashboard" && <DashboardPage user={user} navigate={navigate} onLogout={handleLogout} refreshUser={refreshUser} sessionChecked={sessionChecked} />}
     </div>
   );

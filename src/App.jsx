@@ -483,11 +483,23 @@ function DashboardPage({ user, navigate, onLogout, refreshUser }) {
         requestBody = { model: activeTool.model, input: { prompt: (prompt || "Blend these images into one coherent composition.") + ratioHint, image_input: uploadedImages.map(img => "data:image/png;base64," + img.base64), output_format: "png", resolution } };
       } else if (uploadedImages.length > 0) {
         const res = activeTool.name === "Amélioration HD" ? "4K" : resolution;
-        const promptWithRatio = (activeTool.name === "Texte dans image" ? "IMPORTANT: Do NOT change the original image. Only overlay text: " + prompt : finalPrompt + (prompt && activeTool.promptTemplate ? " " + prompt : "")) + ratioHint;
+        // Construction du prompt final selon le type d'outil
+        let basePrompt;
+        if (activeTool.name === "Texte dans image") {
+          basePrompt = "IMPORTANT: Do NOT change the original image. Only overlay text: " + prompt;
+        } else if (activeTool.isFreeMode || !activeTool.promptTemplate) {
+          // Mode Génération libre OU outil sans template → on utilise juste le prompt user
+          basePrompt = prompt;
+        } else {
+          // Outil avec template → on utilise le template + prompt user éventuel
+          basePrompt = finalPrompt + (prompt ? " " + prompt : "");
+        }
+        const promptWithRatio = basePrompt + ratioHint;
         requestBody = { model: activeTool.model, input: { prompt: promptWithRatio, image_urls: uploadedImages.map(img => "data:image/png;base64," + img.base64), output_format: "png", resolution: res } };
       } else {
         requestBody = { model: activeTool.model, input: { prompt: prompt + ratioHint, output_format: "png", image_size: ratio } };
       }
+      console.log("[Retouch] Génération - Outil:", activeTool.name, "| Prompt envoyé:", requestBody.input.prompt, "| Modèle:", requestBody.model);
       const { data: { session } } = await supabase.auth.getSession();
       if (activeTool.name === "Amélioration HD") {
         const upRes = await fetch("https://retouch-backend.vercel.app/api/upscale", { method: "POST", headers: { "Content-Type": "application/json", "Authorization": "Bearer " + session.access_token }, body: JSON.stringify({ image_url: "data:image/png;base64," + uploadedImages[0].base64 }) });
@@ -497,13 +509,17 @@ function DashboardPage({ user, navigate, onLogout, refreshUser }) {
       }
       const response = await fetch("https://retouch-backend.vercel.app/api/generate", { method: "POST", headers: { "Content-Type": "application/json", "Authorization": "Bearer " + session.access_token }, body: JSON.stringify(requestBody) });
       const data = await response.json();
+      console.log("[Retouch] Réponse backend:", data);
       if (data.image_url) {
         setResultImage(data.image_url);
         await supabase.from("generations").insert({ user_id: user.id, tool_name: activeTool.name, prompt: prompt.slice(0, 200), result_url: data.image_url, credits_used: CREDITS_PER_IMAGE });
         await refreshUser();
         setHistory(prev => [{ name: activeTool.name, prompt: prompt.slice(0, 40), date: "À l'instant", url: data.image_url }, ...prev]);
       } else { throw new Error(data.error || "Erreur lors de la génération."); }
-    } catch (err) { setError(err.message || "Erreur de connexion."); } finally { setLoading(false); }
+    } catch (err) {
+      console.error("[Retouch] Erreur génération:", err);
+      setError(err.message || "Erreur de connexion.");
+    } finally { setLoading(false); }
   };
 
   const selectTool = (t) => {
@@ -712,28 +728,40 @@ function DashboardPage({ user, navigate, onLogout, refreshUser }) {
                       Votre image{maxImages > 1 ? "s" : ""} <span style={{ color: "#9ca3af", fontWeight: 500 }}>({uploadedImages.length}/{maxImages})</span>
                     </label>
                     {uploadedImages.length === 0 ? (
-                      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
-                        {/* Bouton "Galerie" — label qui wrap l'input pour 1 seul tap */}
-                        <label htmlFor="file-input-gallery"
-                          className="upload-btn"
-                          style={{ padding: "20px 12px", borderRadius: 14, border: "2px dashed #ddd6fe", background: "#faf9ff", cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 6, transition: "all 0.2s", minHeight: 120 }}>
-                          <input id="file-input-gallery" type="file" accept="image/*" multiple={maxImages > 1} onChange={handleFileUpload} style={{ display: "none" }} />
-                          <div style={{ width: 36, height: 36, borderRadius: 10, background: "linear-gradient(135deg,#ede9fe,#fce7f3)", display: "flex", alignItems: "center", justifyContent: "center", color: "#8b5cf6" }}><ImageIcon /></div>
-                          <span style={{ fontSize: 13, fontWeight: 600, color: "#1a1a2e" }}>Galerie</span>
-                          <span style={{ fontSize: 10, color: "#9ca3af" }}>PNG, JPG, WEBP</span>
-                        </label>
-                        {/* Bouton "Caméra" — label qui wrap l'input pour 1 seul tap */}
-                        <label htmlFor="file-input-camera"
-                          className="upload-btn"
-                          style={{ padding: "20px 12px", borderRadius: 14, border: "2px dashed #ddd6fe", background: "#faf9ff", cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 6, transition: "all 0.2s", minHeight: 120 }}>
-                          <input id="file-input-camera" type="file" accept="image/*" capture="environment" onChange={handleFileUpload} style={{ display: "none" }} />
-                          <div style={{ width: 36, height: 36, borderRadius: 10, background: "linear-gradient(135deg,#ede9fe,#fce7f3)", display: "flex", alignItems: "center", justifyContent: "center", color: "#8b5cf6" }}>
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
-                          </div>
-                          <span style={{ fontSize: 13, fontWeight: 600, color: "#1a1a2e" }}>Caméra</span>
-                          <span style={{ fontSize: 10, color: "#9ca3af" }}>Prendre en photo</span>
-                        </label>
-                      </div>
+                      <>
+                        {/* Desktop : un seul bouton pleine largeur "Choisir un fichier" */}
+                        <div className="upload-desktop">
+                          <label htmlFor="file-input-gallery"
+                            className="upload-btn"
+                            style={{ padding: "32px 20px", borderRadius: 14, border: "2px dashed #ddd6fe", background: "#faf9ff", cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 10, transition: "all 0.2s", minHeight: 180 }}>
+                            <input id="file-input-gallery" type="file" accept="image/*" multiple={maxImages > 1} onChange={handleFileUpload} style={{ display: "none" }} />
+                            <div style={{ width: 44, height: 44, borderRadius: 12, background: "linear-gradient(135deg,#ede9fe,#fce7f3)", display: "flex", alignItems: "center", justifyContent: "center", color: "#8b5cf6" }}><UploadIcon /></div>
+                            <span style={{ fontSize: 14, fontWeight: 600, color: "#1a1a2e" }}>Choisir un fichier</span>
+                            <span style={{ fontSize: 11, color: "#9ca3af" }}>PNG, JPG, WEBP — Glissez-déposez ou cliquez</span>
+                          </label>
+                        </div>
+                        {/* Mobile : 2 boutons côte à côte Galerie + Caméra */}
+                        <div className="upload-mobile" style={{ display: "none", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+                          <label htmlFor="file-input-gallery-m"
+                            className="upload-btn"
+                            style={{ padding: "20px 12px", borderRadius: 14, border: "2px dashed #ddd6fe", background: "#faf9ff", cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 6, transition: "all 0.2s", minHeight: 120 }}>
+                            <input id="file-input-gallery-m" type="file" accept="image/*" multiple={maxImages > 1} onChange={handleFileUpload} style={{ display: "none" }} />
+                            <div style={{ width: 36, height: 36, borderRadius: 10, background: "linear-gradient(135deg,#ede9fe,#fce7f3)", display: "flex", alignItems: "center", justifyContent: "center", color: "#8b5cf6" }}><ImageIcon /></div>
+                            <span style={{ fontSize: 13, fontWeight: 600, color: "#1a1a2e" }}>Galerie</span>
+                            <span style={{ fontSize: 10, color: "#9ca3af" }}>PNG, JPG, WEBP</span>
+                          </label>
+                          <label htmlFor="file-input-camera"
+                            className="upload-btn"
+                            style={{ padding: "20px 12px", borderRadius: 14, border: "2px dashed #ddd6fe", background: "#faf9ff", cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 6, transition: "all 0.2s", minHeight: 120 }}>
+                            <input id="file-input-camera" type="file" accept="image/*" capture="environment" onChange={handleFileUpload} style={{ display: "none" }} />
+                            <div style={{ width: 36, height: 36, borderRadius: 10, background: "linear-gradient(135deg,#ede9fe,#fce7f3)", display: "flex", alignItems: "center", justifyContent: "center", color: "#8b5cf6" }}>
+                              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
+                            </div>
+                            <span style={{ fontSize: 13, fontWeight: 600, color: "#1a1a2e" }}>Caméra</span>
+                            <span style={{ fontSize: 10, color: "#9ca3af" }}>Prendre en photo</span>
+                          </label>
+                        </div>
+                      </>
                     ) : (
                       <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
                         {uploadedImages.map((img, i) => (
@@ -969,6 +997,8 @@ export default function App() {
         .dash-categories::-webkit-scrollbar{display:none}
         .upload-btn{font-family:inherit}
         .upload-btn:hover{border-color:#8b5cf6!important;background:#f3f0ff!important}
+        .upload-desktop{display:block}
+        .upload-mobile{display:none}
         .floating-camera-btn{transition:transform .15s,box-shadow .2s}
         .floating-camera-btn:hover{box-shadow:0 12px 32px rgba(139,92,246,0.5),0 4px 12px rgba(0,0,0,0.15)!important;transform:scale(1.05)}
     @media(max-width:768px){
@@ -1011,6 +1041,8 @@ export default function App() {
   .tool-layout{grid-template-columns:1fr!important}
   .floating-camera-btn{display:flex!important}
   .floating-camera-btn:active{transform:scale(0.92)}
+  .upload-desktop{display:none!important}
+  .upload-mobile{display:grid!important}
 }
       `}</style>
       {!isDashboard && <Navbar navigate={navigate} user={user} onLogout={handleLogout} />}

@@ -737,9 +737,9 @@ function DashboardPage({ user, navigate, onLogout, refreshUser }) {
                         </div>
                         <button onClick={(e) => { e.stopPropagation(); smartDownload(img.url, "retouch-" + (img.name || "result").replace(/\s+/g, "-") + "-" + i + ".png"); }}
                           className="library-download-btn"
-                          title={isIOS ? "Enregistrer dans la pellicule" : "Télécharger"}
+                          title="Télécharger l'image"
                           style={{ position: "absolute", top: 6, right: 6, width: 30, height: 30, borderRadius: "50%", background: "rgba(255,255,255,0.95)", color: "#8b5cf6", border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 2px 8px rgba(0,0,0,0.15)", backdropFilter: "blur(8px)", fontFamily: "inherit", transition: "all 0.2s" }}>
-                          {isIOS ? <ShareIcon s={14} /> : <DownloadIcon s={14} />}
+                          <DownloadIcon s={14} />
                         </button>
                         <div style={{ padding: "8px 10px" }}>
                           <p style={{ fontSize: 11, fontWeight: 600, color: "#1a1a2e", margin: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{img.name}</p>
@@ -911,7 +911,7 @@ function DashboardPage({ user, navigate, onLogout, refreshUser }) {
                       <img src={resultImage} alt="Résultat" style={{ width: "100%", display: "block" }} />
                     </div>
                     <button className="btn-primary" style={{ width: "100%", justifyContent: "center", marginTop: 12, fontSize: 14, padding: "12px 20px" }} onClick={() => smartDownload(resultImage, "retouch-" + Date.now() + ".png")}>
-                      {isIOS ? <><ShareIcon s={16} /> Enregistrer dans la pellicule</> : <><DownloadIcon s={16} /> Télécharger l'image</>}
+                      <DownloadIcon s={16} /> Télécharger l'image
                     </button>
                   </div>
                 )}
@@ -936,9 +936,9 @@ function DashboardPage({ user, navigate, onLogout, refreshUser }) {
                       {/* Bouton télécharger en overlay sur l'image */}
                       <button onClick={(e) => { e.stopPropagation(); smartDownload(img.url, "retouch-" + (img.name || "result").replace(/\s+/g, "-") + "-" + i + ".png"); }}
                         className="library-download-btn"
-                        title={isIOS ? "Enregistrer dans la pellicule" : "Télécharger"}
+                        title="Télécharger l'image"
                         style={{ position: "absolute", top: 8, right: 8, width: 36, height: 36, borderRadius: "50%", background: "rgba(255,255,255,0.95)", color: "#8b5cf6", border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 2px 10px rgba(0,0,0,0.15)", backdropFilter: "blur(8px)", fontFamily: "inherit", transition: "all 0.2s" }}>
-                        {isIOS ? <ShareIcon s={16} /> : <DownloadIcon s={16} />}
+                        <DownloadIcon s={16} />
                       </button>
                       <div style={{ padding: "10px 12px" }}>
                         <p style={{ fontSize: 12, fontWeight: 600, color: "#1a1a2e", margin: "0 0 2px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{img.name}</p>

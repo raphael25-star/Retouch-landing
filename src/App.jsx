@@ -386,6 +386,9 @@ function DashboardPage({ user, navigate, onLogout, refreshUser }) {
     { name: "Fusion multi-images", subtitle: "Combinez jusqu'à 8 images", icon: <MergeIcon />, cover: IMG.fusion, model: "nano-banana-2", promptTemplate: "", type: "edit", premium: true, trending: false, category: "fusion" },
   ];
 
+  // Outil virtuel pour le bouton caméra flottant (mode libre, n'apparaît pas dans la grille)
+  const freeTool = { name: "Génération libre", subtitle: "Décrivez ce que vous voulez ajouter ou modifier", icon: <Sparkle s={18} />, cover: null, model: "google/nano-banana-edit", promptTemplate: "", type: "edit", premium: false, trending: false, category: "free", isFreeMode: true };
+
   const categories = [
     { key: "all", label: "Tous" },
     { key: "trending", label: "Tendances" },
@@ -428,6 +431,43 @@ function DashboardPage({ user, navigate, onLogout, refreshUser }) {
     });
   };
   const removeImage = (idx) => setUploadedImages(prev => prev.filter((_, i) => i !== idx));
+
+  // Handler du bouton caméra flottant : active le mode Génération libre et charge la photo
+  const handleFloatingCameraUpload = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        const MAX = 1500;
+        let w = img.width;
+        let h = img.height;
+        if (w > MAX || h > MAX) {
+          if (w > h) { h = Math.round(h * MAX / w); w = MAX; }
+          else { w = Math.round(w * MAX / h); h = MAX; }
+        }
+        canvas.width = w;
+        canvas.height = h;
+        canvas.getContext("2d").drawImage(img, 0, 0, w, h);
+        const compressed = canvas.toDataURL("image/jpeg", 0.8);
+        // Active le mode Génération libre avec la photo en uploaded
+        setActiveTool(freeTool);
+        setActiveSection("workspace");
+        setPrompt("");
+        setUploadedImages([{ name: file.name, base64: compressed.split(",")[1], preview: compressed }]);
+        setResultImage(null);
+        setError("");
+        setResolution("2K");
+        setRatio("1:1");
+      };
+      img.src = ev.target.result;
+    };
+    reader.readAsDataURL(file);
+    // Reset l'input pour permettre de reprendre une photo
+    e.target.value = "";
+  };
 
   const handleGenerate = async () => {
     if (!prompt && activeTool?.name !== "Suppression d'arrière-plan" && activeTool?.name !== "Amélioration HD") { setError("Veuillez entrer une instruction."); return; }
@@ -673,28 +713,26 @@ function DashboardPage({ user, navigate, onLogout, refreshUser }) {
                     </label>
                     {uploadedImages.length === 0 ? (
                       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
-                        {/* Bouton "Choisir une photo" */}
-                        <button onClick={() => document.getElementById("file-input-gallery").click()}
-                          style={{ padding: "20px 12px", borderRadius: 14, border: "2px dashed #ddd6fe", background: "#faf9ff", cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 6, transition: "all 0.2s", fontFamily: "inherit", minHeight: 120 }}
-                          onMouseEnter={e => { e.currentTarget.style.borderColor = "#8b5cf6"; e.currentTarget.style.background = "#f3f0ff"; }}
-                          onMouseLeave={e => { e.currentTarget.style.borderColor = "#ddd6fe"; e.currentTarget.style.background = "#faf9ff"; }}>
+                        {/* Bouton "Galerie" — label qui wrap l'input pour 1 seul tap */}
+                        <label htmlFor="file-input-gallery"
+                          className="upload-btn"
+                          style={{ padding: "20px 12px", borderRadius: 14, border: "2px dashed #ddd6fe", background: "#faf9ff", cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 6, transition: "all 0.2s", minHeight: 120 }}>
                           <input id="file-input-gallery" type="file" accept="image/*" multiple={maxImages > 1} onChange={handleFileUpload} style={{ display: "none" }} />
                           <div style={{ width: 36, height: 36, borderRadius: 10, background: "linear-gradient(135deg,#ede9fe,#fce7f3)", display: "flex", alignItems: "center", justifyContent: "center", color: "#8b5cf6" }}><ImageIcon /></div>
                           <span style={{ fontSize: 13, fontWeight: 600, color: "#1a1a2e" }}>Galerie</span>
                           <span style={{ fontSize: 10, color: "#9ca3af" }}>PNG, JPG, WEBP</span>
-                        </button>
-                        {/* Bouton "Prendre en photo" (caméra direct sur mobile) */}
-                        <button onClick={() => document.getElementById("file-input-camera").click()}
-                          style={{ padding: "20px 12px", borderRadius: 14, border: "2px dashed #ddd6fe", background: "#faf9ff", cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 6, transition: "all 0.2s", fontFamily: "inherit", minHeight: 120 }}
-                          onMouseEnter={e => { e.currentTarget.style.borderColor = "#8b5cf6"; e.currentTarget.style.background = "#f3f0ff"; }}
-                          onMouseLeave={e => { e.currentTarget.style.borderColor = "#ddd6fe"; e.currentTarget.style.background = "#faf9ff"; }}>
+                        </label>
+                        {/* Bouton "Caméra" — label qui wrap l'input pour 1 seul tap */}
+                        <label htmlFor="file-input-camera"
+                          className="upload-btn"
+                          style={{ padding: "20px 12px", borderRadius: 14, border: "2px dashed #ddd6fe", background: "#faf9ff", cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 6, transition: "all 0.2s", minHeight: 120 }}>
                           <input id="file-input-camera" type="file" accept="image/*" capture="environment" onChange={handleFileUpload} style={{ display: "none" }} />
                           <div style={{ width: 36, height: 36, borderRadius: 10, background: "linear-gradient(135deg,#ede9fe,#fce7f3)", display: "flex", alignItems: "center", justifyContent: "center", color: "#8b5cf6" }}>
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
                           </div>
                           <span style={{ fontSize: 13, fontWeight: 600, color: "#1a1a2e" }}>Caméra</span>
                           <span style={{ fontSize: 10, color: "#9ca3af" }}>Prendre en photo</span>
-                        </button>
+                        </label>
                       </div>
                     ) : (
                       <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
@@ -706,11 +744,11 @@ function DashboardPage({ user, navigate, onLogout, refreshUser }) {
                           </div>
                         ))}
                         {uploadedImages.length < maxImages && (
-                          <button onClick={() => document.getElementById("file-input-add").click()}
-                            style={{ width: 88, height: 88, borderRadius: 12, border: "2px dashed #ddd6fe", background: "#faf9ff", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", color: "#8b5cf6", fontSize: 24, fontFamily: "inherit" }}>
+                          <label htmlFor="file-input-add"
+                            style={{ width: 88, height: 88, borderRadius: 12, border: "2px dashed #ddd6fe", background: "#faf9ff", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", color: "#8b5cf6", fontSize: 24 }}>
                             <input id="file-input-add" type="file" accept="image/*" multiple onChange={handleFileUpload} style={{ display: "none" }} />
                             +
-                          </button>
+                          </label>
                         )}
                       </div>
                     )}
@@ -721,6 +759,7 @@ function DashboardPage({ user, navigate, onLogout, refreshUser }) {
                     <div style={{ marginBottom: 20 }}>
                       <label style={{ fontSize: 12, fontWeight: 600, color: "#374151", marginBottom: 8, display: "block" }}>Instruction</label>
                       <textarea className="form-input" value={prompt} onChange={e => setPrompt(e.target.value)} placeholder={
+                        activeTool.isFreeMode ? "Ex: Ajoute une araignée géante au plafond" :
                         activeTool.name === "Gomme magique" ? "Ex: Supprime la personne à droite" :
                         activeTool.name === "Changement de style" ? "Ex: Style scandinave minimaliste" :
                         activeTool.name === "Retouche pro" ? "Ex: Retire le bouton sur le visage" :
@@ -838,6 +877,15 @@ function DashboardPage({ user, navigate, onLogout, refreshUser }) {
             </div>
           )}
         </div>
+
+        {/* ── BOUTON CAMÉRA FLOTTANT (mobile uniquement, pas affiché quand on est dans un outil) ── */}
+        {!activeTool && (
+          <label className="floating-camera-btn" htmlFor="floating-camera-input"
+            style={{ position: "fixed", bottom: 76, right: 20, width: 60, height: 60, borderRadius: "50%", background: "linear-gradient(135deg,#8b5cf6,#ec4899)", display: "none", alignItems: "center", justifyContent: "center", cursor: "pointer", boxShadow: "0 8px 24px rgba(139,92,246,0.4), 0 2px 8px rgba(0,0,0,0.1)", zIndex: 199, color: "#fff", border: "3px solid #fff" }}>
+            <input id="floating-camera-input" type="file" accept="image/*" capture="environment" onChange={handleFloatingCameraUpload} style={{ display: "none" }} />
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
+          </label>
+        )}
       </main>
     </div>
   );
@@ -919,6 +967,10 @@ export default function App() {
         textarea.form-input{font-family:inherit;line-height:1.6}
         .template-card:hover{transform:translateY(-4px);box-shadow:0 14px 32px rgba(139,92,246,0.18);border-color:#c4b5fd}
         .dash-categories::-webkit-scrollbar{display:none}
+        .upload-btn{font-family:inherit}
+        .upload-btn:hover{border-color:#8b5cf6!important;background:#f3f0ff!important}
+        .floating-camera-btn{transition:transform .15s,box-shadow .2s}
+        .floating-camera-btn:hover{box-shadow:0 12px 32px rgba(139,92,246,0.5),0 4px 12px rgba(0,0,0,0.15)!important;transform:scale(1.05)}
     @media(max-width:768px){
   .hero-split{flex-direction:column;text-align:center}
   .hero-left{align-items:center;display:flex;flex-direction:column}
@@ -957,6 +1009,8 @@ export default function App() {
   .dash-welcome{font-size:20px!important}
   .dash-templates-grid{grid-template-columns:repeat(2,1fr)!important;gap:12px!important}
   .tool-layout{grid-template-columns:1fr!important}
+  .floating-camera-btn{display:flex!important}
+  .floating-camera-btn:active{transform:scale(0.92)}
 }
       `}</style>
       {!isDashboard && <Navbar navigate={navigate} user={user} onLogout={handleLogout} />}

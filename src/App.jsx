@@ -409,6 +409,12 @@ function DashboardPage({ user, navigate, onLogout, refreshUser }) {
         requestBody = { model: activeTool.model, input: { prompt, output_format: "png", image_size: "1:1" } };
       }
       const { data: { session } } = await supabase.auth.getSession();
+      if (activeTool.name === "Amélioration HD") {
+        const upRes = await fetch("https://retouch-backend.vercel.app/api/upscale", { method: "POST", headers: { "Content-Type": "application/json", "Authorization": "Bearer " + session.access_token }, body: JSON.stringify({ image_url: "data:image/png;base64," + uploadedImages[0].base64 }) });
+        const upData = await upRes.json();
+        if (upData.image_url) { setResultImage(upData.image_url); await supabase.from("generations").insert({ user_id: user.id, tool_name: activeTool.name, prompt: "Upscale 4x", result_url: upData.image_url, credits_used: CREDITS_PER_IMAGE }); await refreshUser(); setHistory(prev => [{ name: activeTool.name, prompt: "Upscale 4x", date: "À l'instant", url: upData.image_url }, ...prev]); } else { throw new Error(upData.error || "Erreur upscale"); }
+        setLoading(false); return;
+      }
       const response = await fetch("https://retouch-backend.vercel.app/api/generate", { method: "POST", headers: { "Content-Type": "application/json", "Authorization": "Bearer " + session.access_token }, body: JSON.stringify(requestBody) });
       const data = await response.json();
       if (data.image_url) {

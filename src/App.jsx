@@ -41,6 +41,8 @@ const UploadIcon = () => <svg width="24" height="24" viewBox="0 0 24 24" fill="n
 const LockIcon = () => <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>;
 const GridIcon = () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>;
 const FlameIcon = () => <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2c0 0-5 6-5 11a5 5 0 0010 0c0-3-2-5-2-7 0 0-3 2-3-4z"/></svg>;
+const DownloadIcon = ({ s = 16 }) => <svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>;
+const ShareIcon = ({ s = 16 }) => <svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>;
 
 function Img({ src, alt, style, ...rest }) {
   const [err, setErr] = useState(false);
@@ -368,6 +370,48 @@ function DashboardPage({ user, navigate, onLogout, refreshUser }) {
   const maxCredits = user.plan === "Pro" ? 500 : user.plan === "Premium" ? "∞" : 30;
   const creditsUsed = typeof maxCredits === "number" ? maxCredits - user.credits : 0;
 
+  // Détection iOS (iPhone, iPad, iPod) — Safari iOS gère le download différemment
+  const isIOS = typeof navigator !== "undefined" && /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+
+  // Téléchargement intelligent qui s'adapte au device :
+  // - iOS Safari : ouvre la feuille de partage native (Web Share API) → user choisit "Enregistrer l'image" pour mettre dans la pellicule
+  // - Android/Desktop : déclenche un téléchargement classique (apparaît dans la galerie sur Android)
+  const smartDownload = async (imageUrl, filename = "retouch-result.png") => {
+    try {
+      // Récupération du blob via le proxy backend (évite les soucis CORS)
+      const response = await fetch("https://retouch-backend.vercel.app/api/download?url=" + encodeURIComponent(imageUrl));
+      const blob = await response.blob();
+
+      // Sur iOS : tentative d'utiliser la Web Share API qui ouvre la feuille de partage native
+      if (isIOS && navigator.share && navigator.canShare) {
+        const file = new File([blob], filename, { type: blob.type || "image/png" });
+        if (navigator.canShare({ files: [file] })) {
+          try {
+            await navigator.share({ files: [file], title: "Mon image Retouch" });
+            return; // Succès, on s'arrête là
+          } catch (shareErr) {
+            // L'user a annulé le partage ou erreur — on tombe dans le download classique en fallback
+            if (shareErr.name === "AbortError") return; // Annulation user, pas d'erreur à montrer
+          }
+        }
+      }
+
+      // Méthode classique pour Android, Desktop, ou fallback iOS
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.style.display = "none";
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+    } catch (e) {
+      // En dernier recours, on ouvre l'image dans un nouvel onglet
+      window.open(imageUrl, "_blank");
+    }
+  };
+
   useEffect(() => {
     const loadHistory = async () => {
       const { data } = await supabase.from("generations").select("*").eq("user_id", user.id).order("created_at", { ascending: false }).limit(20);
@@ -686,10 +730,17 @@ function DashboardPage({ user, navigate, onLogout, refreshUser }) {
                   </div>
                   <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(140px, 1fr))", gap: 12 }}>
                     {history.slice(0, 8).map((img, i) => (
-                      <div key={i} style={{ borderRadius: 12, overflow: "hidden", border: "1px solid #ede9fe", background: "#fff", cursor: "pointer", transition: "all 0.2s" }}
-                        onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-2px)"; e.currentTarget.style.boxShadow = "0 8px 20px rgba(139,92,246,0.1)"; }}
-                        onMouseLeave={e => { e.currentTarget.style.transform = "none"; e.currentTarget.style.boxShadow = "none"; }}>
-                        <img src={img.url} alt="" style={{ width: "100%", aspectRatio: "1", objectFit: "cover", display: "block" }} />
+                      <div key={i} className="library-card" style={{ borderRadius: 12, overflow: "hidden", border: "1px solid #ede9fe", background: "#fff", transition: "all 0.2s", position: "relative" }}>
+                        <div style={{ cursor: "pointer", position: "relative" }}
+                          onClick={() => { const overlay = document.createElement("div"); overlay.style.cssText = "position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:9999;display:flex;align-items:center;justify-content:center;cursor:zoom-out;padding:40px;"; overlay.onclick = () => document.body.removeChild(overlay); const imgEl = document.createElement("img"); imgEl.src = img.url; imgEl.style.cssText = "max-width:90%;max-height:90%;border-radius:12px;"; overlay.appendChild(imgEl); document.body.appendChild(overlay); }}>
+                          <img src={img.url} alt="" style={{ width: "100%", aspectRatio: "1", objectFit: "cover", display: "block" }} />
+                        </div>
+                        <button onClick={(e) => { e.stopPropagation(); smartDownload(img.url, "retouch-" + (img.name || "result").replace(/\s+/g, "-") + "-" + i + ".png"); }}
+                          className="library-download-btn"
+                          title={isIOS ? "Enregistrer dans la pellicule" : "Télécharger"}
+                          style={{ position: "absolute", top: 6, right: 6, width: 30, height: 30, borderRadius: "50%", background: "rgba(255,255,255,0.95)", color: "#8b5cf6", border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 2px 8px rgba(0,0,0,0.15)", backdropFilter: "blur(8px)", fontFamily: "inherit", transition: "all 0.2s" }}>
+                          {isIOS ? <ShareIcon s={14} /> : <DownloadIcon s={14} />}
+                        </button>
                         <div style={{ padding: "8px 10px" }}>
                           <p style={{ fontSize: 11, fontWeight: 600, color: "#1a1a2e", margin: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{img.name}</p>
                           <p style={{ fontSize: 10, color: "#9ca3af", margin: 0 }}>{img.date}</p>
@@ -859,8 +910,9 @@ function DashboardPage({ user, navigate, onLogout, refreshUser }) {
                     <div style={{ borderRadius: 14, overflow: "hidden", border: "2px solid #ede9fe", background: "#fff", cursor: "pointer" }} onClick={() => { const overlay = document.createElement("div"); overlay.style.cssText = "position:fixed;inset:0;background:rgba(0,0,0,0.9);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px;"; const closeBtn = document.createElement("button"); closeBtn.innerHTML = "✕"; closeBtn.style.cssText = "position:absolute;top:20px;right:20px;background:rgba(255,255,255,0.2);border:none;color:#fff;font-size:24px;width:44px;height:44px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;"; closeBtn.onclick = () => document.body.removeChild(overlay); overlay.appendChild(closeBtn); const img = document.createElement("img"); img.src = resultImage; img.style.cssText = "max-width:95%;max-height:85vh;border-radius:12px;object-fit:contain;"; overlay.appendChild(img); overlay.onclick = (e) => { if (e.target === overlay) document.body.removeChild(overlay); }; document.body.appendChild(overlay); }}>
                       <img src={resultImage} alt="Résultat" style={{ width: "100%", display: "block" }} />
                     </div>
-                    <button className="btn-secondary" style={{ width: "100%", justifyContent: "center", marginTop: 12, fontSize: 13, padding: "10px 20px" }} onClick={async () => { try { const r = await fetch("https://retouch-backend.vercel.app/api/download?url=" + encodeURIComponent(resultImage)); const b = await r.blob(); const u = window.URL.createObjectURL(b); const a = document.createElement("a"); a.style.display = "none"; a.href = u; a.download = "retouch-result.png"; document.body.appendChild(a); a.click(); window.URL.revokeObjectURL(u); document.body.removeChild(a); } catch(e) { window.open(resultImage); } }}>Télécharger l'image</button>
-                    <p style={{ textAlign: "center", fontSize: 11, color: "#9ca3af", marginTop: 6 }}>Astuce : appuyez longuement sur l'image pour l'enregistrer dans vos photos</p>
+                    <button className="btn-primary" style={{ width: "100%", justifyContent: "center", marginTop: 12, fontSize: 14, padding: "12px 20px" }} onClick={() => smartDownload(resultImage, "retouch-" + Date.now() + ".png")}>
+                      {isIOS ? <><ShareIcon s={16} /> Enregistrer dans la pellicule</> : <><DownloadIcon s={16} /> Télécharger l'image</>}
+                    </button>
                   </div>
                 )}
               </div>
@@ -874,11 +926,20 @@ function DashboardPage({ user, navigate, onLogout, refreshUser }) {
               {history.length === 0 ? <div style={{ textAlign: "center", padding: "80px 20px", color: "#9ca3af" }}><GridIcon /><p style={{ marginTop: 12, fontSize: 14 }}>Aucune génération pour le moment</p></div> : (
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(160px, 1fr))", gap: 14 }}>
                   {history.map((img, i) => (
-                    <div key={i} style={{ borderRadius: 14, overflow: "hidden", border: "1px solid #ede9fe", background: "#fff", cursor: "pointer", transition: "all 0.2s" }}
-                      onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-3px)"; e.currentTarget.style.boxShadow = "0 12px 30px rgba(139,92,246,0.12)"; }}
-                      onMouseLeave={e => { e.currentTarget.style.transform = "none"; e.currentTarget.style.boxShadow = "none"; }}
-                      onClick={() => { const overlay = document.createElement("div"); overlay.style.cssText = "position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:9999;display:flex;align-items:center;justify-content:center;cursor:zoom-out;padding:40px;"; overlay.onclick = () => document.body.removeChild(overlay); const imgEl = document.createElement("img"); imgEl.src = img.url; imgEl.style.cssText = "max-width:90%;max-height:90%;border-radius:12px;"; overlay.appendChild(imgEl); document.body.appendChild(overlay); }}>
-                      <img src={img.url} alt="" style={{ width: "100%", aspectRatio: "1", objectFit: "cover", display: "block" }} />
+                    <div key={i} className="library-card"
+                      style={{ borderRadius: 14, overflow: "hidden", border: "1px solid #ede9fe", background: "#fff", transition: "all 0.2s", position: "relative" }}>
+                      {/* Image cliquable pour zoom */}
+                      <div style={{ cursor: "pointer", position: "relative" }}
+                        onClick={() => { const overlay = document.createElement("div"); overlay.style.cssText = "position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:9999;display:flex;align-items:center;justify-content:center;cursor:zoom-out;padding:40px;"; overlay.onclick = () => document.body.removeChild(overlay); const imgEl = document.createElement("img"); imgEl.src = img.url; imgEl.style.cssText = "max-width:90%;max-height:90%;border-radius:12px;"; overlay.appendChild(imgEl); document.body.appendChild(overlay); }}>
+                        <img src={img.url} alt="" style={{ width: "100%", aspectRatio: "1", objectFit: "cover", display: "block" }} />
+                      </div>
+                      {/* Bouton télécharger en overlay sur l'image */}
+                      <button onClick={(e) => { e.stopPropagation(); smartDownload(img.url, "retouch-" + (img.name || "result").replace(/\s+/g, "-") + "-" + i + ".png"); }}
+                        className="library-download-btn"
+                        title={isIOS ? "Enregistrer dans la pellicule" : "Télécharger"}
+                        style={{ position: "absolute", top: 8, right: 8, width: 36, height: 36, borderRadius: "50%", background: "rgba(255,255,255,0.95)", color: "#8b5cf6", border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 2px 10px rgba(0,0,0,0.15)", backdropFilter: "blur(8px)", fontFamily: "inherit", transition: "all 0.2s" }}>
+                        {isIOS ? <ShareIcon s={16} /> : <DownloadIcon s={16} />}
+                      </button>
                       <div style={{ padding: "10px 12px" }}>
                         <p style={{ fontSize: 12, fontWeight: 600, color: "#1a1a2e", margin: "0 0 2px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{img.name}</p>
                         <p style={{ fontSize: 11, color: "#9ca3af", margin: 0 }}>{img.date}</p>
@@ -1001,6 +1062,9 @@ export default function App() {
         .upload-mobile{display:none}
         .floating-camera-btn{transition:transform .15s,box-shadow .2s}
         .floating-camera-btn:hover{box-shadow:0 12px 32px rgba(139,92,246,0.5),0 4px 12px rgba(0,0,0,0.15)!important;transform:scale(1.05)}
+        .library-card:hover{transform:translateY(-3px);box-shadow:0 12px 30px rgba(139,92,246,0.12);border-color:#c4b5fd!important}
+        .library-download-btn:hover{background:#fff!important;color:#7c3aed!important;transform:scale(1.08)}
+        .library-download-btn:active{transform:scale(0.92)}
     @media(max-width:768px){
   .hero-split{flex-direction:column;text-align:center}
   .hero-left{align-items:center;display:flex;flex-direction:column}

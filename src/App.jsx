@@ -731,25 +731,26 @@ function DashboardPage({ user, navigate, onLogout, refreshUser, sessionChecked }
 
       {/* ── MAIN ── */}
       <main className="dash-main" style={{ marginLeft: 260, flex: 1, minHeight: "100vh" }}>
-        <header style={{ height: 56, padding: "0 32px", display: "flex", alignItems: "center", justifyContent: "space-between", borderBottom: "1px solid #ede9fe", background: "rgba(255,255,255,0.8)", backdropFilter: "blur(12px)", position: "sticky", top: 0, zIndex: 50 }}>
-          <h2 style={{ fontSize: 15, fontWeight: 700, color: "#1a1a2e", margin: 0 }}>{activeTool ? activeTool.name : activeSection === "workspace" ? "Workspace" : activeSection === "history" ? "Bibliothèque" : "Paramètres"}</h2>
-          <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 6, padding: "6px 14px", borderRadius: 8, background: "#f3f0ff", border: "1px solid #ede9fe" }}>
-              <CreditIcon /><span style={{ fontSize: 13, fontWeight: 600, color: "#8b5cf6" }}>{user.unlimited ? "Illimité" : user.credits + " / " + maxCredits}</span>
-            </div>
-            <span style={{ fontSize: 12, fontWeight: 600, padding: "4px 12px", borderRadius: 20, background: user.plan === "Premium" ? "linear-gradient(135deg,#8b5cf6,#ec4899)" : user.plan === "Pro" ? "#ede9fe" : "#f3f4f6", color: user.plan === "Premium" ? "#fff" : user.plan === "Pro" ? "#8b5cf6" : "#9ca3af" }}>{user.plan}</span>
+        <header style={{ height: 56, padding: "0 24px", display: "flex", alignItems: "center", justifyContent: "space-between", borderBottom: "1px solid #ede9fe", background: "rgba(255,255,255,0.8)", backdropFilter: "blur(12px)", position: "sticky", top: 0, zIndex: 50 }}>
+          {/* Logo à gauche, cliquable → renvoie au workspace */}
+          <div style={{ display: "flex", alignItems: "center", cursor: "pointer" }} onClick={() => { setActiveSection("workspace"); setActiveTool(null); setResultImage(null); }}>
+            <img src={LOGO_SRC} alt="Retouch" style={{ height: 36, width: "auto", objectFit: "contain", display: "block" }} />
           </div>
+          {/* Bouton Upgrade à droite (uniquement pour les non-Premium) */}
+          {!isPremiumUser && (
+            <button onClick={() => navigate("pricing")}
+              style={{ padding: "8px 18px", borderRadius: 10, fontSize: 13, fontWeight: 600, background: "linear-gradient(135deg,#8b5cf6,#ec4899)", color: "#fff", border: "none", cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 6, fontFamily: "inherit", boxShadow: "0 4px 14px rgba(139,92,246,0.25)", transition: "transform .15s, box-shadow .2s" }}
+              onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-1px)"; e.currentTarget.style.boxShadow = "0 6px 20px rgba(139,92,246,0.35)"; }}
+              onMouseLeave={e => { e.currentTarget.style.transform = "none"; e.currentTarget.style.boxShadow = "0 4px 14px rgba(139,92,246,0.25)"; }}>
+              <Sparkle s={14} c="#fff" /> Upgrade
+            </button>
+          )}
         </header>
 
         <div className="content-area" style={{ padding: "32px 32px 60px" }}>
           {/* ── WORKSPACE HOME (templates style OMG) ── */}
           {activeSection === "workspace" && !activeTool && (
             <div style={{ maxWidth: 1100, margin: "0 auto" }}>
-              {/* Logo mobile centré (desktop a déjà le logo dans la sidebar) */}
-              <div className="dash-mobile-logo" style={{ display: "none", justifyContent: "center", padding: "8px 0 20px" }}>
-                <img src={LOGO_SRC} alt="Retouch" style={{ height: 36 }} />
-              </div>
-
               {/* Header de bienvenue */}
               <div style={{ marginBottom: 24 }}>
                 <h1 className="dash-welcome" style={{ fontSize: 26, fontWeight: 800, color: "#1a1a2e", margin: "0 0 6px" }}>Bienvenue, <span className="grad-text">{user.username}</span></h1>
@@ -1314,12 +1315,12 @@ export default function App() {
   aside.dash-sidebar .dash-nav-items{display:flex!important;flex-direction:row!important;justify-content:space-around!important;align-items:center!important;width:100%!important;height:100%!important}
   aside.dash-sidebar .dash-nav-items button{padding:4px 0!important;font-size:9px!important;flex-direction:column!important;gap:2px!important;display:flex!important;align-items:center!important;justify-content:center!important;background:none!important}
   aside.dash-sidebar .dash-nav-items button span{font-size:9px!important}
-  main.dash-main{margin-left:0!important;padding-bottom:70px!important}
-  main.dash-main .content-area{padding:16px 16px 80px!important}
+  main.dash-main{margin-left:0!important;padding-bottom:70px!important;width:100%!important;max-width:100vw!important;overflow-x:hidden!important}
+  main.dash-main .content-area{padding:16px!important;padding-bottom:80px!important;width:100%!important;max-width:100%!important;box-sizing:border-box!important}
+  main.dash-main .content-area > div{max-width:100%!important;width:100%!important}
   main.dash-main header{padding:0 16px!important}
-  .dash-mobile-logo{display:flex!important}
   .dash-welcome{font-size:20px!important}
-  .dash-templates-grid{grid-template-columns:repeat(2,1fr)!important;gap:12px!important}
+  .dash-templates-grid{grid-template-columns:repeat(2,1fr)!important;gap:12px!important;width:100%!important}
   .tool-layout{grid-template-columns:1fr!important}
   .floating-camera-btn{display:flex!important}
   .floating-camera-btn:active{transform:scale(0.92)}

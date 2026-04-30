@@ -650,17 +650,39 @@ function DashboardPage({ user, navigate, onLogout, refreshUser, sessionChecked }
   const handleGenerate = async () => {
     if (!prompt && activeTool?.name !== "Suppression d'arrière-plan" && activeTool?.name !== "Amélioration HD") { setError("Veuillez entrer une instruction."); return; }
     if (uploadedImages.length === 0 && activeTool?.type === "edit") { setError("Veuillez uploader au moins une image."); return; }
+    if (activeTool?.name === "Fusion multi-images" && uploadedImages.length < 2) { setError("La fusion nécessite au moins 2 images."); return; }
     if (!user.unlimited && user.credits < CREDITS_PER_IMAGE) { setError("Crédits insuffisants. Veuillez recharger votre compte."); return; }
     setLoading(true); setError(""); setResultImage(null);
+
+    // Helper timeout (évite les chargements infinis si Kie.ai bloque)
+    const withTimeout = (promise, ms, errMsg) => Promise.race([
+      promise,
+      new Promise((_, reject) => setTimeout(() => reject(new Error(errMsg)), ms))
+    ]);
+
     const finalPrompt = activeTool.promptTemplate || prompt;
     // Inclusion du ratio dans le prompt (le backend Kie.ai ne le prend pas en paramètre direct, donc on le glisse dans le prompt)
     const ratioHint = ratio !== "1:1" ? ` Output aspect ratio: ${ratio}.` : "";
     try {
       let requestBody;
-      if (activeTool.name === "Fusion multi-images" && uploadedImages.length > 1) {
-        requestBody = { model: activeTool.model, input: { prompt: (prompt || "Blend these images into one coherent composition.") + ratioHint, image_input: uploadedImages.map(img => "data:image/png;base64," + img.base64), output_format: "png", resolution } };
+      const res = activeTool.name === "Amélioration HD" ? "4K" : resolution;
+
+      if (activeTool.name === "Fusion multi-images") {
+        // FUSION : on utilise le même format que les autres outils (model nano-banana-edit + image_urls)
+        // Le prompt doit explicitement demander de fusionner les images en une seule
+        const fusionBasePrompt = prompt
+          ? "Combine the provided images into a single coherent composition. Instructions: " + prompt
+          : "Combine the provided images into a single coherent composition.";
+        requestBody = {
+          model: "google/nano-banana-edit",
+          input: {
+            prompt: fusionBasePrompt + ratioHint,
+            image_urls: uploadedImages.map(img => "data:image/png;base64," + img.base64),
+            output_format: "png",
+            resolution: res
+          }
+        };
       } else if (uploadedImages.length > 0) {
-        const res = activeTool.name === "Amélioration HD" ? "4K" : resolution;
         // Construction du prompt final selon le type d'outil
         let basePrompt;
         if (activeTool.name === "Texte dans image") {
@@ -677,15 +699,26 @@ function DashboardPage({ user, navigate, onLogout, refreshUser, sessionChecked }
       } else {
         requestBody = { model: activeTool.model, input: { prompt: prompt + ratioHint, output_format: "png", image_size: ratio } };
       }
-      console.log("[Retouch] Génération - Outil:", activeTool.name, "| Prompt envoyé:", requestBody.input.prompt, "| Modèle:", requestBody.model);
+      console.log("[Retouch] Génération - Outil:", activeTool.name, "| Prompt envoyé:", requestBody.input.prompt, "| Modèle:", requestBody.model, "| Nb images:", uploadedImages.length);
       const { data: { session } } = await supabase.auth.getSession();
+
       if (activeTool.name === "Amélioration HD") {
-        const upRes = await fetch("https://retouch-backend.vercel.app/api/upscale", { method: "POST", headers: { "Content-Type": "application/json", "Authorization": "Bearer " + session.access_token }, body: JSON.stringify({ image_url: "data:image/png;base64," + uploadedImages[0].base64 }) });
+        const upRes = await withTimeout(
+          fetch("https://retouch-backend.vercel.app/api/upscale", { method: "POST", headers: { "Content-Type": "application/json", "Authorization": "Bearer " + session.access_token }, body: JSON.stringify({ image_url: "data:image/png;base64," + uploadedImages[0].base64 }) }),
+          90000,
+          "La génération prend trop de temps. Réessayez ou utilisez une image plus petite."
+        );
         const upData = await upRes.json();
         if (upData.image_url) { setResultImage(upData.image_url); await supabase.from("generations").insert({ user_id: user.id, tool_name: activeTool.name, prompt: "Upscale 4x", result_url: upData.image_url, credits_used: CREDITS_PER_IMAGE }); await refreshUser(); setHistory(prev => [{ name: activeTool.name, prompt: "Upscale 4x", date: "À l'instant", url: upData.image_url }, ...prev]); } else { throw new Error(upData.error || "Erreur upscale"); }
         setLoading(false); return;
       }
-      const response = await fetch("https://retouch-backend.vercel.app/api/generate", { method: "POST", headers: { "Content-Type": "application/json", "Authorization": "Bearer " + session.access_token }, body: JSON.stringify(requestBody) });
+
+      // Génération standard avec timeout de 90s (les générations Kie.ai prennent généralement 10-40s)
+      const response = await withTimeout(
+        fetch("https://retouch-backend.vercel.app/api/generate", { method: "POST", headers: { "Content-Type": "application/json", "Authorization": "Bearer " + session.access_token }, body: JSON.stringify(requestBody) }),
+        90000,
+        "La génération prend trop de temps. Réessayez ou utilisez une image plus petite."
+      );
       const data = await response.json();
       console.log("[Retouch] Réponse backend:", data);
       if (data.image_url) {

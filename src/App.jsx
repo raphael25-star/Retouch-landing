@@ -16,7 +16,7 @@ const IMG = {
   room: "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&q=80&w=512",
   face: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=512",
   villa: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&q=80&w=512",
-  rolexPrank: "/template-rolex.jpg",
+  rolexPrank: "/template-rolex.png",
 };
 
 /* ─── Icons ─── */

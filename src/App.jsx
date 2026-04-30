@@ -241,17 +241,32 @@ function HomePage({ navigate }) {
 }
 
 /* ═══ PAGE: PRICING ═══ */
-function PricingPage({ navigate }) {
+function PricingPage({ navigate, user }) {
   const [annual, setAnnual] = useState(true);
   const proPrice = annual ? 10 : 15;
   const premPrice = annual ? 29 : 49;
-  const allFeatures = [
-    { label: "HD", pro: true },{ label: "Ajout / suppression d'éléments", pro: true },{ label: "Modificateur arrière plan", pro: true },
-    { label: "Ultra HD", pro: false },{ label: "Texte dans image", pro: false },{ label: "Fusion multi-images", pro: false },{ label: "Traitement prioritaire", pro: false },
+
+  // Features : Pro a TOUS les outils, Premium a en plus crédits illimités + traitement prioritaire
+  const proFeatures = [
+    { label: "Suppression d'arrière-plan", included: true },
+    { label: "Gomme magique", included: true },
+    { label: "Changement de style", included: true },
+    { label: "Retouche pro", included: true },
+    { label: "Amélioration HD", included: true },
+    { label: "Texte dans image", included: true },
+    { label: "Fusion multi-images", included: true },
+    { label: "Crédits illimités", included: false },
+    { label: "Traitement prioritaire", included: false },
   ];
+  const premiumFeatures = [
+    { label: "Tous les outils du plan Pro", included: true },
+    { label: "Crédits illimités", included: true },
+    { label: "Traitement prioritaire", included: true },
+  ];
+
   return (
     <section style={{ padding: "120px clamp(16px,5vw,48px) 80px", maxWidth: 1000, margin: "0 auto" }}>
-      <button onClick={() => navigate("home")} className="back-btn"><ChevLeft /> Retour</button>
+      <button onClick={() => navigate(user ? "dashboard" : "home")} className="back-btn"><ChevLeft /> Retour</button>
       <h1 style={{ fontSize: "clamp(28px,4vw,48px)", fontWeight: 800, color: "#1a1a2e", textAlign: "center", margin: "0 0 16px" }}>Choisissez le plan parfait pour vos créations</h1>
       <p style={{ textAlign: "center", color: "#6b7280", fontSize: 15, margin: "0 auto 40px" }}>*10 crédits = génération d'une image</p>
       <div style={{ display: "flex", justifyContent: "center", marginBottom: 48 }}><div className="tab-bar"><button className={!annual ? "tab tab-active" : "tab"} onClick={() => setAnnual(false)}>Mensuel</button><button className={annual ? "tab tab-active" : "tab"} onClick={() => setAnnual(true)}>Annuel -40%</button></div></div>
@@ -262,15 +277,15 @@ function PricingPage({ navigate }) {
           <p style={{ fontSize: 13, color: "#9ca3af", margin: "0 0 20px" }}>Pour les créateurs réguliers</p>
           <div style={{ display: "flex", alignItems: "baseline", gap: 4, marginBottom: 6 }}><span style={{ fontSize: 42, fontWeight: 800, color: "#1a1a2e" }}>{proPrice}€</span><span style={{ fontSize: 14, color: "#9ca3af" }}>/ mois</span></div>
           <p style={{ fontSize: 13, color: "#8b5cf6", fontWeight: 500, margin: "0 0 24px" }}>500 crédits / mois</p>
-          <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 28 }}>{allFeatures.map(f => (<div key={f.label} style={{ display: "flex", alignItems: "center", gap: 10, fontSize: 14, color: f.pro ? "#374151" : "#d1d5db" }}>{f.pro ? <CheckIcon /> : <CrossIcon />} {f.label}</div>))}</div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 28 }}>{proFeatures.map(f => (<div key={f.label} style={{ display: "flex", alignItems: "center", gap: 10, fontSize: 14, color: f.included ? "#374151" : "#d1d5db" }}>{f.included ? <CheckIcon /> : <CrossIcon />} {f.label}</div>))}</div>
           <button className="btn-primary" style={{ width: "100%", justifyContent: "center" }} onClick={async () => { const { data: { session } } = await supabase.auth.getSession(); if (!session) { navigate("signup"); return; } const priceId = annual ? "price_1TM84RDWe9VwpShTxY0YoPNZ" : "price_1TM83vDWe9VwpShT4qPHLsR8"; const res = await fetch("https://retouch-backend.vercel.app/api/checkout", { method: "POST", headers: { "Content-Type": "application/json", "Authorization": "Bearer " + session.access_token }, body: JSON.stringify({ priceId }) }); const data = await res.json(); if (data.url) window.location.href = data.url; }}>S'abonner</button>
         </div>
         <div className="pricing-card">
           <h3 style={{ fontSize: 24, fontWeight: 700, color: "#1a1a2e", margin: "0 0 6px" }}>Premium</h3>
           <p style={{ fontSize: 13, color: "#9ca3af", margin: "0 0 20px" }}>Pour les professionnels intensifs</p>
           <div style={{ display: "flex", alignItems: "baseline", gap: 4, marginBottom: 6 }}><span style={{ fontSize: 42, fontWeight: 800, color: "#1a1a2e" }}>{premPrice}€</span><span style={{ fontSize: 14, color: "#9ca3af" }}>/ mois</span></div>
-          <p style={{ fontSize: 13, color: "#8b5cf6", fontWeight: 500, margin: "0 0 24px" }}>Crédits Illimités</p>
-          <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 28 }}>{allFeatures.map(f => (<div key={f.label} style={{ display: "flex", alignItems: "center", gap: 10, fontSize: 14, color: "#374151" }}><CheckIcon /> {f.label}</div>))}</div>
+          <p style={{ fontSize: 13, color: "#8b5cf6", fontWeight: 500, margin: "0 0 24px" }}>Crédits illimités</p>
+          <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 28 }}>{premiumFeatures.map(f => (<div key={f.label} style={{ display: "flex", alignItems: "center", gap: 10, fontSize: 14, color: "#374151" }}><CheckIcon /> {f.label}</div>))}</div>
           <button className="btn-primary" style={{ width: "100%", justifyContent: "center" }} onClick={async () => { const { data: { session } } = await supabase.auth.getSession(); if (!session) { navigate("signup"); return; } const priceId = annual ? "price_1TM85KDWe9VwpShTGj4Q4J09" : "price_1TM84kDWe9VwpShTKzxJaaxX"; const res = await fetch("https://retouch-backend.vercel.app/api/checkout", { method: "POST", headers: { "Content-Type": "application/json", "Authorization": "Bearer " + session.access_token }, body: JSON.stringify({ priceId }) }); const data = await res.json(); if (data.url) window.location.href = data.url; }}>S'abonner</button>
         </div>
       </div>
@@ -549,8 +564,8 @@ function DashboardPage({ user, navigate, onLogout, refreshUser, sessionChecked }
     { name: "Changement de style", subtitle: "Transformez votre déco en 1 clic", icon: <PaletteIcon />, cover: IMG.restyle, model: "google/nano-banana-edit", promptTemplate: "", type: "edit", premium: false, trending: false, category: "style" },
     { name: "Retouche pro", subtitle: "Ajoutez ou retirez des éléments", icon: <WandIcon />, cover: IMG.retouch, model: "google/nano-banana-edit", promptTemplate: "", type: "edit", premium: false, trending: false, category: "edit" },
     { name: "Amélioration HD", subtitle: "Ultra haute définition 4K", icon: <ZapIcon />, cover: IMG.upscale, model: "nano-banana-2", promptTemplate: "Keep this exact same image unchanged. Only increase the resolution, sharpness and detail quality to 4K. Do not modify anything.", type: "edit", premium: false, trending: true, category: "quality" },
-    { name: "Texte dans image", subtitle: "Ajoutez du texte stylisé", icon: <TypeIcon />, cover: IMG.textimg, model: "google/nano-banana-edit", promptTemplate: "", type: "edit", premium: true, trending: false, category: "text" },
-    { name: "Fusion multi-images", subtitle: "Combinez jusqu'à 8 images", icon: <MergeIcon />, cover: IMG.fusion, model: "nano-banana-2", promptTemplate: "", type: "edit", premium: true, trending: false, category: "fusion" },
+    { name: "Texte dans image", subtitle: "Ajoutez du texte stylisé", icon: <TypeIcon />, cover: IMG.textimg, model: "google/nano-banana-edit", promptTemplate: "", type: "edit", premium: false, trending: false, category: "text" },
+    { name: "Fusion multi-images", subtitle: "Combinez jusqu'à 8 images", icon: <MergeIcon />, cover: IMG.fusion, model: "nano-banana-2", promptTemplate: "", type: "edit", premium: false, trending: false, category: "fusion" },
   ];
 
   // Outil virtuel pour le bouton caméra flottant (mode libre, n'apparaît pas dans la grille)
@@ -559,15 +574,11 @@ function DashboardPage({ user, navigate, onLogout, refreshUser, sessionChecked }
   const categories = [
     { key: "all", label: "Tous" },
     { key: "trending", label: "Tendances" },
-    { key: "standard", label: "Standard" },
-    { key: "premium", label: "Premium" },
   ];
 
   const filteredTools = tools.filter(t => {
     if (activeCategory === "all") return true;
     if (activeCategory === "trending") return t.trending;
-    if (activeCategory === "standard") return !t.premium;
-    if (activeCategory === "premium") return t.premium;
     return true;
   });
 
@@ -1330,7 +1341,7 @@ export default function App() {
       `}</style>
       {!isDashboard && <Navbar navigate={navigate} user={user} onLogout={handleLogout} />}
       {page === "home" && <HomePage navigate={navigate} />}
-      {page === "pricing" && <PricingPage navigate={navigate} />}
+      {page === "pricing" && <PricingPage navigate={navigate} user={user} />}
       {page === "login" && <LoginPage navigate={navigate} onLogin={handleLogin} user={user} />}
       {page === "signup" && <SignupPage navigate={navigate} onLogin={handleLogin} user={user} />}
       {page === "dashboard" && <DashboardPage user={user} navigate={navigate} onLogout={handleLogout} refreshUser={refreshUser} sessionChecked={sessionChecked} />}

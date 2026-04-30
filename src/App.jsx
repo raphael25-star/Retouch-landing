@@ -16,6 +16,7 @@ const IMG = {
   room: "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&q=80&w=512",
   face: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=512",
   villa: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&q=80&w=512",
+  rolexPrank: "https://images.unsplash.com/photo-1622434641406-a158123450f9?auto=format&fit=crop&q=80&w=600",
 };
 
 /* ─── Icons ─── */
@@ -496,6 +497,7 @@ function DashboardPage({ user, navigate, onLogout, refreshUser, sessionChecked }
   const [activeCategory, setActiveCategory] = useState("all");
   const [resolution, setResolution] = useState("2K");
   const [ratio, setRatio] = useState("1:1");
+  const [abortController, setAbortController] = useState(null);
 
   // Si la vérification de session est en cours, on affiche un mini-spinner sans bloquer
   if (!sessionChecked) {
@@ -559,13 +561,31 @@ function DashboardPage({ user, navigate, onLogout, refreshUser, sessionChecked }
   }, [user.id]);
 
   const tools = [
+    // ─── TEMPLATES TENDANCES (en premier) ───
+    {
+      name: "Rolex Prank",
+      subtitle: "Ajoutez n'importe quelle montre à votre poignet",
+      icon: <Sparkle s={18} />,
+      cover: IMG.rolexPrank,
+      model: "google/nano-banana-edit",
+      type: "edit",
+      premium: false,
+      trending: true,
+      category: "trend",
+      numImages: 2,
+      imageLabels: ["Votre poignet", "La montre"],
+      userPromptDefault: "Ajoute cette montre à mon poignet",
+      expertPromptPrefix: "Take the watch from the second image and place it realistically on the wrist shown in the first image. The watch size must be proportionally adapted to the actual wrist size shown in the photo. The watch must wrap naturally around the wrist with proper bracelet curvature. Match the lighting, shadows and skin tone of the first photo perfectly. The watch should appear as if it has always been worn there - with realistic contact shadows under the bracelet and seamless integration. Preserve all original details of the watch (model, color, dial, hands, brand). Add subtle photographic grain to match the realism of the original photo. Hyper-realistic photography style, professional product placement quality. User additional instructions: ",
+      promptTemplate: "" // legacy field, on n'utilise plus pour les templates avec expertPromptPrefix
+    },
+    // ─── OUTILS UTILITAIRES ───
     { name: "Suppression d'arrière-plan", subtitle: "Détourage parfait en 1 clic", icon: <ImageIcon />, cover: IMG.removebg, model: "google/nano-banana-edit", promptTemplate: "Remove the background from this image completely, leaving only the main subject on a transparent/white background.", type: "edit", premium: false, trending: false, category: "background" },
     { name: "Gomme magique", subtitle: "Supprimez n'importe quel objet", icon: <EraserIcon />, cover: IMG.eraser, model: "google/nano-banana-edit", promptTemplate: "", type: "edit", premium: false, trending: true, category: "edit" },
     { name: "Changement de style", subtitle: "Transformez votre déco en 1 clic", icon: <PaletteIcon />, cover: IMG.restyle, model: "google/nano-banana-edit", promptTemplate: "", type: "edit", premium: false, trending: false, category: "style" },
     { name: "Retouche pro", subtitle: "Ajoutez ou retirez des éléments", icon: <WandIcon />, cover: IMG.retouch, model: "google/nano-banana-edit", promptTemplate: "", type: "edit", premium: false, trending: false, category: "edit" },
     { name: "Amélioration HD", subtitle: "Ultra haute définition 4K", icon: <ZapIcon />, cover: IMG.upscale, model: "nano-banana-2", promptTemplate: "Keep this exact same image unchanged. Only increase the resolution, sharpness and detail quality to 4K. Do not modify anything.", type: "edit", premium: false, trending: true, category: "quality" },
     { name: "Texte dans image", subtitle: "Ajoutez du texte stylisé", icon: <TypeIcon />, cover: IMG.textimg, model: "google/nano-banana-edit", promptTemplate: "", type: "edit", premium: false, trending: false, category: "text" },
-    { name: "Fusion multi-images", subtitle: "Combinez jusqu'à 8 images", icon: <MergeIcon />, cover: IMG.fusion, model: "nano-banana-2", promptTemplate: "", type: "edit", premium: false, trending: false, category: "fusion" },
+    { name: "Fusion multi-images", subtitle: "Combinez jusqu'à 8 images", icon: <MergeIcon />, cover: IMG.fusion, model: "google/nano-banana-edit", promptTemplate: "", type: "edit", premium: false, trending: false, category: "fusion" },
   ];
 
   // Outil virtuel pour le bouton caméra flottant (mode libre, n'apparaît pas dans la grille)
@@ -650,75 +670,92 @@ function DashboardPage({ user, navigate, onLogout, refreshUser, sessionChecked }
   const handleGenerate = async () => {
     if (!prompt && activeTool?.name !== "Suppression d'arrière-plan" && activeTool?.name !== "Amélioration HD") { setError("Veuillez entrer une instruction."); return; }
     if (uploadedImages.length === 0 && activeTool?.type === "edit") { setError("Veuillez uploader au moins une image."); return; }
+    // Validation pour les templates qui exigent un nombre précis d'images
+    if (activeTool?.numImages && uploadedImages.length < activeTool.numImages) {
+      const labels = activeTool.imageLabels || [];
+      const missing = activeTool.numImages - uploadedImages.length;
+      setError(`Il manque ${missing} image${missing > 1 ? "s" : ""}. Ajoutez ${labels.slice(uploadedImages.length).join(" et ") || "les images requises"}.`);
+      return;
+    }
     if (activeTool?.name === "Fusion multi-images" && uploadedImages.length < 2) { setError("La fusion nécessite au moins 2 images."); return; }
     if (!user.unlimited && user.credits < CREDITS_PER_IMAGE) { setError("Crédits insuffisants. Veuillez recharger votre compte."); return; }
+
     setLoading(true); setError(""); setResultImage(null);
 
-    // Helper timeout (évite les chargements infinis si Kie.ai bloque)
-    const withTimeout = (promise, ms, errMsg) => Promise.race([
-      promise,
-      new Promise((_, reject) => setTimeout(() => reject(new Error(errMsg)), ms))
-    ]);
+    // AbortController pour permettre à l'user d'annuler la requête
+    const controller = new AbortController();
+    setAbortController(controller);
+    // Timeout de sécurité de 120s (2 minutes) au cas où Kie.ai bloque vraiment
+    const timeoutId = setTimeout(() => controller.abort(), 120000);
 
-    const finalPrompt = activeTool.promptTemplate || prompt;
-    // Inclusion du ratio dans le prompt (le backend Kie.ai ne le prend pas en paramètre direct, donc on le glisse dans le prompt)
     const ratioHint = ratio !== "1:1" ? ` Output aspect ratio: ${ratio}.` : "";
+
     try {
       let requestBody;
       const res = activeTool.name === "Amélioration HD" ? "4K" : resolution;
 
-      if (activeTool.name === "Fusion multi-images") {
-        // FUSION : on utilise le même format que les autres outils (model nano-banana-edit + image_urls)
-        // Le prompt doit explicitement demander de fusionner les images en une seule
-        const fusionBasePrompt = prompt
+      // Construction du prompt selon le type d'outil
+      let basePrompt;
+      if (activeTool.expertPromptPrefix) {
+        // Template avec prompt expert (ex: Rolex Prank) → préfixe expert + prompt user
+        basePrompt = activeTool.expertPromptPrefix + (prompt || "");
+      } else if (activeTool.name === "Fusion multi-images") {
+        basePrompt = prompt
           ? "Combine the provided images into a single coherent composition. Instructions: " + prompt
           : "Combine the provided images into a single coherent composition.";
+      } else if (activeTool.name === "Texte dans image") {
+        basePrompt = "IMPORTANT: Do NOT change the original image. Only overlay text: " + prompt;
+      } else if (activeTool.isFreeMode || !activeTool.promptTemplate) {
+        basePrompt = prompt;
+      } else {
+        const finalPromptTemplate = activeTool.promptTemplate;
+        basePrompt = finalPromptTemplate + (prompt ? " " + prompt : "");
+      }
+      const promptWithRatio = basePrompt + ratioHint;
+
+      if (uploadedImages.length > 0) {
         requestBody = {
-          model: "google/nano-banana-edit",
+          model: activeTool.model,
           input: {
-            prompt: fusionBasePrompt + ratioHint,
+            prompt: promptWithRatio,
             image_urls: uploadedImages.map(img => "data:image/png;base64," + img.base64),
             output_format: "png",
             resolution: res
           }
         };
-      } else if (uploadedImages.length > 0) {
-        // Construction du prompt final selon le type d'outil
-        let basePrompt;
-        if (activeTool.name === "Texte dans image") {
-          basePrompt = "IMPORTANT: Do NOT change the original image. Only overlay text: " + prompt;
-        } else if (activeTool.isFreeMode || !activeTool.promptTemplate) {
-          // Mode Génération libre OU outil sans template → on utilise juste le prompt user
-          basePrompt = prompt;
-        } else {
-          // Outil avec template → on utilise le template + prompt user éventuel
-          basePrompt = finalPrompt + (prompt ? " " + prompt : "");
-        }
-        const promptWithRatio = basePrompt + ratioHint;
-        requestBody = { model: activeTool.model, input: { prompt: promptWithRatio, image_urls: uploadedImages.map(img => "data:image/png;base64," + img.base64), output_format: "png", resolution: res } };
       } else {
-        requestBody = { model: activeTool.model, input: { prompt: prompt + ratioHint, output_format: "png", image_size: ratio } };
+        requestBody = { model: activeTool.model, input: { prompt: promptWithRatio, output_format: "png", image_size: ratio } };
       }
+
       console.log("[Retouch] Génération - Outil:", activeTool.name, "| Prompt envoyé:", requestBody.input.prompt, "| Modèle:", requestBody.model, "| Nb images:", uploadedImages.length);
       const { data: { session } } = await supabase.auth.getSession();
 
       if (activeTool.name === "Amélioration HD") {
-        const upRes = await withTimeout(
-          fetch("https://retouch-backend.vercel.app/api/upscale", { method: "POST", headers: { "Content-Type": "application/json", "Authorization": "Bearer " + session.access_token }, body: JSON.stringify({ image_url: "data:image/png;base64," + uploadedImages[0].base64 }) }),
-          90000,
-          "La génération prend trop de temps. Réessayez ou utilisez une image plus petite."
-        );
+        const upRes = await fetch("https://retouch-backend.vercel.app/api/upscale", {
+          method: "POST",
+          headers: { "Content-Type": "application/json", "Authorization": "Bearer " + session.access_token },
+          body: JSON.stringify({ image_url: "data:image/png;base64," + uploadedImages[0].base64 }),
+          signal: controller.signal
+        });
         const upData = await upRes.json();
-        if (upData.image_url) { setResultImage(upData.image_url); await supabase.from("generations").insert({ user_id: user.id, tool_name: activeTool.name, prompt: "Upscale 4x", result_url: upData.image_url, credits_used: CREDITS_PER_IMAGE }); await refreshUser(); setHistory(prev => [{ name: activeTool.name, prompt: "Upscale 4x", date: "À l'instant", url: upData.image_url }, ...prev]); } else { throw new Error(upData.error || "Erreur upscale"); }
-        setLoading(false); return;
+        if (upData.image_url) {
+          setResultImage(upData.image_url);
+          await supabase.from("generations").insert({ user_id: user.id, tool_name: activeTool.name, prompt: "Upscale 4x", result_url: upData.image_url, credits_used: CREDITS_PER_IMAGE });
+          await refreshUser();
+          setHistory(prev => [{ name: activeTool.name, prompt: "Upscale 4x", date: "À l'instant", url: upData.image_url }, ...prev]);
+        } else { throw new Error(upData.error || "Erreur upscale"); }
+        clearTimeout(timeoutId);
+        setAbortController(null);
+        setLoading(false);
+        return;
       }
 
-      // Génération standard avec timeout de 90s (les générations Kie.ai prennent généralement 10-40s)
-      const response = await withTimeout(
-        fetch("https://retouch-backend.vercel.app/api/generate", { method: "POST", headers: { "Content-Type": "application/json", "Authorization": "Bearer " + session.access_token }, body: JSON.stringify(requestBody) }),
-        90000,
-        "La génération prend trop de temps. Réessayez ou utilisez une image plus petite."
-      );
+      const response = await fetch("https://retouch-backend.vercel.app/api/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "Authorization": "Bearer " + session.access_token },
+        body: JSON.stringify(requestBody),
+        signal: controller.signal
+      });
       const data = await response.json();
       console.log("[Retouch] Réponse backend:", data);
       if (data.image_url) {
@@ -729,23 +766,40 @@ function DashboardPage({ user, navigate, onLogout, refreshUser, sessionChecked }
       } else { throw new Error(data.error || "Erreur lors de la génération."); }
     } catch (err) {
       console.error("[Retouch] Erreur génération:", err);
-      setError(err.message || "Erreur de connexion.");
-    } finally { setLoading(false); }
+      // Si l'user a annulé, on n'affiche pas d'erreur (ou un message neutre)
+      if (err.name === "AbortError") {
+        setError("Génération annulée.");
+      } else {
+        setError(err.message || "Erreur de connexion.");
+      }
+    } finally {
+      clearTimeout(timeoutId);
+      setAbortController(null);
+      setLoading(false);
+    }
+  };
+
+  // Annule la génération en cours
+  const cancelGeneration = () => {
+    if (abortController) {
+      abortController.abort();
+      setAbortController(null);
+    }
   };
 
   const selectTool = (t) => {
     if (t.premium && !isPremiumUser) { return; }
     setActiveTool(t);
     setActiveSection("workspace");
-    setPrompt("");
+    setPrompt(t.userPromptDefault || ""); // pré-remplit avec le prompt français du template (modifiable par l'user)
     setUploadedImages([]);
     setResultImage(null);
     setError("");
-    setResolution(t.name === "Amélioration HD" ? "4K" : "2K");
-    setRatio("1:1");
+    setResolution(t.name === "Amélioration HD" ? "4K" : (t.defaultResolution || "2K"));
+    setRatio(t.defaultRatio || "1:1");
   };
 
-  const maxImages = activeTool?.name === "Fusion multi-images" ? 8 : 1;
+  const maxImages = activeTool?.numImages || (activeTool?.name === "Fusion multi-images" ? 8 : 1);
   const sideItemStyle = (active) => ({ display: "flex", alignItems: "center", gap: 12, padding: "10px 14px", borderRadius: 10, fontSize: 13, fontWeight: active ? 600 : 500, color: active ? "#8b5cf6" : "#6b7280", background: active ? "rgba(139,92,246,0.08)" : "transparent", border: "none", cursor: "pointer", width: "100%", textAlign: "left", fontFamily: "inherit", transition: "all 0.2s", marginBottom: 2 });
   const sectionLabel = { fontSize: 10, fontWeight: 700, color: "#9ca3af", textTransform: "uppercase", letterSpacing: "0.08em", padding: "16px 14px 6px", margin: 0 };
 
@@ -984,18 +1038,28 @@ function DashboardPage({ user, navigate, onLogout, refreshUser, sessionChecked }
                     ) : (
                       <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
                         {uploadedImages.map((img, i) => (
-                          <div key={i} style={{ position: "relative", width: 88, height: 88, borderRadius: 12, overflow: "hidden", border: "2px solid #ede9fe", background: "#fff" }}>
-                            <img src={img.preview} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-                            <button onClick={() => removeImage(i)}
-                              style={{ position: "absolute", top: 4, right: 4, width: 22, height: 22, borderRadius: "50%", background: "rgba(0,0,0,0.7)", color: "#fff", border: "none", fontSize: 13, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", lineHeight: 1 }}>×</button>
+                          <div key={i} style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+                            <div style={{ position: "relative", width: 88, height: 88, borderRadius: 12, overflow: "hidden", border: "2px solid #ede9fe", background: "#fff" }}>
+                              <img src={img.preview} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                              <button onClick={() => removeImage(i)}
+                                style={{ position: "absolute", top: 4, right: 4, width: 22, height: 22, borderRadius: "50%", background: "rgba(0,0,0,0.7)", color: "#fff", border: "none", fontSize: 13, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", lineHeight: 1 }}>×</button>
+                            </div>
+                            {activeTool.imageLabels && activeTool.imageLabels[i] && (
+                              <span style={{ fontSize: 10, color: "#8b5cf6", fontWeight: 600, textAlign: "center", maxWidth: 88, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{activeTool.imageLabels[i]}</span>
+                            )}
                           </div>
                         ))}
                         {uploadedImages.length < maxImages && (
-                          <label htmlFor="file-input-add"
-                            style={{ width: 88, height: 88, borderRadius: 12, border: "2px dashed #ddd6fe", background: "#faf9ff", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", color: "#8b5cf6", fontSize: 24 }}>
-                            <input id="file-input-add" type="file" accept="image/*" multiple onChange={handleFileUpload} style={{ display: "none" }} />
-                            +
-                          </label>
+                          <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+                            <label htmlFor="file-input-add"
+                              style={{ width: 88, height: 88, borderRadius: 12, border: "2px dashed #ddd6fe", background: "#faf9ff", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", color: "#8b5cf6", fontSize: 24 }}>
+                              <input id="file-input-add" type="file" accept="image/*" multiple onChange={handleFileUpload} style={{ display: "none" }} />
+                              +
+                            </label>
+                            {activeTool.imageLabels && activeTool.imageLabels[uploadedImages.length] && (
+                              <span style={{ fontSize: 10, color: "#9ca3af", fontWeight: 500, textAlign: "center", maxWidth: 88, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{activeTool.imageLabels[uploadedImages.length]}</span>
+                            )}
+                          </div>
                         )}
                       </div>
                     )}
@@ -1065,10 +1129,24 @@ function DashboardPage({ user, navigate, onLogout, refreshUser, sessionChecked }
 
                   {error && <p style={{ color: "#ef4444", fontSize: 12, marginBottom: 12, padding: "10px 14px", background: "rgba(239,68,68,0.06)", borderRadius: 10, border: "1px solid rgba(239,68,68,0.15)" }}>{error}</p>}
 
-                  {/* Bouton Générer */}
-                  <button className="btn-primary tool-generate-btn" style={{ width: "100%", justifyContent: "center", padding: "14px 24px", fontSize: 15 }} onClick={handleGenerate} disabled={loading}>
-                    {loading ? <><span className="spinner" /> Génération en cours...</> : <><Sparkle s={16} c="#fff" /> Générer — {CREDITS_PER_IMAGE} crédits</>}
-                  </button>
+                  {/* Bouton Générer / Annuler pendant la génération */}
+                  {loading ? (
+                    <div style={{ display: "flex", gap: 8 }}>
+                      <button className="btn-primary" style={{ flex: 1, justifyContent: "center", padding: "14px 24px", fontSize: 15, opacity: 0.7, cursor: "not-allowed" }} disabled>
+                        <span className="spinner" /> Génération en cours...
+                      </button>
+                      <button onClick={cancelGeneration}
+                        style={{ padding: "14px 20px", borderRadius: 12, fontSize: 14, fontWeight: 600, background: "#fff", color: "#ef4444", border: "1px solid #fecaca", cursor: "pointer", fontFamily: "inherit", transition: "all 0.2s" }}
+                        onMouseEnter={e => { e.currentTarget.style.background = "#fef2f2"; e.currentTarget.style.borderColor = "#ef4444"; }}
+                        onMouseLeave={e => { e.currentTarget.style.background = "#fff"; e.currentTarget.style.borderColor = "#fecaca"; }}>
+                        Annuler
+                      </button>
+                    </div>
+                  ) : (
+                    <button className="btn-primary tool-generate-btn" style={{ width: "100%", justifyContent: "center", padding: "14px 24px", fontSize: 15 }} onClick={handleGenerate}>
+                      <Sparkle s={16} c="#fff" /> Générer — {CREDITS_PER_IMAGE} crédits
+                    </button>
+                  )}
                 </div>
 
                 {/* COLONNE DROITE : RESULT */}

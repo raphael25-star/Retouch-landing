@@ -17,6 +17,8 @@ const IMG = {
   face: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=512",
   villa: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&q=80&w=512",
   rolexPrank: "/template-rolex.png",
+  serpentPrank: "/template-serpent.png",
+  plombierPrank: "/template-plombier.png",
 };
 
 /* ─── Icons ─── */
@@ -576,16 +578,64 @@ function DashboardPage({ user, navigate, onLogout, refreshUser, sessionChecked }
       imageLabels: ["Votre poignet", "La montre"],
       userPromptDefault: "Ajoute cette montre à mon poignet",
       expertPromptPrefix: "Take the watch from the second image and place it realistically on the wrist shown in the first image. The watch size must be proportionally adapted to the actual wrist size shown in the photo. The watch must wrap naturally around the wrist with proper bracelet curvature. Match the lighting, shadows and skin tone of the first photo perfectly. The watch should appear as if it has always been worn there - with realistic contact shadows under the bracelet and seamless integration. Preserve all original details of the watch (model, color, dial, hands, brand). Add subtle photographic grain to match the realism of the original photo. Hyper-realistic photography style, professional product placement quality. User additional instructions: ",
-      promptTemplate: "" // legacy field, on n'utilise plus pour les templates avec expertPromptPrefix
+      promptTemplate: ""
+    },
+    {
+      name: "Serpent Prank",
+      subtitle: "Faites peur à vos proches en 1 clic",
+      icon: <Sparkle s={18} />,
+      cover: IMG.serpentPrank,
+      model: "google/nano-banana-edit",
+      type: "edit",
+      premium: false,
+      trending: true,
+      category: "trend",
+      numImages: 1, // l'user voit 1 zone d'upload
+      imageLabels: ["La zone à pranker"],
+      userPromptDefault: "Ajoute un serpent réaliste",
+      expertPromptPrefix: "Realistically integrate the snake from the second image into the scene from the first image. The snake must look photorealistic and naturally placed in the environment - matching the lighting, shadows, perspective, and atmosphere of the scene. Adapt the snake's scale and position so it fits naturally in the space (peeking out from a closet, sliding under a bed, coiled on the floor, etc.). Preserve the snake's anatomy, scales, color, and details exactly as shown in the source. Match the photographic style of the first photo (smartphone quality, natural color, slight grain). The result must look like an authentic smartphone photo, not a composite. User additional instructions: ",
+      promptTemplate: "",
+      // Sources aléatoires : le code piochera UNE de ces images au hasard et l'enverra avec celle de l'user
+      randomSources: [
+        "/sources/serpent-1.jpg",
+        "/sources/serpent-2.jpg",
+        "/sources/serpent-3.jpg",
+        "/sources/serpent-4.jpg",
+        "/sources/serpent-5.jpg"
+      ]
+    },
+    {
+      name: "Plombier Prank",
+      subtitle: "Pranquez votre moitié avec un faux plombier",
+      icon: <Sparkle s={18} />,
+      cover: IMG.plombierPrank,
+      model: "google/nano-banana-edit",
+      type: "edit",
+      premium: false,
+      trending: true,
+      category: "trend",
+      numImages: 1,
+      imageLabels: ["La pièce de chez vous"],
+      userPromptDefault: "Ajoute ce plombier dans ma pièce",
+      expertPromptPrefix: "Realistically integrate the plumber from the second image into the scene from the first image. The plumber must look natural in the environment - matching the lighting, shadows, perspective, and atmosphere of the room. Adapt their pose and angle so they appear to be standing or working naturally in the space. Preserve the plumber's facial features, body type, clothing, tools, and expression exactly as shown in the source image. Add realistic contact shadows beneath them and ensure they appear physically present in the scene. Match the photographic style of the first photo (smartphone quality, natural color, slight grain). The result must look like an authentic smartphone photo, not an obvious composite. User additional instructions: ",
+      promptTemplate: "",
+      randomSources: [
+        "/sources/plombier-1.jpg",
+        "/sources/plombier-2.jpg",
+        "/sources/plombier-3.jpg",
+        "/sources/plombier-4.jpg",
+        "/sources/plombier-5.jpg"
+      ]
     },
     // ─── OUTILS UTILITAIRES ───
     { name: "Suppression d'arrière-plan", subtitle: "Détourage parfait en 1 clic", icon: <ImageIcon />, cover: IMG.removebg, model: "google/nano-banana-edit", promptTemplate: "Remove the background from this image completely, leaving only the main subject on a transparent/white background.", type: "edit", premium: false, trending: false, category: "background" },
     { name: "Gomme magique", subtitle: "Supprimez n'importe quel objet", icon: <EraserIcon />, cover: IMG.eraser, model: "google/nano-banana-edit", promptTemplate: "", type: "edit", premium: false, trending: true, category: "edit" },
     { name: "Changement de style", subtitle: "Transformez votre déco en 1 clic", icon: <PaletteIcon />, cover: IMG.restyle, model: "google/nano-banana-edit", promptTemplate: "", type: "edit", premium: false, trending: false, category: "style" },
-    { name: "Retouche pro", subtitle: "Ajoutez ou retirez des éléments", icon: <WandIcon />, cover: IMG.retouch, model: "google/nano-banana-edit", promptTemplate: "", type: "edit", premium: false, trending: false, category: "edit" },
     { name: "Amélioration HD", subtitle: "Ultra haute définition 4K", icon: <ZapIcon />, cover: IMG.upscale, model: "nano-banana-2", promptTemplate: "Keep this exact same image unchanged. Only increase the resolution, sharpness and detail quality to 4K. Do not modify anything.", type: "edit", premium: false, trending: true, category: "quality" },
-    { name: "Texte dans image", subtitle: "Ajoutez du texte stylisé", icon: <TypeIcon />, cover: IMG.textimg, model: "google/nano-banana-edit", promptTemplate: "", type: "edit", premium: false, trending: false, category: "text" },
     { name: "Fusion multi-images", subtitle: "Combinez jusqu'à 8 images", icon: <MergeIcon />, cover: IMG.fusion, model: "google/nano-banana-edit", promptTemplate: "", type: "edit", premium: false, trending: false, category: "fusion" },
+    // ─── OUTILS DÉSACTIVÉS DU FRONTEND (gardés dans le backend, on peut les remettre plus tard) ───
+    // { name: "Retouche pro", subtitle: "Ajoutez ou retirez des éléments", icon: <WandIcon />, cover: IMG.retouch, model: "google/nano-banana-edit", promptTemplate: "", type: "edit", premium: false, trending: false, category: "edit" },
+    // { name: "Texte dans image", subtitle: "Ajoutez du texte stylisé", icon: <TypeIcon />, cover: IMG.textimg, model: "google/nano-banana-edit", promptTemplate: "", type: "edit", premium: false, trending: false, category: "text" },
   ];
 
   // Outil virtuel pour le bouton caméra flottant (mode libre, n'apparaît pas dans la grille)
@@ -696,6 +746,36 @@ function DashboardPage({ user, navigate, onLogout, refreshUser, sessionChecked }
     const ratioHint = ratio !== "1:1" ? ` Output aspect ratio: ${ratio}.` : "";
 
     try {
+      // ─── PIOCHE ALÉATOIRE D'UNE SOURCE pour les templates avec randomSources (Serpent, Plombier, etc.) ───
+      // L'user upload 1 photo (sa pièce), le code ajoute automatiquement une source aléatoire (le serpent/plombier) en 2ème image
+      let imagesForBackend = [...uploadedImages]; // copie pour ne pas muter le state
+      if (activeTool.randomSources && activeTool.randomSources.length > 0 && uploadedImages.length === 1) {
+        const randomIdx = Math.floor(Math.random() * activeTool.randomSources.length);
+        const sourceUrl = activeTool.randomSources[randomIdx];
+        console.log("[Retouch] Source aléatoire piochée:", sourceUrl, "(index", randomIdx, "sur", activeTool.randomSources.length, ")");
+        try {
+          // Fetch la source depuis le dossier /public et la convertit en base64
+          const sourceRes = await fetch(sourceUrl);
+          if (!sourceRes.ok) throw new Error("Source introuvable: " + sourceUrl);
+          const blob = await sourceRes.blob();
+          const sourceBase64 = await new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onloadend = () => resolve(reader.result.split(",")[1]);
+            reader.onerror = reject;
+            reader.readAsDataURL(blob);
+          });
+          imagesForBackend.push({ name: "source.jpg", base64: sourceBase64, preview: sourceUrl });
+          console.log("[Retouch] Source chargée en base64, taille:", (sourceBase64.length / 1024).toFixed(1), "KB");
+        } catch (err) {
+          console.error("[Retouch] Erreur chargement source:", err);
+          setError("Erreur lors du chargement des ressources du template. Réessayez.");
+          setLoading(false);
+          clearTimeout(timeoutId);
+          setAbortController(null);
+          return;
+        }
+      }
+
       let requestBody;
       const res = activeTool.name === "Amélioration HD" ? "4K" : resolution;
 
@@ -718,12 +798,12 @@ function DashboardPage({ user, navigate, onLogout, refreshUser, sessionChecked }
       }
       const promptWithRatio = basePrompt + ratioHint;
 
-      if (uploadedImages.length > 0) {
+      if (imagesForBackend.length > 0) {
         requestBody = {
           model: activeTool.model,
           input: {
             prompt: promptWithRatio,
-            image_urls: uploadedImages.map(img => "data:image/png;base64," + img.base64),
+            image_urls: imagesForBackend.map(img => "data:image/png;base64," + img.base64),
             output_format: "png",
             resolution: res
           }
@@ -732,7 +812,7 @@ function DashboardPage({ user, navigate, onLogout, refreshUser, sessionChecked }
         requestBody = { model: activeTool.model, input: { prompt: promptWithRatio, output_format: "png", image_size: ratio } };
       }
 
-      console.log("[Retouch] Génération - Outil:", activeTool.name, "| Prompt envoyé:", requestBody.input.prompt, "| Modèle:", requestBody.model, "| Nb images:", uploadedImages.length);
+      console.log("[Retouch] Génération - Outil:", activeTool.name, "| Prompt envoyé:", requestBody.input.prompt, "| Modèle:", requestBody.model, "| Nb images:", imagesForBackend.length);
       const { data: { session } } = await supabase.auth.getSession();
 
       if (activeTool.name === "Amélioration HD") {

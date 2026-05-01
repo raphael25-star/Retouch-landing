@@ -610,7 +610,11 @@ function DashboardPage({ user, navigate, onLogout, refreshUser, sessionChecked }
         const img = new Image();
         img.onload = () => {
           const canvas = document.createElement("canvas");
-          const MAX = 1500;
+          // Compression douce (max 2500px / qualité 0.95) pour Amélioration HD
+          // Compression normale (max 1500px / qualité 0.8) pour les autres outils
+          const isHDTool = activeTool?.name === "Amélioration HD";
+          const MAX = isHDTool ? 2500 : 1500;
+          const QUALITY = isHDTool ? 0.95 : 0.8;
           let w = img.width;
           let h = img.height;
           if (w > MAX || h > MAX) {
@@ -620,7 +624,8 @@ function DashboardPage({ user, navigate, onLogout, refreshUser, sessionChecked }
           canvas.width = w;
           canvas.height = h;
           canvas.getContext("2d").drawImage(img, 0, 0, w, h);
-          const compressed = canvas.toDataURL("image/jpeg", 0.8);
+          const compressed = canvas.toDataURL("image/jpeg", QUALITY);
+          console.log("[Retouch] Image compressée -", isHDTool ? "HD mode" : "normal", "| Original:", img.width + "x" + img.height, "| Final:", w + "x" + h, "| Size:", (compressed.length / 1024).toFixed(1) + " KB");
           setUploadedImages(prev => [...prev, { name: file.name, base64: compressed.split(",")[1], preview: compressed }]);
         };
         img.src = ev.target.result;
@@ -731,13 +736,20 @@ function DashboardPage({ user, navigate, onLogout, refreshUser, sessionChecked }
       const { data: { session } } = await supabase.auth.getSession();
 
       if (activeTool.name === "Amélioration HD") {
+        console.log("[Retouch] Amélioration HD - Ratio:", ratio, "| Résolution affichée user:", resolution);
         const upRes = await fetch("https://retouch-backend.vercel.app/api/upscale", {
           method: "POST",
           headers: { "Content-Type": "application/json", "Authorization": "Bearer " + session.access_token },
-          body: JSON.stringify({ image_url: "data:image/png;base64," + uploadedImages[0].base64 }),
+          body: JSON.stringify({
+            image_url: "data:image/png;base64," + uploadedImages[0].base64,
+            ratio: ratio,
+            resolution: resolution,
+            prompt: prompt || ""
+          }),
           signal: controller.signal
         });
         const upData = await upRes.json();
+        console.log("[Retouch] Réponse backend upscale:", upData.image_url ? "✓ image reçue" : upData);
         if (upData.image_url) {
           setResultImage(upData.image_url);
           await supabase.from("generations").insert({ user_id: user.id, tool_name: activeTool.name, prompt: "Upscale 4x", result_url: upData.image_url, credits_used: CREDITS_PER_IMAGE });
@@ -798,7 +810,6 @@ function DashboardPage({ user, navigate, onLogout, refreshUser, sessionChecked }
     setResolution(t.name === "Amélioration HD" ? "4K" : (t.defaultResolution || "2K"));
     setRatio(t.defaultRatio || "1:1");
   };
-
   const maxImages = activeTool?.numImages || (activeTool?.name === "Fusion multi-images" ? 8 : 1);
   const sideItemStyle = (active) => ({ display: "flex", alignItems: "center", gap: 12, padding: "10px 14px", borderRadius: 10, fontSize: 13, fontWeight: active ? 600 : 500, color: active ? "#8b5cf6" : "#6b7280", background: active ? "rgba(139,92,246,0.08)" : "transparent", border: "none", cursor: "pointer", width: "100%", textAlign: "left", fontFamily: "inherit", transition: "all 0.2s", marginBottom: 2 });
   const sectionLabel = { fontSize: 10, fontWeight: 700, color: "#9ca3af", textTransform: "uppercase", letterSpacing: "0.08em", padding: "16px 14px 6px", margin: 0 };
@@ -1086,18 +1097,17 @@ function DashboardPage({ user, navigate, onLogout, refreshUser, sessionChecked }
                   )}
 
                   {/* Sélecteur résolution */}
-                  {activeTool.name !== "Amélioration HD" && (
-                    <div style={{ marginBottom: 18 }}>
-                      <label style={{ fontSize: 12, fontWeight: 600, color: "#374151", marginBottom: 8, display: "block" }}>Résolution</label>
-                      <div style={{ display: "flex", gap: 6 }}>
-                        {["1K", "2K", "4K"].map(r => (
-                          <button key={r} onClick={() => setResolution(r)}
-                            style={{
-                              flex: 1, padding: "10px 12px", borderRadius: 10, fontSize: 13, fontWeight: 600,
-                              background: resolution === r ? "linear-gradient(135deg,#8b5cf6,#ec4899)" : "#fff",
-                              color: resolution === r ? "#fff" : "#6b7280",
-                              border: resolution === r ? "1px solid transparent" : "1px solid #ede9fe",
-                              cursor: "pointer", fontFamily: "inherit", transition: "all 0.2s",
+                  <div style={{ marginBottom: 18 }}>
+                    <label style={{ fontSize: 12, fontWeight: 600, color: "#374151", marginBottom: 8, display: "block" }}>Résolution</label>
+                    <div style={{ display: "flex", gap: 6 }}>
+                      {["1K", "2K", "4K"].map(r => (
+                        <button key={r} onClick={() => setResolution(r)}
+                          style={{
+                            flex: 1, padding: "10px 12px", borderRadius: 10, fontSize: 13, fontWeight: 600,
+                            background: resolution === r ? "linear-gradient(135deg,#8b5cf6,#ec4899)" : "#fff",
+                            color: resolution === r ? "#fff" : "#6b7280",
+                            border: resolution === r ? "1px solid transparent" : "1px solid #ede9fe",
+                            cursor: "pointer", fontFamily: "inherit", transition: "all 0.2s",
                               boxShadow: resolution === r ? "0 2px 10px rgba(139,92,246,0.25)" : "none"
                             }}>
                             {r}
@@ -1105,7 +1115,6 @@ function DashboardPage({ user, navigate, onLogout, refreshUser, sessionChecked }
                         ))}
                       </div>
                     </div>
-                  )}
 
                   {/* Sélecteur ratio */}
                   <div style={{ marginBottom: 24 }}>

@@ -629,7 +629,7 @@ function DashboardPage({ user, navigate, onLogout, refreshUser, sessionChecked }
     },
     // ─── OUTILS UTILITAIRES ───
     { name: "Suppression d'arrière-plan", subtitle: "Détourage parfait en 1 clic", icon: <ImageIcon />, cover: IMG.removebg, model: "google/nano-banana-edit", promptTemplate: "Remove the background from this image completely, leaving only the main subject on a transparent/white background.", type: "edit", premium: false, trending: false, category: "background" },
-    { name: "Gomme magique", subtitle: "Supprimez n'importe quel objet", icon: <EraserIcon />, cover: IMG.eraser, model: "google/nano-banana-edit", promptTemplate: "", type: "edit", premium: false, trending: false, category: "edit" },
+    { name: "Gomme magique", subtitle: "Supprimez n'importe quel objet", icon: <EraserIcon />, cover: IMG.eraser, model: "google/nano-banana-edit", promptTemplate: "", type: "edit", premium: false, trending: true, category: "edit" },
     { name: "Changement de style", subtitle: "Transformez votre déco en 1 clic", icon: <PaletteIcon />, cover: IMG.restyle, model: "google/nano-banana-edit", promptTemplate: "", type: "edit", premium: false, trending: false, category: "style" },
     { name: "Amélioration HD", subtitle: "Ultra haute définition 4K", icon: <ZapIcon />, cover: IMG.upscale, model: "nano-banana-2", promptTemplate: "Keep this exact same image unchanged. Only increase the resolution, sharpness and detail quality to 4K. Do not modify anything.", type: "edit", premium: false, trending: true, category: "quality" },
     { name: "Fusion multi-images", subtitle: "Combinez jusqu'à 8 images", icon: <MergeIcon />, cover: IMG.fusion, model: "google/nano-banana-edit", promptTemplate: "", type: "edit", premium: false, trending: false, category: "fusion" },
@@ -642,17 +642,15 @@ function DashboardPage({ user, navigate, onLogout, refreshUser, sessionChecked }
   const freeTool = { name: "Génération libre", subtitle: "Décrivez ce que vous voulez ajouter ou modifier", icon: <Sparkle s={18} />, cover: null, model: "google/nano-banana-edit", promptTemplate: "", type: "edit", premium: false, trending: false, category: "free", isFreeMode: true };
 
   const categories = [
-  { key: "all", label: "Tous" },
-  { key: "trending", label: "Tendances" },
-  { key: "home", label: "Maison" },
-];
+    { key: "all", label: "Tous" },
+    { key: "trending", label: "Tendances" },
+  ];
 
   const filteredTools = tools.filter(t => {
-  if (activeCategory === "all") return true;
-  if (activeCategory === "trending") return t.trending;
-  if (activeCategory === "home") return t.name === "Changement de style" || t.name === "Gomme magique";
-  return true;
-});
+    if (activeCategory === "all") return true;
+    if (activeCategory === "trending") return t.trending;
+    return true;
+  });
 
   const handleFileUpload = (e) => {
     const files = Array.from(e.target.files);
@@ -1035,7 +1033,36 @@ function DashboardPage({ user, navigate, onLogout, refreshUser, sessionChecked }
                   })}
                 </div>
               )}
-        
+
+              {/* Library preview */}
+              {history.length > 0 && (
+                <div>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
+                    <h3 style={{ fontSize: 16, fontWeight: 700, color: "#1a1a2e", margin: 0 }}>Vos dernières créations</h3>
+                    <button onClick={() => { setActiveSection("history"); setActiveTool(null); }} style={{ background: "none", border: "none", color: "#8b5cf6", fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>Voir tout</button>
+                  </div>
+                  <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(140px, 1fr))", gap: 12 }}>
+                    {history.slice(0, 8).map((img, i) => (
+                      <div key={i} className="library-card" style={{ borderRadius: 12, overflow: "hidden", border: "1px solid #ede9fe", background: "#fff", transition: "all 0.2s", position: "relative" }}>
+                        <div style={{ cursor: "pointer", position: "relative" }}
+                          onClick={() => { const overlay = document.createElement("div"); overlay.style.cssText = "position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:9999;display:flex;align-items:center;justify-content:center;cursor:zoom-out;padding:40px;"; overlay.onclick = () => document.body.removeChild(overlay); const imgEl = document.createElement("img"); imgEl.src = img.url; imgEl.style.cssText = "max-width:90%;max-height:90%;border-radius:12px;"; overlay.appendChild(imgEl); document.body.appendChild(overlay); }}>
+                          <img src={img.url} alt="" style={{ width: "100%", aspectRatio: "1", objectFit: "cover", display: "block" }} />
+                        </div>
+                        <button onClick={(e) => { e.stopPropagation(); smartDownload(img.url, "retouch-" + (img.name || "result").replace(/\s+/g, "-") + "-" + i + ".png"); }}
+                          className="library-download-btn"
+                          title="Télécharger l'image"
+                          style={{ position: "absolute", top: 6, right: 6, width: 30, height: 30, borderRadius: "50%", background: "rgba(255,255,255,0.95)", color: "#8b5cf6", border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 2px 8px rgba(0,0,0,0.15)", backdropFilter: "blur(8px)", fontFamily: "inherit", transition: "all 0.2s" }}>
+                          <DownloadIcon s={14} />
+                        </button>
+                        <div style={{ padding: "8px 10px" }}>
+                          <p style={{ fontSize: 11, fontWeight: 600, color: "#1a1a2e", margin: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{img.name}</p>
+                          <p style={{ fontSize: 10, color: "#9ca3af", margin: 0 }}>{img.date}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           )}
 
@@ -1496,19 +1523,19 @@ export default function App() {
   .mq-fade{width:60px}
   .tools-desktop{display:none!important}
   .tools-mobile{display:block!important}
-  aside.dash-sidebar{position:fixed!important;top:auto!important;bottom:0!important;left:0!important;right:0!important;width:100vw!important;min-height:auto!important;height:56px!important;flex-direction:row!important;padding:4px 0!important;border-right:none!important;border-top:1px solid #ede9fe!important;z-index:200!important;overflow:hidden!important;background:#fff!important}
+  aside.dash-sidebar{position:fixed!important;top:auto!important;bottom:16px!important;left:16px!important;right:88px!important;width:auto!important;min-height:auto!important;height:56px!important;flex-direction:row!important;padding:0!important;border-right:none!important;border:1px solid #ede9fe!important;border-radius:28px!important;z-index:200!important;overflow:hidden!important;background:rgba(255,255,255,0.95)!important;backdrop-filter:blur(12px)!important;-webkit-backdrop-filter:blur(12px)!important;box-shadow:0 8px 24px rgba(0,0,0,0.08),0 2px 8px rgba(0,0,0,0.04)!important}
   aside.dash-sidebar > *{display:none!important}
   aside.dash-sidebar .dash-nav-items{display:flex!important;flex-direction:row!important;justify-content:space-around!important;align-items:center!important;width:100%!important;height:100%!important}
-  aside.dash-sidebar .dash-nav-items button{padding:4px 0!important;font-size:9px!important;flex-direction:column!important;gap:2px!important;display:flex!important;align-items:center!important;justify-content:center!important;background:none!important}
-  aside.dash-sidebar .dash-nav-items button span{font-size:9px!important}
-  main.dash-main{margin-left:0!important;padding-bottom:70px!important;width:100%!important;max-width:100vw!important;overflow-x:hidden!important}
-  main.dash-main .content-area{padding:16px!important;padding-bottom:80px!important;width:100%!important;max-width:100%!important;box-sizing:border-box!important}
+  aside.dash-sidebar .dash-nav-items button{padding:4px 0!important;font-size:10px!important;flex-direction:column!important;gap:2px!important;display:flex!important;align-items:center!important;justify-content:center!important;background:none!important;border-radius:20px!important}
+  aside.dash-sidebar .dash-nav-items button span{font-size:10px!important;font-weight:600!important}
+  main.dash-main{margin-left:0!important;padding-bottom:96px!important;width:100%!important;max-width:100vw!important;overflow-x:hidden!important}
+  main.dash-main .content-area{padding:16px!important;padding-bottom:96px!important;width:100%!important;max-width:100%!important;box-sizing:border-box!important}
   main.dash-main .content-area > div{max-width:100%!important;width:100%!important}
   main.dash-main header{padding:0 16px!important}
   .dash-welcome{font-size:20px!important}
   .dash-templates-grid{grid-template-columns:repeat(2,1fr)!important;gap:12px!important;width:100%!important}
   .tool-layout{grid-template-columns:1fr!important}
-  .floating-camera-btn{display:flex!important}
+  .floating-camera-btn{display:flex!important;bottom:16px!important;right:16px!important;width:60px!important;height:60px!important}
   .floating-camera-btn:active{transform:scale(0.92)}
   .upload-desktop{display:none!important}
   .upload-mobile{display:grid!important}

@@ -988,7 +988,7 @@ function DashboardPage({ user, navigate, onLogout, refreshUser, sessionChecked }
               {filteredTools.length === 0 ? (
                 <div style={{ textAlign: "center", padding: "60px 20px", color: "#9ca3af", fontSize: 14 }}>Aucun outil dans cette catégorie</div>
               ) : (
-                <div className="dash-templates-grid" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))", gap: 16, marginBottom: 40 }}>
+                <div className="dash-templates-grid" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))", gap: 16 }}>
                   {filteredTools.map(t => {
                     const locked = t.premium && !isPremiumUser;
                     return (

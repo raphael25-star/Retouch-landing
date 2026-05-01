@@ -593,7 +593,7 @@ function DashboardPage({ user, navigate, onLogout, refreshUser, sessionChecked }
       numImages: 1, // l'user voit 1 zone d'upload
       imageLabels: ["La zone à pranker"],
       userPromptDefault: "Ajoute un serpent réaliste",
-      expertPromptPrefix: "Combine the two provided images into one composition. Place the snake from the second image naturally into the scene from the first image. Add a soft shadow beneath the snake. Match the lighting and colors of the first image. Photorealistic smartphone photo style. User additional instructions: ",
+      expertPromptPrefix: "Combine the two provided images into one composition. Place the snake from the second image emerging from under furniture or from a hidden corner in the scene from the first image, as if it just appeared. Add a soft shadow beneath the snake on the floor surface. Match the lighting, color temperature and warmth of the first image exactly. The snake should be proportionally sized for the room. Photorealistic smartphone photo with natural film grain. The composition should feel like a candid photo captured by phone. User additional instructions: ",
       promptTemplate: "",
       // Sources aléatoires : le code piochera UNE de ces images au hasard et l'enverra avec celle de l'user
       randomSources: [
@@ -617,7 +617,7 @@ function DashboardPage({ user, navigate, onLogout, refreshUser, sessionChecked }
       numImages: 1,
       imageLabels: ["La pièce de chez vous"],
       userPromptDefault: "Ajoute ce plombier dans ma pièce",
-      expertPromptPrefix: "Combine the two provided images into one composition. Place the person from the second image naturally into the room from the first image. Add a soft shadow beneath their feet. Match the lighting and colors of the first image. Photorealistic smartphone photo style. User additional instructions: ",
+      expertPromptPrefix: "Combine the two provided images into one composition. Place the person from the second image standing or working naturally in the room from the first image. Add a soft shadow beneath their feet on the floor. Match the lighting, color temperature and ambient warmth of the room exactly. The person should be proportionally sized for the room. Photorealistic smartphone photo with natural film grain. The composition should feel like a candid photo captured by phone. User additional instructions: ",
       promptTemplate: "",
       randomSources: [
         "/sources/plombier-1.jpg",

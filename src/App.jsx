@@ -597,11 +597,11 @@ function DashboardPage({ user, navigate, onLogout, refreshUser, sessionChecked }
       promptTemplate: "",
       // Sources aléatoires : le code piochera UNE de ces images au hasard et l'enverra avec celle de l'user
       randomSources: [
-        "/sources/serpent-1.jpg",
-        "/sources/serpent-2.jpg",
-        "/sources/serpent-3.jpg",
-        "/sources/serpent-4.jpg",
-        "/sources/serpent-5.jpg"
+        "/sources/serpent-1.jpg.png",
+        "/sources/serpent-2.jpg.png",
+        "/sources/serpent-3.jpg.png",
+        "/sources/serpent-4.jpg.png",
+        "/sources/serpent-5.jpg.png"
       ]
     },
     {

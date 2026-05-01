@@ -1500,8 +1500,8 @@ export default function App() {
   aside.dash-sidebar .dash-nav-items{display:flex!important;flex-direction:row!important;justify-content:space-around!important;align-items:center!important;width:100%!important;height:100%!important}
   aside.dash-sidebar .dash-nav-items button{padding:4px 0!important;font-size:10px!important;flex-direction:column!important;gap:2px!important;display:flex!important;align-items:center!important;justify-content:center!important;background:none!important;border-radius:20px!important}
   aside.dash-sidebar .dash-nav-items button span{font-size:10px!important;font-weight:600!important}
-  main.dash-main{margin-left:0!important;padding-bottom:76px!important;width:100%!important;max-width:100vw!important;overflow-x:hidden!important}
-  main.dash-main .content-area{padding:16px!important;padding-bottom:76px!important;width:100%!important;max-width:100%!important;box-sizing:border-box!important}
+  main.dash-main{margin-left:0!important;padding-bottom:0!important;width:100%!important;max-width:100vw!important;overflow-x:hidden!important}
+  main.dash-main .content-area{padding:16px!important;padding-bottom:0!important;width:100%!important;max-width:100%!important;box-sizing:border-box!important}
   main.dash-main .content-area > div{max-width:100%!important;width:100%!important}
   main.dash-main header{padding:0 16px!important}
   .dash-welcome{font-size:20px!important}

@@ -644,11 +644,13 @@ function DashboardPage({ user, navigate, onLogout, refreshUser, sessionChecked }
   const categories = [
     { key: "all", label: "Tous" },
     { key: "trending", label: "Tendances" },
+    { key: "home", label: "Maison" },
   ];
 
   const filteredTools = tools.filter(t => {
     if (activeCategory === "all") return true;
     if (activeCategory === "trending") return t.trending;
+    if (activeCategory === "home") return t.name === "Changement de style" || t.name === "Gomme magique";
     return true;
   });
 
@@ -1031,36 +1033,6 @@ function DashboardPage({ user, navigate, onLogout, refreshUser, sessionChecked }
                       </div>
                     );
                   })}
-                </div>
-              )}
-
-              {/* Library preview */}
-              {history.length > 0 && (
-                <div>
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
-                    <h3 style={{ fontSize: 16, fontWeight: 700, color: "#1a1a2e", margin: 0 }}>Vos dernières créations</h3>
-                    <button onClick={() => { setActiveSection("history"); setActiveTool(null); }} style={{ background: "none", border: "none", color: "#8b5cf6", fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>Voir tout</button>
-                  </div>
-                  <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(140px, 1fr))", gap: 12 }}>
-                    {history.slice(0, 8).map((img, i) => (
-                      <div key={i} className="library-card" style={{ borderRadius: 12, overflow: "hidden", border: "1px solid #ede9fe", background: "#fff", transition: "all 0.2s", position: "relative" }}>
-                        <div style={{ cursor: "pointer", position: "relative" }}
-                          onClick={() => { const overlay = document.createElement("div"); overlay.style.cssText = "position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:9999;display:flex;align-items:center;justify-content:center;cursor:zoom-out;padding:40px;"; overlay.onclick = () => document.body.removeChild(overlay); const imgEl = document.createElement("img"); imgEl.src = img.url; imgEl.style.cssText = "max-width:90%;max-height:90%;border-radius:12px;"; overlay.appendChild(imgEl); document.body.appendChild(overlay); }}>
-                          <img src={img.url} alt="" style={{ width: "100%", aspectRatio: "1", objectFit: "cover", display: "block" }} />
-                        </div>
-                        <button onClick={(e) => { e.stopPropagation(); smartDownload(img.url, "retouch-" + (img.name || "result").replace(/\s+/g, "-") + "-" + i + ".png"); }}
-                          className="library-download-btn"
-                          title="Télécharger l'image"
-                          style={{ position: "absolute", top: 6, right: 6, width: 30, height: 30, borderRadius: "50%", background: "rgba(255,255,255,0.95)", color: "#8b5cf6", border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 2px 8px rgba(0,0,0,0.15)", backdropFilter: "blur(8px)", fontFamily: "inherit", transition: "all 0.2s" }}>
-                          <DownloadIcon s={14} />
-                        </button>
-                        <div style={{ padding: "8px 10px" }}>
-                          <p style={{ fontSize: 11, fontWeight: 600, color: "#1a1a2e", margin: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{img.name}</p>
-                          <p style={{ fontSize: 10, color: "#9ca3af", margin: 0 }}>{img.date}</p>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
                 </div>
               )}
             </div>

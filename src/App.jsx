@@ -620,11 +620,11 @@ function DashboardPage({ user, navigate, onLogout, refreshUser, sessionChecked }
       expertPromptPrefix: "Realistically integrate the plumber from the second image into the scene from the first image. The plumber must look natural in the environment - matching the lighting, shadows, perspective, and atmosphere of the room. Adapt their pose and angle so they appear to be standing or working naturally in the space. Preserve the plumber's facial features, body type, clothing, tools, and expression exactly as shown in the source image. Add realistic contact shadows beneath them and ensure they appear physically present in the scene. Match the photographic style of the first photo (smartphone quality, natural color, slight grain). The result must look like an authentic smartphone photo, not an obvious composite. User additional instructions: ",
       promptTemplate: "",
       randomSources: [
-        "/sources/plombier-1.jpg",
-        "/sources/plombier-2.jpg",
-        "/sources/plombier-3.jpg",
-        "/sources/plombier-4.jpg",
-        "/sources/plombier-5.jpg"
+        "/sources/plombier-1.jpg.png",
+        "/sources/plombier-2.jpg.png",
+        "/sources/plombier-3.jpg.png",
+        "/sources/plombier-4.jpg.png",
+        "/sources/plombier-5.jpg.png"
       ]
     },
     // ─── OUTILS UTILITAIRES ───

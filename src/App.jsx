@@ -642,9 +642,10 @@ function DashboardPage({ user, navigate, onLogout, refreshUser, sessionChecked }
   const freeTool = { name: "Génération libre", subtitle: "Décrivez ce que vous voulez ajouter ou modifier", icon: <Sparkle s={18} />, cover: null, model: "google/nano-banana-edit", promptTemplate: "", type: "edit", premium: false, trending: false, category: "free", isFreeMode: true };
 
   const categories = [
-    { key: "all", label: "Tous" },
-    { key: "trending", label: "Tendances" },
-  ];
+  { key: "all", label: "Tous" },
+  { key: "trending", label: "Tendances" },
+  { key: "home", label: "Maison" },
+];
 
   const filteredTools = tools.filter(t => {
   if (activeCategory === "all") return true;

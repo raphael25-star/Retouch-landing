@@ -593,7 +593,7 @@ function DashboardPage({ user, navigate, onLogout, refreshUser, sessionChecked }
       numImages: 1, // l'user voit 1 zone d'upload
       imageLabels: ["La zone à pranker"],
       userPromptDefault: "Ajoute un serpent réaliste",
-      expertPromptPrefix: "Add the snake from the second image into the scene from the first image as a natural element of the environment. IMPORTANT: Add a soft but clearly visible contact shadow directly beneath the snake where it touches the ground. This shadow is essential for realism. Match the lighting direction, color temperature, and shadow style of the original photo exactly. Adapt the snake's scale and position naturally in the available space. Preserve the snake's anatomy, scales, color, pattern, and details exactly as shown in the source image. The snake should appear as a real animal photographed in this room - with proper integration, not a cut-and-paste effect. Apply natural photographic qualities: gentle camera grain, organic color rendering, soft micro-contrast typical of smartphone photography. Avoid an overly polished or staged look. User additional instructions: ",
+      expertPromptPrefix: "Combine the two provided images into one composition. Place the snake from the second image naturally into the scene from the first image. Add a soft shadow beneath the snake. Match the lighting and colors of the first image. Photorealistic smartphone photo style. User additional instructions: ",
       promptTemplate: "",
       // Sources aléatoires : le code piochera UNE de ces images au hasard et l'enverra avec celle de l'user
       randomSources: [
@@ -617,7 +617,7 @@ function DashboardPage({ user, navigate, onLogout, refreshUser, sessionChecked }
       numImages: 1,
       imageLabels: ["La pièce de chez vous"],
       userPromptDefault: "Ajoute ce plombier dans ma pièce",
-      expertPromptPrefix: "Add the worker from the second image into the room shown in the first image. IMPORTANT: Add soft but clearly visible contact shadows beneath his feet where they touch the floor. These shadows are essential to anchor him in the space. Match the lighting direction, color temperature, and overall ambient color of the room exactly. Position him naturally in the room as if he was working there - standing or working on something visible in the scene. Preserve his facial features, body type, clothing, tools, and overall appearance exactly as shown in the source image. The result should look like a candid photograph of a worker in this room. Apply natural photographic qualities: gentle camera grain, organic color rendering, soft micro-contrast typical of smartphone photography. Avoid an overly polished or staged look. User additional instructions: ",
+      expertPromptPrefix: "Combine the two provided images into one composition. Place the person from the second image naturally into the room from the first image. Add a soft shadow beneath their feet. Match the lighting and colors of the first image. Photorealistic smartphone photo style. User additional instructions: ",
       promptTemplate: "",
       randomSources: [
         "/sources/plombier-1.jpg",

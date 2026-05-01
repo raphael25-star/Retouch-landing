@@ -614,7 +614,7 @@ function DashboardPage({ user, navigate, onLogout, refreshUser, sessionChecked }
           // Compression normale (max 1500px / qualité 0.8) pour les autres outils
           const isHDTool = activeTool?.name === "Amélioration HD";
           const MAX = isHDTool ? 2500 : 1500;
-          const QUALITY = isHDTool ? 0.95 : 0.8;
+          const QUALITY = isHDTool ? 0.85 : 0.8;
           let w = img.width;
           let h = img.height;
           if (w > MAX || h > MAX) {
@@ -690,8 +690,8 @@ function DashboardPage({ user, navigate, onLogout, refreshUser, sessionChecked }
     // AbortController pour permettre à l'user d'annuler la requête
     const controller = new AbortController();
     setAbortController(controller);
-    // Timeout de sécurité de 120s (2 minutes) au cas où Kie.ai bloque vraiment
-    const timeoutId = setTimeout(() => controller.abort(), 120000);
+    // Timeout de sécurité de 180s (3 minutes) au cas où OpenAI/Kie.ai bloque
+    const timeoutId = setTimeout(() => controller.abort(), 180000);
 
     const ratioHint = ratio !== "1:1" ? ` Output aspect ratio: ${ratio}.` : "";
 
@@ -1096,18 +1096,19 @@ function DashboardPage({ user, navigate, onLogout, refreshUser, sessionChecked }
                     </div>
                   )}
 
-                  {/* Sélecteur résolution */}
-                  <div style={{ marginBottom: 18 }}>
-                    <label style={{ fontSize: 12, fontWeight: 600, color: "#374151", marginBottom: 8, display: "block" }}>Résolution</label>
-                    <div style={{ display: "flex", gap: 6 }}>
-                      {["1K", "2K", "4K"].map(r => (
-                        <button key={r} onClick={() => setResolution(r)}
-                          style={{
-                            flex: 1, padding: "10px 12px", borderRadius: 10, fontSize: 13, fontWeight: 600,
-                            background: resolution === r ? "linear-gradient(135deg,#8b5cf6,#ec4899)" : "#fff",
-                            color: resolution === r ? "#fff" : "#6b7280",
-                            border: resolution === r ? "1px solid transparent" : "1px solid #ede9fe",
-                            cursor: "pointer", fontFamily: "inherit", transition: "all 0.2s",
+                  {/* Sélecteur résolution (masqué pour Amélioration HD qui force 4K automatiquement) */}
+                  {activeTool.name !== "Amélioration HD" && (
+                    <div style={{ marginBottom: 18 }}>
+                      <label style={{ fontSize: 12, fontWeight: 600, color: "#374151", marginBottom: 8, display: "block" }}>Résolution</label>
+                      <div style={{ display: "flex", gap: 6 }}>
+                        {["1K", "2K", "4K"].map(r => (
+                          <button key={r} onClick={() => setResolution(r)}
+                            style={{
+                              flex: 1, padding: "10px 12px", borderRadius: 10, fontSize: 13, fontWeight: 600,
+                              background: resolution === r ? "linear-gradient(135deg,#8b5cf6,#ec4899)" : "#fff",
+                              color: resolution === r ? "#fff" : "#6b7280",
+                              border: resolution === r ? "1px solid transparent" : "1px solid #ede9fe",
+                              cursor: "pointer", fontFamily: "inherit", transition: "all 0.2s",
                               boxShadow: resolution === r ? "0 2px 10px rgba(139,92,246,0.25)" : "none"
                             }}>
                             {r}
@@ -1115,6 +1116,7 @@ function DashboardPage({ user, navigate, onLogout, refreshUser, sessionChecked }
                         ))}
                       </div>
                     </div>
+                  )}
 
                   {/* Sélecteur ratio */}
                   <div style={{ marginBottom: 24 }}>

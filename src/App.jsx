@@ -647,10 +647,11 @@ function DashboardPage({ user, navigate, onLogout, refreshUser, sessionChecked }
   ];
 
   const filteredTools = tools.filter(t => {
-    if (activeCategory === "all") return true;
-    if (activeCategory === "trending") return t.trending;
-    return true;
-  });
+  if (activeCategory === "all") return true;
+  if (activeCategory === "trending") return t.trending;
+  if (activeCategory === "home") return t.name === "Changement de style" || t.name === "Gomme magique";
+  return true;
+});
 
   const handleFileUpload = (e) => {
     const files = Array.from(e.target.files);

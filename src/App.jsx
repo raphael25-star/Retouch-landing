@@ -141,7 +141,7 @@ function Tools() {
       {/* Desktop: cartes empilées horizontalement */}
       <div className="tools-desktop" style={{ display: "flex", justifyContent: "center", alignItems: "center", position: "relative", height: 420, marginBottom: 20 }}>
         {tools.map((t, i) => { const o = offsets[i]; return (
-          <div key={i} style={{ position: "absolute", left: `${6+i*13}%`, top: "50%", transform: `translateY(calc(-50% + ${o.y}px)) rotate(${o.rotate}deg)`, zIndex: o.z, transition: "transform 0.4s, box-shadow 0.4s", cursor: "pointer", width: "clamp(140px, 18vw, 200px)" }}
+          <div key={i} style={{ position: "absolute", left: `${4+i*11}%`, top: "50%", transform: `translateY(calc(-50% + ${o.y}px)) rotate(${o.rotate}deg)`, zIndex: o.z, transition: "transform 0.4s, box-shadow 0.4s", cursor: "pointer", width: "clamp(140px, 18vw, 200px)" }}
             onMouseEnter={e => { e.currentTarget.style.transform = `translateY(calc(-50% + ${o.y-20}px)) rotate(0deg) scale(1.08)`; e.currentTarget.style.zIndex = 10; }}
             onMouseLeave={e => { e.currentTarget.style.transform = `translateY(calc(-50% + ${o.y}px)) rotate(${o.rotate}deg) scale(1)`; e.currentTarget.style.zIndex = o.z; }}>
             <div style={{ borderRadius: 18, overflow: "hidden", boxShadow: "0 8px 30px rgba(0,0,0,0.12)", border: "2px solid rgba(255,255,255,0.8)", background: "#fff" }}>
@@ -1269,6 +1269,21 @@ function DashboardPage({ user, navigate, onLogout, refreshUser, sessionChecked }
                   <div><label className="form-label">Email</label><input className="form-input" defaultValue={user.email} /></div>
                   <div><label className="form-label">Plan actuel</label><div style={{ display: "flex", alignItems: "center", gap: 12 }}><span style={{ fontSize: 14, fontWeight: 600, color: "#1a1a2e" }}>{user.plan}</span><button className="btn-secondary" style={{ fontSize: 12, padding: "6px 16px" }} onClick={() => navigate("pricing")}>Changer de plan</button></div></div>
                   <button className="btn-primary" style={{ alignSelf: "flex-start", padding: "10px 24px", fontSize: 13 }}>Sauvegarder</button>
+                </div>
+              </div>
+              {/* Bouton Se déconnecter - séparé visuellement de la carte des paramètres */}
+              <div style={{ marginTop: 24, padding: 20, borderRadius: 16, background: "#fff", border: "1px solid #fee2e2" }}>
+                <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                  <div>
+                    <h4 style={{ fontSize: 14, fontWeight: 700, color: "#1a1a2e", margin: "0 0 4px" }}>Session</h4>
+                    <p style={{ fontSize: 12, color: "#6b7280", margin: 0 }}>Vous êtes connecté en tant que <strong>{user.email}</strong></p>
+                  </div>
+                  <button onClick={onLogout}
+                    style={{ alignSelf: "flex-start", padding: "10px 20px", fontSize: 13, fontWeight: 600, background: "#fff", color: "#ef4444", border: "1px solid #fecaca", borderRadius: 10, cursor: "pointer", fontFamily: "inherit", transition: "all 0.2s", display: "flex", alignItems: "center", gap: 8 }}
+                    onMouseEnter={e => { e.currentTarget.style.background = "#fef2f2"; e.currentTarget.style.borderColor = "#ef4444"; }}
+                    onMouseLeave={e => { e.currentTarget.style.background = "#fff"; e.currentTarget.style.borderColor = "#fecaca"; }}>
+                    <LogoutIcon /> Se déconnecter
+                  </button>
                 </div>
               </div>
             </div>

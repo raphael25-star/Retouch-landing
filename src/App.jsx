@@ -129,7 +129,7 @@ function Tools() {
     { img: IMG.upscale, title: "Amélioration HD", tag: "Tendance" },
     { img: IMG.fusion, title: "Fusion multi-images", tag: "Standard" },
   ];
-  const offsets = [{rotate:-4,y:20,z:1},{rotate:-2,y:0,z:2},{rotate:1,y:-10,z:3},{rotate:3,y:5,z:4},{rotate:-1,y:-5,z:3},{rotate:2,y:15,z:2},{rotate:-3,y:10,z:1}];
+  const offsets = [{rotate:-4,y:20,z:1},{rotate:-2,y:0,z:2},{rotate:1,y:-10,z:3},{rotate:3,y:5,z:4},{rotate:-1,y:-5,z:3},{rotate:2,y:15,z:2},{rotate:-3,y:10,z:1},{rotate:4,y:-15,z:2}];
   const row1 = tools.slice(0, 3);
   const row2 = tools.slice(3);
   const offRow1 = [{rotate:-6,x:-30,z:1},{rotate:0,x:0,z:3},{rotate:6,x:30,z:1}];
@@ -165,7 +165,7 @@ function Tools() {
             </div>
           ))}
         </div>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 10 }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 10 }}>
           {tools.slice(3).map((t, i) => (
             <div key={i} style={{ borderRadius: 14, overflow: "hidden", boxShadow: "0 4px 16px rgba(0,0,0,0.1)", border: "2px solid rgba(255,255,255,0.8)", background: "#fff" }}>
               <div style={{ position: "relative" }}>

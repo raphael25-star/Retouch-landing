@@ -12,8 +12,8 @@ const supabase = createClient("https://coydxizklibehbhbcxph.supabase.co", "eyJhb
 const LOGO_SRC = "/retouch-logo.png";
 
 const IMG = {
-  heroBefore: "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?auto=format&fit=crop&q=80&w=800",
-  heroAfter: "https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&q=80&w=800",
+  heroBefore: "/hero-before.png",
+  heroAfter: "/hero-after.png",
   removebg: "/tool-removebg.png", eraser: "/tool-eraser.png",
   restyle: "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&q=80&w=512",
   retouch: "/tool-retouch.png", upscale: "tool-upscale.png", textimg: "/tool-textimg.png", fusion: "/tool-fusion.png",

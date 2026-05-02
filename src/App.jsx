@@ -1,7 +1,13 @@
 import { useState, useEffect } from "react";
 import { createClient } from "@supabase/supabase-js";
 
-const supabase = createClient("https://coydxizklibehbhbcxph.supabase.co", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNveWR4aXprbGliZWhiaGJjeHBoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njc0MzI0MzksImV4cCI6MjA4MzAwODQzOX0.2qK__noZj50KUrA02UhpcvsjUlTEge28ZN3qjwnmtik");
+const supabase = createClient("https://coydxizklibehbhbcxph.supabase.co", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNveWR4aXprbGliZWhiaGJjeHBoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njc0MzI0MzksImV4cCI6MjA4MzAwODQzOX0.2qK__noZj50KUrA02UhpcvsjUlTEge28ZN3qjwnmtik", {
+  auth: {
+    persistSession: false,
+    autoRefreshToken: false,
+    detectSessionInUrl: true
+  }
+});
 
 const LOGO_SRC = "/retouch-logo.png";
 

@@ -661,11 +661,10 @@ function DashboardPage({ user, navigate, onLogout, refreshUser, sessionChecked }
         const img = new Image();
         img.onload = () => {
           const canvas = document.createElement("canvas");
-          // Compression douce (max 2500px / qualité 0.95) pour Amélioration HD
-          // Compression normale (max 1500px / qualité 0.8) pour les autres outils
+          // Pour Amélioration HD : PNG sans compression (préserve tous les détails pour GPT-Image)
+          // Pour les autres outils : JPEG qualité 0.8 (compression normale)
           const isHDTool = activeTool?.name === "Amélioration HD";
           const MAX = isHDTool ? 2500 : 1500;
-          const QUALITY = isHDTool ? 0.95 : 0.8;
           let w = img.width;
           let h = img.height;
           if (w > MAX || h > MAX) {
@@ -675,8 +674,9 @@ function DashboardPage({ user, navigate, onLogout, refreshUser, sessionChecked }
           canvas.width = w;
           canvas.height = h;
           canvas.getContext("2d").drawImage(img, 0, 0, w, h);
-          const compressed = canvas.toDataURL("image/jpeg", QUALITY);
-          console.log("[Retouch] Image compressée -", isHDTool ? "HD mode" : "normal", "| Original:", img.width + "x" + img.height, "| Final:", w + "x" + h, "| Size:", (compressed.length / 1024).toFixed(1) + " KB");
+          // Pour HD : PNG (lossless, aucune compression). Pour les autres : JPEG qualité 0.8
+          const compressed = isHDTool ? canvas.toDataURL("image/png") : canvas.toDataURL("image/jpeg", 0.8);
+          console.log("[Retouch] Image", isHDTool ? "PNG (HD lossless)" : "JPEG", "| Original:", img.width + "x" + img.height, "| Final:", w + "x" + h, "| Size:", (compressed.length / 1024).toFixed(1) + " KB");
           setUploadedImages(prev => [...prev, { name: file.name, base64: compressed.split(",")[1], preview: compressed }]);
         };
         img.src = ev.target.result;

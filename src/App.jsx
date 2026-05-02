@@ -665,7 +665,7 @@ function DashboardPage({ user, navigate, onLogout, refreshUser, sessionChecked }
           // Compression normale (max 1500px / qualité 0.8) pour les autres outils
           const isHDTool = activeTool?.name === "Amélioration HD";
           const MAX = isHDTool ? 2500 : 1500;
-          const QUALITY = isHDTool ? 0.85 : 0.8;
+          const QUALITY = isHDTool ? 0.95 : 0.8;
           let w = img.width;
           let h = img.height;
           if (w > MAX || h > MAX) {

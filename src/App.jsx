@@ -120,13 +120,14 @@ function Hero({ navigate }) {
 /* ═══ TOOLS SECTION ═══ */
 function Tools() {
   const tools = [
+    { img: IMG.rolexPrank, title: "Rolex Prank", tag: "Tendance" },
+    { img: IMG.serpentPrank, title: "Serpent Prank", tag: "Tendance" },
+    { img: IMG.plombierPrank, title: "Plombier Prank", tag: "Tendance" },
     { img: IMG.removebg, title: "Suppression d'arrière-plan", tag: "Standard" },
     { img: IMG.eraser, title: "Gomme magique", tag: "Standard" },
     { img: IMG.restyle, title: "Changement de style", tag: "Standard" },
-    { img: IMG.retouch, title: "Retouche pro", tag: "Standard" },
-    { img: IMG.upscale, title: "Amélioration HD", tag: "Standard" },
-    { img: IMG.textimg, title: "Texte dans image", tag: "Premium" },
-    { img: IMG.fusion, title: "Fusion multi-images", tag: "Premium" },
+    { img: IMG.upscale, title: "Amélioration HD", tag: "Tendance" },
+    { img: IMG.fusion, title: "Fusion multi-images", tag: "Standard" },
   ];
   const offsets = [{rotate:-4,y:20,z:1},{rotate:-2,y:0,z:2},{rotate:1,y:-10,z:3},{rotate:3,y:5,z:4},{rotate:-1,y:-5,z:3},{rotate:2,y:15,z:2},{rotate:-3,y:10,z:1}];
   const row1 = tools.slice(0, 3);
@@ -143,9 +144,8 @@ function Tools() {
           <div key={i} style={{ position: "absolute", left: `${6+i*13}%`, top: "50%", transform: `translateY(calc(-50% + ${o.y}px)) rotate(${o.rotate}deg)`, zIndex: o.z, transition: "transform 0.4s, box-shadow 0.4s", cursor: "pointer", width: "clamp(140px, 18vw, 200px)" }}
             onMouseEnter={e => { e.currentTarget.style.transform = `translateY(calc(-50% + ${o.y-20}px)) rotate(0deg) scale(1.08)`; e.currentTarget.style.zIndex = 10; }}
             onMouseLeave={e => { e.currentTarget.style.transform = `translateY(calc(-50% + ${o.y}px)) rotate(${o.rotate}deg) scale(1)`; e.currentTarget.style.zIndex = o.z; }}>
-            <div style={{ borderRadius: 18, overflow: "hidden", boxShadow: "0 8px 30px rgba(0,0,0,0.12)", border: t.tag === "Premium" ? "2px solid #8b5cf6" : "2px solid rgba(255,255,255,0.8)", background: "#fff" }}>
+            <div style={{ borderRadius: 18, overflow: "hidden", boxShadow: "0 8px 30px rgba(0,0,0,0.12)", border: "2px solid rgba(255,255,255,0.8)", background: "#fff" }}>
               <div style={{ position: "relative" }}><Img src={t.img} alt={t.title} style={{ width: "100%", aspectRatio: "3/4", objectFit: "cover", display: "block" }} /><div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, transparent 50%, rgba(0,0,0,0.7) 100%)" }} />
-                {t.tag === "Premium" && <span style={{ position: "absolute", top: 10, right: 10, fontSize: 9, fontWeight: 700, padding: "3px 10px", borderRadius: 20, background: "linear-gradient(135deg, #8b5cf6, #ec4899)", color: "#fff" }}>PREMIUM</span>}
                 <span style={{ position: "absolute", bottom: 12, left: 0, right: 0, textAlign: "center", fontSize: "clamp(11px, 1.2vw, 14px)", fontWeight: 700, color: "#fff", textShadow: "0 1px 8px rgba(0,0,0,0.5)", padding: "0 8px" }}>{t.title}</span>
               </div>
             </div>
@@ -167,11 +167,10 @@ function Tools() {
         </div>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 10 }}>
           {tools.slice(3).map((t, i) => (
-            <div key={i} style={{ borderRadius: 14, overflow: "hidden", boxShadow: "0 4px 16px rgba(0,0,0,0.1)", border: t.tag === "Premium" ? "2px solid #8b5cf6" : "2px solid rgba(255,255,255,0.8)", background: "#fff" }}>
+            <div key={i} style={{ borderRadius: 14, overflow: "hidden", boxShadow: "0 4px 16px rgba(0,0,0,0.1)", border: "2px solid rgba(255,255,255,0.8)", background: "#fff" }}>
               <div style={{ position: "relative" }}>
                 <Img src={t.img} alt={t.title} style={{ width: "100%", aspectRatio: "3/4", objectFit: "cover", display: "block" }} />
                 <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, transparent 40%, rgba(0,0,0,0.7) 100%)" }} />
-                {t.tag === "Premium" && <span style={{ position: "absolute", top: 4, right: 4, fontSize: 7, fontWeight: 700, padding: "2px 5px", borderRadius: 10, background: "linear-gradient(135deg, #8b5cf6, #ec4899)", color: "#fff" }}>PREMIUM</span>}
                 <span style={{ position: "absolute", bottom: 8, left: 0, right: 0, textAlign: "center", fontSize: 9, fontWeight: 700, color: "#fff", textShadow: "0 1px 6px rgba(0,0,0,0.5)", padding: "0 2px" }}>{t.title}</span>
               </div>
             </div>

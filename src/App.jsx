@@ -581,7 +581,7 @@ function DashboardPage({ user, navigate, onLogout, refreshUser, sessionChecked }
       category: "trend",
       numImages: 2,
       imageLabels: ["Votre poignet", "La montre"],
-      userPromptDefault: "Ajoute cette montre à mon poignet",
+      userPromptDefault: "",
       expertPromptPrefix: "Keep the original image exactly as it is. Only integrate the watch onto the wrist realistically. Match: lighting, color, sharpness, noise. The watch must not be sharper than the photo. Add natural shadows where the watch touches the skin. Slightly blur and soften the watch to match the camera quality. The watch must follow the wrist angle and look physically worn. No perfect render. No studio look. No recreation. Result must look like a real iPhone photo. User additional instructions: ",      icon: <Sparkle s={18} />,
       cover: IMG.serpentPrank,
       model: "google/nano-banana-edit",
@@ -591,7 +591,7 @@ function DashboardPage({ user, navigate, onLogout, refreshUser, sessionChecked }
       category: "trend",
       numImages: 1, // l'user voit 1 zone d'upload
       imageLabels: ["La zone à pranker"],
-      userPromptDefault: "Ajoute un serpent réaliste",
+      userPromptDefault: "",
       expertPromptPrefix: "Combine the two provided images into one composition. Place the snake from the second image naturally into the scene from the first image. Add a soft shadow beneath the snake. Match the lighting and colors of the first image. Photorealistic smartphone photo style. User additional instructions: ",
       promptTemplate: "",
       // Sources aléatoires : le code piochera UNE de ces images au hasard et l'enverra avec celle de l'user
@@ -615,7 +615,7 @@ function DashboardPage({ user, navigate, onLogout, refreshUser, sessionChecked }
       category: "trend",
       numImages: 1,
       imageLabels: ["La pièce de chez vous"],
-      userPromptDefault: "Ajoute ce plombier dans ma pièce",
+      userPromptDefault: "",
       expertPromptPrefix: "Combine the two provided images into one composition. Place the person from the second image naturally into the room from the first image. Add a soft shadow beneath their feet. Match the lighting and colors of the first image. Photorealistic smartphone photo style. User additional instructions: ",
       promptTemplate: "",
       randomSources: [

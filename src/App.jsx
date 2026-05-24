@@ -1151,7 +1151,6 @@ function DashboardPage({ user, navigate, onLogout, refreshUser, sessionChecked }
   activeTool.name === "Retouche pro" ? "Ex: Retire le bouton sur le visage" :
   activeTool.name === "Texte dans image" ? "Ex: Ajoute 'SOLDES -50%' en gros" :
   activeTool.name === "Fusion multi-images" ? "Ex: Fusionne en un seul visuel" : "Décrivez votre modification..."
-}
                       } rows={3} style={{ resize: "vertical", minHeight: 80, borderColor: "#ddd6fe" }} />
                     </div>
                   ) : (

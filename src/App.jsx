@@ -25,6 +25,7 @@ const IMG = {
   rolexPrank: "/template-rolex.png",
   serpentPrank: "/template-serpent.png",
   plombierPrank: "/template-plombier.png",
+  voiturePrank: "/template-voiture.png",
 };
 
 /* ─── Icons ─── */
@@ -570,6 +571,7 @@ function DashboardPage({ user, navigate, onLogout, refreshUser, sessionChecked }
   const tools = [
     // ─── TEMPLATES TENDANCES (en premier) ───
     {
+     {
       name: "Rolex Prank",
       subtitle: "Ajoutez n'importe quelle montre à votre poignet",
       icon: <Sparkle s={18} />,
@@ -582,24 +584,24 @@ function DashboardPage({ user, navigate, onLogout, refreshUser, sessionChecked }
       numImages: 2,
       imageLabels: ["Votre poignet", "La montre"],
       userPromptDefault: "",
-      expertPromptPrefix: "Keep the original image as it is. Add the watch to the wrist. Adjust ONLY: the lighting in the photo, the colour temperature, the shadows, adjust the lighting on the watch to match the photo. The watch should follow the angle of the wrist and wrap naturally around it. Add natural contact shadows where the watch touches the skin. The watch must not look too sharp; it must blend in with the quality of the photo. No perfect rendering. No studio look. User additional instructions: ",      model: "google/nano-banana-edit",
+      expertPromptPrefix: "Keep the original image as it is. Add the watch to the wrist. Adjust ONLY: the lighting in the photo, the color temperature, the shadows, adjust the lighting on the watch to match the photo. The watch should follow the angle of the wrist and wrap naturally around it. Add natural contact shadows where the watch touches the skin. The watch must not look too sharp; it must blend in with the quality of the photo. No perfect rendering. No studio look. User additional instructions: ",
+      promptTemplate: ""
+    },
+    {
+      name: "Serpent Prank",
+      subtitle: "Faites peur à vos proches en 1 clic",
+      icon: <Sparkle s={18} />,
+      cover: IMG.serpentPrank,
+      model: "google/nano-banana-edit",
       type: "edit",
       premium: false,
       trending: true,
       category: "trend",
-      numImages: 1, // l'user voit 1 zone d'upload
-      imageLabels: ["La zone à pranker"],
+      numImages: 1,
+      imageLabels: ["La scène"],
       userPromptDefault: "",
-      expertPromptPrefix: "Combine the two provided images into one composition. Place the snake from the second image naturally into the scene from the first image. Add a soft shadow beneath the snake. Match the lighting and colors of the first image. Photorealistic smartphone photo style. User additional instructions: ",
-      promptTemplate: "",
-      // Sources aléatoires : le code piochera UNE de ces images au hasard et l'enverra avec celle de l'user
-      randomSources: [
-        "/sources/serpent-1.jpg.png",
-        "/sources/serpent-2.jpg.png",
-        "/sources/serpent-3.jpg.png",
-        "/sources/serpent-4.jpg.png",
-        "/sources/serpent-5.jpg.png"
-      ]
+      expertPromptPrefix: "Add a realistic snake naturally into the scene as described by the user. The snake must look like it has always been there. Match the lighting and colors of the photo. Add a soft contact shadow beneath the snake. The snake must not be too sharp - match the camera quality of the photo. Photorealistic smartphone photo style. No perfect rendering. No studio look. User additional instructions: ",
+      promptTemplate: ""
     },
     {
       name: "Plombier Prank",
@@ -612,17 +614,26 @@ function DashboardPage({ user, navigate, onLogout, refreshUser, sessionChecked }
       trending: true,
       category: "trend",
       numImages: 1,
-      imageLabels: ["La pièce de chez vous"],
+      imageLabels: ["La scène"],
       userPromptDefault: "",
-      expertPromptPrefix: "Combine the two provided images into one composition. Place the person from the second image naturally into the room from the first image. Add a soft shadow beneath their feet. Match the lighting and colors of the first image. Photorealistic smartphone photo style. User additional instructions: ",
-      promptTemplate: "",
-      randomSources: [
-        "/sources/plombier-1.jpg",
-        "/sources/plombier-2.jpg.png",
-        "/sources/plombier-3.jpg.png",
-        "/sources/plombier-4.jpg.png",
-        "/sources/plombier-5.jpg.png"
-      ]
+      expertPromptPrefix: "Add a realistic person naturally into the scene as described by the user. The person must look like they have always been there. Match the lighting and colors of the photo. Add a soft contact shadow beneath their feet. The person must not be too sharp - match the camera quality of the photo. Photorealistic smartphone photo style. No perfect rendering. No studio look. User additional instructions: ",
+      promptTemplate: ""
+    },
+    {
+      name: "Voiture Prank",
+      subtitle: "Transformez votre voiture en bolide de luxe",
+      icon: <Sparkle s={18} />,
+      cover: IMG.voiturePrank,
+      model: "google/nano-banana-edit",
+      type: "edit",
+      premium: false,
+      trending: true,
+      category: "trend",
+      numImages: 1,
+      imageLabels: ["Votre voiture"],
+      userPromptDefault: "",
+      expertPromptPrefix: "Replace the car in the image with a different car as described by the user. If the user is inside a car, adapt the interior to match the new car model. Keep the person/user exactly the same - same face, same body, same pose, same clothes. Match the lighting and shadows of the original photo. The new car must not look too sharp - match the camera quality of the photo. Photorealistic smartphone photo style. No perfect rendering. No studio look. User additional instructions: ",
+      promptTemplate: ""
     },
     // ─── OUTILS UTILITAIRES ───
     { name: "Suppression d'arrière-plan", subtitle: "Détourage parfait en 1 clic", icon: <ImageIcon />, cover: IMG.removebg, model: "google/nano-banana-edit", promptTemplate: "Remove the background from this image completely, leaving only the main subject on a transparent/white background.", type: "edit", premium: false, trending: false, category: "background" },
@@ -1130,12 +1141,17 @@ function DashboardPage({ user, navigate, onLogout, refreshUser, sessionChecked }
                     <div style={{ marginBottom: 20 }}>
                       <label style={{ fontSize: 12, fontWeight: 600, color: "#374151", marginBottom: 8, display: "block" }}>Instruction</label>
                       <textarea className="form-input" value={prompt} onChange={e => setPrompt(e.target.value)} placeholder={
-                        activeTool.isFreeMode ? "Ex: Ajoute une araignée géante au plafond" :
-                        activeTool.name === "Gomme magique" ? "Ex: Supprime la personne à droite" :
-                        activeTool.name === "Changement de style" ? "Ex: Style scandinave minimaliste" :
-                        activeTool.name === "Retouche pro" ? "Ex: Retire le bouton sur le visage" :
-                        activeTool.name === "Texte dans image" ? "Ex: Ajoute 'SOLDES -50%' en gros" :
-                        activeTool.name === "Fusion multi-images" ? "Ex: Fusionne en un seul visuel" : "Décrivez votre modification..."
+  activeTool.isFreeMode ? "Ex: Ajoute une araignée géante au plafond" :
+  activeTool.name === "Rolex Prank" ? "Optionnel : précisez un détail (ex: bracelet cuir noir)" :
+  activeTool.name === "Serpent Prank" ? "Ex: un gros cobra royal noir au sol" :
+  activeTool.name === "Plombier Prank" ? "Ex: un plombier baraqué en marcel sale qui répare le lavabo" :
+  activeTool.name === "Voiture Prank" ? "Ex: transforme ma voiture en Audi RS6 noire mat" :
+  activeTool.name === "Gomme magique" ? "Ex: Supprime la personne à droite" :
+  activeTool.name === "Changement de style" ? "Ex: Style scandinave minimaliste" :
+  activeTool.name === "Retouche pro" ? "Ex: Retire le bouton sur le visage" :
+  activeTool.name === "Texte dans image" ? "Ex: Ajoute 'SOLDES -50%' en gros" :
+  activeTool.name === "Fusion multi-images" ? "Ex: Fusionne en un seul visuel" : "Décrivez votre modification..."
+}
                       } rows={3} style={{ resize: "vertical", minHeight: 80, borderColor: "#ddd6fe" }} />
                     </div>
                   ) : (

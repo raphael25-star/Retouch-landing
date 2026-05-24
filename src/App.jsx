@@ -572,7 +572,6 @@ function DashboardPage({ user, navigate, onLogout, refreshUser, sessionChecked }
   const tools = [
     // ─── TEMPLATES TENDANCES (en premier) ───
     {
-     {
       name: "Rolex Prank",
       subtitle: "Ajoutez n'importe quelle montre à votre poignet",
       icon: <Sparkle s={18} />,

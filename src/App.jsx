@@ -129,7 +129,6 @@ function Tools() {
   const tools = [
     { img: IMG.rolexPrank, title: "Rolex Prank", tag: "Tendance" },
     { img: IMG.serpentPrank, title: "Serpent Prank", tag: "Tendance" },
-    { img: IMG.plombierPrank, title: "Plombier Prank", tag: "Tendance" },
     { img: IMG.voiturePrank, title: "Voiture Prank", tag: "Tendance" },
     { img: IMG.removebg, title: "Suppression d'arrière-plan", tag: "Standard" },
     { img: IMG.eraser, title: "Gomme magique", tag: "Standard" },

@@ -66,7 +66,7 @@ function Navbar({ navigate, user, onLogout }) {
   return (
     <div style={{ position: "fixed", top: 0, left: 0, right: 0, zIndex: 1000, padding: "12px clamp(16px, 3vw, 40px)", background: "transparent" }}>
       <nav style={{ maxWidth: 1300, margin: "0 auto", height: 56, display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 clamp(16px, 3vw, 32px)", background: "#fff", borderRadius: 14, boxShadow: "0 2px 16px rgba(139,92,246,0.08), 0 0 0 1px rgba(139,92,246,0.06)" }}>
-        <div style={{ display: "flex", alignItems: "center", cursor: "pointer" }} onClick={() => navigate("home")}><img src={LOGO_SRC} alt="Retouch" style={{ height: 63, width: "auto", objectFit: "contain" }} /></div>
+        <div style={{ display: "flex", alignItems: "center", cursor: "pointer" }} onClick={() => navigate("home")}><img src={LOGO_SRC} alt="Retouch" style={{ height: 60, width: "auto", objectFit: "contain" }} /></div>
         <div className="nav-links-desktop" style={{ display: "flex", alignItems: "center", gap: 32 }}>
           <a onClick={() => { const el = document.getElementById("section-tools"); if (el) el.scrollIntoView({ behavior: "smooth" }); }} className="nav-link" style={{ cursor: "pointer" }}>Fonctionnalités</a>
           <a onClick={() => { const el = document.getElementById("section-results"); if (el) el.scrollIntoView({ behavior: "smooth" }); }} className="nav-link" style={{ cursor: "pointer" }}>Résultats</a>

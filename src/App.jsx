@@ -1511,7 +1511,7 @@ export default function App() {
   .nav-links-desktop{display:none!important}
   .hamburger-btn{display:flex!important;align-items:center!important}
   nav{height:48px!important;padding:0 12px!important}
-  nav img{height:30px!important}
+  nav img{height:40px!important}
   .btn-primary{padding:12px 20px;font-size:13px}
   .btn-secondary{padding:10px 18px;font-size:13px}
   #section-tools{padding:30px 16px!important}

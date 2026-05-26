@@ -584,25 +584,30 @@ function DashboardPage({ user, navigate, onLogout, refreshUser, sessionChecked }
   const isIOS = typeof navigator !== "undefined" && /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
 
   // Téléchargement intelligent qui s'adapte au device :
-  // - iOS Safari : ouvre la feuille de partage native (Web Share API) → user choisit "Enregistrer l'image" pour mettre dans la pellicule
-  // - Android/Desktop : déclenche un téléchargement classique (apparaît dans la galerie sur Android)
-  const smartDownload = async (imageUrl, filename = "retouch-result.png") => {
+  // - iOS Safari : ouvre la feuille de partage native (Web Share API) → user choisit "Enregistrer l'image" pour mettre dans Photos
+  // - Android/Desktop : déclenche un téléchargement classique
+  const smartDownload = async (imageUrl, filename = "bibo-result.png") => {
     try {
       // Récupération du blob via le proxy backend (évite les soucis CORS)
       const response = await fetch("https://retouch-backend.vercel.app/api/download?url=" + encodeURIComponent(imageUrl));
       const blob = await response.blob();
 
-      // Sur iOS : tentative d'utiliser la Web Share API qui ouvre la feuille de partage native
-      if (isIOS && navigator.share && navigator.canShare) {
-        const file = new File([blob], filename, { type: blob.type || "image/png" });
-        if (navigator.canShare({ files: [file] })) {
-          try {
-            await navigator.share({ files: [file], title: "Mon image Retouch" });
-            return; // Succès, on s'arrête là
-          } catch (shareErr) {
-            // L'user a annulé le partage ou erreur — on tombe dans le download classique en fallback
-            if (shareErr.name === "AbortError") return; // Annulation user, pas d'erreur à montrer
-          }
+      // Sur iOS : on FORCE la Web Share API même si canShare est incertain
+      // Note : iOS Safari supporte navigator.share avec des fichiers depuis iOS 15+
+      if (isIOS && navigator.share) {
+        try {
+          const file = new File([blob], filename, { type: "image/png" });
+          // On tente directement le share, sans pré-check canShare qui est parfois bugué sur iOS
+          await navigator.share({
+            files: [file],
+            title: "Mon image BiboIA"
+          });
+          return; // Succès, l'user voit la feuille de partage iOS
+        } catch (shareErr) {
+          console.warn("[BiboIA] Web Share API a échoué:", shareErr);
+          // Si l'user a annulé volontairement → on ne fait rien
+          if (shareErr.name === "AbortError") return;
+          // Sinon on tombe dans le fallback download classique ci-dessous
         }
       }
 
@@ -611,16 +616,7 @@ function DashboardPage({ user, navigate, onLogout, refreshUser, sessionChecked }
       const a = document.createElement("a");
       a.style.display = "none";
       a.href = url;
-      a.download = filename;
-      document.body.appendChild(a);
-      a.click();
-      window.URL.revokeObjectURL(url);
-      document.body.removeChild(a);
-    } catch (e) {
-      // En dernier recours, on ouvre l'image dans un nouvel onglet
-      window.open(imageUrl, "_blank");
-    }
-  };
+      a.do
 
   useEffect(() => {
     const loadHistory = async () => {

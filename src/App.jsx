@@ -10,6 +10,7 @@ const supabase = createClient("https://coydxizklibehbhbcxph.supabase.co", "eyJhb
 });
 
 const LOGO_SRC = "/retouch-logo.png";
+const FAVICON_SRC = "/favicon.png";
 
 const IMG = {
   heroBefore: "/hero-before.png",
@@ -53,7 +54,68 @@ const GridIcon = () => <svg width="18" height="18" viewBox="0 0 24 24" fill="non
 const FlameIcon = () => <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2c0 0-5 6-5 11a5 5 0 0010 0c0-3-2-5-2-7 0 0-3 2-3-4z"/></svg>;
 const DownloadIcon = ({ s = 16 }) => <svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>;
 const ShareIcon = ({ s = 16 }) => <svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>;
+/* ═══ GENERATION OVERLAY (barre de progression style Lifeflexia) ═══ */
+function GenerationOverlay({ isVisible, isDone }) {
+  const [progress, setProgress] = useState(0);
 
+  useEffect(() => {
+    if (!isVisible) {
+      setProgress(0);
+      return;
+    }
+
+    // Si la génération est finie → saut direct à 100% puis fermeture gérée par parent
+    if (isDone) {
+      setProgress(100);
+      return;
+    }
+
+    // Progression intelligente : monte vite au début, ralentit, s'arrête à 90%
+    let current = 0;
+    const interval = setInterval(() => {
+      current += 1;
+      // 0→70% : ~12s (rapide)
+      // 70→90% : ~18s (lent)
+      // 90% : plafond, attend la vraie réponse
+      if (current < 70) {
+        setProgress(current);
+      } else if (current < 90) {
+        // Ralentit progressivement
+        if (current % 2 === 0) setProgress(current);
+      } else {
+        clearInterval(interval);
+        setProgress(90);
+      }
+    }, 180); // tick toutes les 180ms
+
+    return () => clearInterval(interval);
+  }, [isVisible, isDone]);
+
+  if (!isVisible) return null;
+
+  return (
+    <div style={{ position: "fixed", inset: 0, background: "#fff", zIndex: 99999, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "20px" }}>
+      {/* B favicon avec effet shimmer */}
+      <div className="shimmer-container" style={{ marginBottom: 20 }}>
+        <img src={FAVICON_SRC} alt="" style={{ width: 90, height: 90, objectFit: "contain", display: "block" }} />
+      </div>
+
+      {/* Logo BiboIA */}
+      <img src={LOGO_SRC} alt="BiboIA" style={{ height: 56, width: "auto", objectFit: "contain", marginBottom: 40 }} />
+
+      {/* Barre de progression */}
+      <div style={{ width: "100%", maxWidth: 320, height: 6, borderRadius: 3, background: "#ede9fe", overflow: "hidden", marginBottom: 16 }}>
+        <div style={{ height: "100%", borderRadius: 3, background: "linear-gradient(90deg,#8b5cf6,#ec4899)", width: `${progress}%`, transition: "width 0.4s ease-out" }} />
+      </div>
+
+      {/* Pourcentage */}
+      <p style={{ fontSize: 15, fontWeight: 600, color: "#1a1a2e", margin: "0 0 12px" }}>{progress}%</p>
+
+      {/* Texte */}
+      <p style={{ fontSize: 14, color: "#6b7280", margin: 0 }}>Analyse de ta photo...</p>
+    </div>
+  );
+}
 function Img({ src, alt, style, ...rest }) {
   const [err, setErr] = useState(false);
   if (err) return (<div style={{ ...style, background: "linear-gradient(135deg, #f3f0ff, #fce7f3)", display: "flex", alignItems: "center", justifyContent: "center", color: "#8b5cf6", fontSize: 11, fontWeight: 500, textAlign: "center", padding: 8 }}>{alt}</div>);
@@ -1203,24 +1265,18 @@ function DashboardPage({ user, navigate, onLogout, refreshUser, sessionChecked }
 
                   {error && <p style={{ color: "#ef4444", fontSize: 12, marginBottom: 12, padding: "10px 14px", background: "rgba(239,68,68,0.06)", borderRadius: 10, border: "1px solid rgba(239,68,68,0.15)" }}>{error}</p>}
 
-                  {/* Bouton Générer / Annuler pendant la génération */}
-                  {loading ? (
-                    <div style={{ display: "flex", gap: 8 }}>
-                      <button className="btn-primary" style={{ flex: 1, justifyContent: "center", padding: "14px 24px", fontSize: 15, opacity: 0.7, cursor: "not-allowed" }} disabled>
-                        <span className="spinner" /> Génération en cours...
-                      </button>
-                      <button onClick={cancelGeneration}
-                        style={{ padding: "14px 20px", borderRadius: 12, fontSize: 14, fontWeight: 600, background: "#fff", color: "#ef4444", border: "1px solid #fecaca", cursor: "pointer", fontFamily: "inherit", transition: "all 0.2s" }}
-                        onMouseEnter={e => { e.currentTarget.style.background = "#fef2f2"; e.currentTarget.style.borderColor = "#ef4444"; }}
-                        onMouseLeave={e => { e.currentTarget.style.background = "#fff"; e.currentTarget.style.borderColor = "#fecaca"; }}>
-                        Annuler
-                      </button>
-                    </div>
-                  ) : (
-                    <button className="btn-primary tool-generate-btn" style={{ width: "100%", justifyContent: "center", padding: "14px 24px", fontSize: 15 }} onClick={handleGenerate}>
-                      <Sparkle s={16} c="#fff" /> Générer — {CREDITS_PER_IMAGE} crédits
-                    </button>
-                  )}
+                 {/* Bouton Générer (l'overlay plein écran prend le relais pendant la génération) */}
+<button
+  className="btn-primary tool-generate-btn"
+  style={{ width: "100%", justifyContent: "center", padding: "14px 24px", fontSize: 15, opacity: loading ? 0.6 : 1, cursor: loading ? "not-allowed" : "pointer" }}
+  onClick={handleGenerate}
+  disabled={loading}
+>
+  <Sparkle s={16} c="#fff" /> Générer — {CREDITS_PER_IMAGE} crédits
+</button>
+
+{/* Overlay plein écran pendant la génération */}
+<GenerationOverlay isVisible={loading} isDone={!!resultImage} />
                 </div>
 
                 {/* COLONNE DROITE : RESULT */}
@@ -1495,6 +1551,9 @@ export default function App() {
         .library-card:hover{transform:translateY(-3px);box-shadow:0 12px 30px rgba(139,92,246,0.12);border-color:#c4b5fd!important}
         .library-download-btn:hover{background:#fff!important;color:#7c3aed!important;transform:scale(1.08)}
         .library-download-btn:active{transform:scale(0.92)}
+        .shimmer-container{position:relative;display:inline-block;overflow:hidden;border-radius:18px}
+.shimmer-container::after{content:"";position:absolute;top:0;left:-100%;width:60%;height:100%;background:linear-gradient(110deg,transparent 30%,rgba(255,255,255,0.7) 50%,transparent 70%);animation:shimmerSlide 2.2s infinite;pointer-events:none}
+@keyframes shimmerSlide{0%{left:-100%}100%{left:200%}}
     @media(max-width:768px){
   .hero-split{flex-direction:column;text-align:center}
   .hero-left{align-items:center;display:flex;flex-direction:column}

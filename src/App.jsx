@@ -1362,7 +1362,7 @@ function DashboardPage({ user, navigate, onLogout, refreshUser, sessionChecked }
         {!activeTool && (
           <label className="floating-camera-btn" htmlFor="floating-camera-input"
             style={{ position: "fixed", bottom: 76, right: 20, width: 60, height: 60, borderRadius: "50%", background: "linear-gradient(135deg,#8b5cf6,#ec4899)", display: "none", alignItems: "center", justifyContent: "center", cursor: "pointer", boxShadow: "0 8px 24px rgba(139,92,246,0.4), 0 2px 8px rgba(0,0,0,0.1)", zIndex: 199, color: "#fff", border: "3px solid #fff" }}>
-            <input id="floating-camera-input" type="file" accept="image/*" capture="environment" onChange={handleFloatingCameraUpload} style={{ display: "none" }} />
+            <input id="floating-camera-input" type="file" accept="image/*" onChange={handleFloatingCameraUpload} style={{ display: "none" }} />
             <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
           </label>
         )}

@@ -11,6 +11,7 @@ const supabase = createClient("https://coydxizklibehbhbcxph.supabase.co", "eyJhb
 
 const LOGO_SRC = "/retouch-logo.png";
 const FAVICON_SRC = "/favicon.png";
+const LOGO_TEXT_SRC = "/biboia-text.png";
 
 const IMG = {
   heroBefore: "/hero-before.png",

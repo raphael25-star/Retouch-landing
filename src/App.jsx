@@ -668,8 +668,7 @@ const smartDownload = async (imageUrl, filename = "bibo-result.png") => {
       numImages: 1,
       imageLabels: ["La scène"],
       userPromptDefault: "",
-      expertPromptPrefix: "Add a realistic snake naturally into the scene as described by the user. The snake must look like it has always been there. Match the lighting and colors of the photo. Add a soft contact shadow beneath the snake. The snake must not be too sharp - match the camera quality of the photo. Photorealistic smartphone photo style. No perfect rendering. No studio look. User additional instructions: ",
-      promptTemplate: ""
+      expertPromptPrefix: "",
     },
     {
       name: "Plombier Prank",

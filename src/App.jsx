@@ -640,7 +640,7 @@ const smartDownload = async (imageUrl, filename = "bibo-result.png") => {
   const tools = [
     // ─── TEMPLATES TENDANCES (en premier) ───
     {
-      name: "Rolex Prank",
+      name: "Rolex",
       subtitle: "Ajoutez n'importe quelle montre à votre poignet",
       icon: <Sparkle s={18} />,
       cover: IMG.rolexPrank,
@@ -652,11 +652,10 @@ const smartDownload = async (imageUrl, filename = "bibo-result.png") => {
       numImages: 2,
       imageLabels: ["Votre poignet", "La montre"],
       userPromptDefault: "",
-      expertPromptPrefix: "Keep the original image as it is. Add the watch to the wrist. Adjust ONLY: the lighting in the photo, the color temperature, the shadows, adjust the lighting on the watch to match the photo. The watch should follow the angle of the wrist and wrap naturally around it. Add natural contact shadows where the watch touches the skin. The watch must not look too sharp; it must blend in with the quality of the photo. No perfect rendering. No studio look. User additional instructions: ",
-      promptTemplate: ""
+      expertPromptPrefix: "",
     },
     {
-      name: "Serpent Prank",
+      name: "Serpent",
       subtitle: "Faites peur à vos proches en 1 clic",
       icon: <Sparkle s={18} />,
       cover: IMG.serpentPrank,
@@ -671,7 +670,7 @@ const smartDownload = async (imageUrl, filename = "bibo-result.png") => {
       expertPromptPrefix: "",
     },
     {
-      name: "Plombier Prank",
+      name: "Plombier",
       subtitle: "Pranquez votre moitié avec un faux plombier",
       icon: <Sparkle s={18} />,
       cover: IMG.plombierPrank,
@@ -687,7 +686,7 @@ const smartDownload = async (imageUrl, filename = "bibo-result.png") => {
       promptTemplate: ""
     },
     {
-      name: "Voiture Prank",
+      name: "Bolide",
       subtitle: "Transformez votre voiture en bolide de luxe",
       icon: <Sparkle s={18} />,
       cover: IMG.voiturePrank,

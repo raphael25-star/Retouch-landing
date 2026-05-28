@@ -587,7 +587,7 @@ function DashboardPage({ user, navigate, onLogout, refreshUser, sessionChecked }
   // Téléchargement intelligent qui s'adapte au device :
   // - iOS Safari : ouvre la feuille de partage native (Web Share API) → user choisit "Enregistrer l'image" pour mettre dans Photos
   // - Android/Desktop : déclenche un téléchargement classique
-  const smartDownload = async (imageUrl, filename = "bibo-result.png") => {
+const smartDownload = async (imageUrl, filename = "bibo-result.png") => {
     try {
       // Récupération du blob via le proxy backend (évite les soucis CORS)
       const response = await fetch("https://retouch-backend.vercel.app/api/download?url=" + encodeURIComponent(imageUrl));
@@ -617,7 +617,17 @@ function DashboardPage({ user, navigate, onLogout, refreshUser, sessionChecked }
       const a = document.createElement("a");
       a.style.display = "none";
       a.href = url;
-      a.do
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+    } catch (e) {
+      console.error("[BiboIA] Erreur smartDownload:", e);
+      // En dernier recours, on ouvre l'image dans un nouvel onglet
+      window.open(imageUrl, "_blank");
+    }
+  };
 
   useEffect(() => {
     const loadHistory = async () => {

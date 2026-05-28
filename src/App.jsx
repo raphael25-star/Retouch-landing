@@ -1153,7 +1153,7 @@ const smartDownload = async (imageUrl, filename = "bibo-result.png") => {
                         {/* Mobile : 2 boutons côte à côte Galerie + Caméra */}
                             <div className="upload-mobile" style={{ display: "none", gridTemplateColumns: "1fr 1fr", gap: 10, direction: activeTool?.name === "Rolex Prank" ? "rtl" : "ltr" }}>                          <label htmlFor="file-input-gallery-m"
                             className="upload-btn"
-                            style={{ padding: "20px 12px", borderRadius: 14, border: "2px dashed #ddd6fe", background: "#faf9ff", cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 6, transition: "all 0.2s", minHeight: 120 }}>
+                            style={{ padding: "20px 12px", borderRadius: 14, border: "2px dashed #ddd6fe", background: "#faf9ff", cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 6, transition: "all 0.2s", minHeight: 120, direction: "ltr" }}>
                             <input id="file-input-gallery-m" type="file" accept="image/*" multiple={maxImages > 1} onChange={handleFileUpload} style={{ display: "none" }} />
                             <div style={{ width: 36, height: 36, borderRadius: 10, background: "linear-gradient(135deg,#ede9fe,#fce7f3)", display: "flex", alignItems: "center", justifyContent: "center", color: "#8b5cf6" }}><ImageIcon /></div>
                             <span style={{ fontSize: 13, fontWeight: 600, color: "#1a1a2e" }}>Galerie</span>
@@ -1161,7 +1161,7 @@ const smartDownload = async (imageUrl, filename = "bibo-result.png") => {
                           </label>
                           <label htmlFor="file-input-camera"
                             className="upload-btn"
-                            style={{ padding: "20px 12px", borderRadius: 14, border: "2px dashed #ddd6fe", background: "#faf9ff", cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 6, transition: "all 0.2s", minHeight: 120 }}>
+                            style={{ padding: "20px 12px", borderRadius: 14, border: "2px dashed #ddd6fe", background: "#faf9ff", cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 6, transition: "all 0.2s", minHeight: 120, direction: "ltr" }}>
                             <input id="file-input-camera" type="file" accept="image/*" capture="environment" onChange={handleFileUpload} style={{ display: "none" }} />
                             <div style={{ width: 36, height: 36, borderRadius: 10, background: "linear-gradient(135deg,#ede9fe,#fce7f3)", display: "flex", alignItems: "center", justifyContent: "center", color: "#8b5cf6" }}>
                               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>

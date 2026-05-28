@@ -102,7 +102,7 @@ function GenerationOverlay({ isVisible, isDone }) {
       </div>
 
       {/* Logo BiboIA (version sans le B) */}
-<img src={LOGO_TEXT_SRC} alt="BiboIA" style={{ height: 32, width: "auto", objectFit: "contain", marginBottom: 40 }} />
+<img src={LOGO_TEXT_SRC} alt="BiboIA" style={{ height: 56, width: "auto", objectFit: "contain", marginBottom: 40 }} />
 
       {/* Barre de progression */}
       <div style={{ width: "100%", maxWidth: 320, height: 6, borderRadius: 3, background: "#ede9fe", overflow: "hidden", marginBottom: 16 }}>

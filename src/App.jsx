@@ -682,7 +682,7 @@ const smartDownload = async (imageUrl, filename = "bibo-result.png") => {
       numImages: 1,
       imageLabels: ["La scène"],
       userPromptDefault: "",
-      expertPromptPrefix: "Add a realistic person naturally into the scene as described by the user. The person must look like they have always been there. Match the lighting and colors of the photo. Add a soft contact shadow beneath their feet. The person must not be too sharp - match the camera quality of the photo. Photorealistic smartphone photo style. No perfect rendering. No studio look. User additional instructions: ",
+      expertPromptPrefix: "",
       promptTemplate: ""
     },
     {
@@ -698,7 +698,7 @@ const smartDownload = async (imageUrl, filename = "bibo-result.png") => {
       numImages: 1,
       imageLabels: ["Votre voiture"],
       userPromptDefault: "",
-      expertPromptPrefix: "Replace the car in the image with a different car as described by the user. If the user is inside a car, adapt the interior to match the new car model. Keep the person/user exactly the same - same face, same body, same pose, same clothes. Match the lighting and shadows of the original photo. The new car must not look too sharp - match the camera quality of the photo. Photorealistic smartphone photo style. No perfect rendering. No studio look. User additional instructions: ",
+      expertPromptPrefix: "",
       promptTemplate: ""
     },
     // ─── OUTILS UTILITAIRES ───
@@ -1151,8 +1151,7 @@ const smartDownload = async (imageUrl, filename = "bibo-result.png") => {
                           </label>
                         </div>
                         {/* Mobile : 2 boutons côte à côte Galerie + Caméra */}
-                        <div className="upload-mobile" style={{ display: "none", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
-                          <label htmlFor="file-input-gallery-m"
+                            <div className="upload-mobile" style={{ display: "none", gridTemplateColumns: "1fr 1fr", gap: 10, direction: activeTool?.name === "Rolex Prank" ? "rtl" : "ltr" }}>                          <label htmlFor="file-input-gallery-m"
                             className="upload-btn"
                             style={{ padding: "20px 12px", borderRadius: 14, border: "2px dashed #ddd6fe", background: "#faf9ff", cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 6, transition: "all 0.2s", minHeight: 120 }}>
                             <input id="file-input-gallery-m" type="file" accept="image/*" multiple={maxImages > 1} onChange={handleFileUpload} style={{ display: "none" }} />
